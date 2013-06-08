@@ -150,6 +150,7 @@ ORIG=$PWD
 
 # Build a one-time-use only ruby
 cd ruby
+autoconf
 ./configure --prefix=$ORIG --disable-install-doc --disable-install-rdoc --disable-install-capi
 make %{?jobs:-j%jobs}
 make install
