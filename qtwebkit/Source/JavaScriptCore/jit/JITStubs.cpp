@@ -364,7 +364,7 @@ SYMBOL_STRING(ctiOpThrowNotCaught) ":" "\n"
 
 #else // USE(JSVALUE32_64)
 
-#if COMPILER(GCC) && CPU(X86_64)
+#if COMPILER(GCC) && CPU(X86_64) && !OS(WINDOWS)
 
 // These ASSERTs remind you that, if you change the layout of JITStackFrame, you
 // need to change the assembly trampolines below to match.
@@ -432,6 +432,82 @@ SYMBOL_STRING(ctiOpThrowNotCaught) ":" "\n"
     "popq %rbp" "\n"
     "ret" "\n"
 );
+
+#elif COMPILER(GCC) && CPU(X86_64) && OS(WINDOWS)
+
+// These ASSERTs remind you that, if you change the layout of JITStackFrame, you
+// need to change the assembly trampolines below to match.
+COMPILE_ASSERT(offsetof(struct JITStackFrame, code) % 16 == 0x0, JITStackFrame_maintains_16byte_stack_alignment);
+COMPILE_ASSERT(offsetof(struct JITStackFrame, savedRBX) == 0x58, JITStackFrame_stub_argument_space_matches_ctiTrampoline);
+
+asm (
+".text\n"
+".globl " SYMBOL_STRING(ctiTrampoline) "\n"
+HIDE_SYMBOL(ctiTrampoline) "\n"
+SYMBOL_STRING(ctiTrampoline) ":" "\n"
+    // Dump register parameters to their home address
+    "movq %r9, 0x20(%rsp)" "\n"
+    "movq %r8, 0x18(%rsp)" "\n"
+    "movq %rdx, 0x10(%rsp)" "\n"
+    "movq %rcx, 0x8(%rsp)" "\n"
+
+    "pushq %rbp" "\n"
+    "movq %rsp, %rbp" "\n"
+    "pushq %r12" "\n"
+    "pushq %r13" "\n"
+    "pushq %r14" "\n"
+    "pushq %r15" "\n"
+    "pushq %rbx" "\n"
+
+    // Decrease rsp to point to the start of our JITStackFrame
+    "subq $0x58, %rsp" "\n"
+    "movq $512, %r12" "\n"
+    "movq $0xFFFF000000000000, %r14" "\n"
+    "movq $0xFFFF000000000002, %r15" "\n"
+    "movq %r8, %r13" "\n"
+    "call *%rcx" "\n"
+    "addq $0x58, %rsp" "\n"
+    "popq %rbx" "\n"
+    "popq %r15" "\n"
+    "popq %r14" "\n"
+    "popq %r13" "\n"
+    "popq %r12" "\n"
+    "popq %rbp" "\n"
+    "ret" "\n"
+".globl " SYMBOL_STRING(ctiTrampolineEnd) "\n"
+HIDE_SYMBOL(ctiTrampolineEnd) "\n"
+SYMBOL_STRING(ctiTrampolineEnd) ":" "\n"
+);
+
+asm (
+".globl " SYMBOL_STRING(ctiVMThrowTrampoline) "\n"
+HIDE_SYMBOL(ctiVMThrowTrampoline) "\n"
+SYMBOL_STRING(ctiVMThrowTrampoline) ":" "\n"
+    "movq %rsp, %rcx" "\n"
+    "call " LOCAL_REFERENCE(cti_vm_throw) "\n"
+    "int3" "\n"
+);
+
+asm (
+".globl " SYMBOL_STRING(ctiOpThrowNotCaught) "\n"
+HIDE_SYMBOL(ctiOpThrowNotCaught) "\n"
+SYMBOL_STRING(ctiOpThrowNotCaught) ":" "\n"
+    "addq $0x58, %rsp" "\n"
+    "popq %rbx" "\n"
+    "popq %r15" "\n"
+    "popq %r14" "\n"
+    "popq %r13" "\n"
+    "popq %r12" "\n"
+    "popq %rbp" "\n"
+    "ret" "\n"
+);
+
+#elif COMPILER(MSVC) && CPU(X86_64)
+
+// These ASSERTs remind you that, if you change the layout of JITStackFrame, you
+// need to change the assembly trampolines in JITStubsMSVC64.asm to match.
+COMPILE_ASSERT(offsetof(struct JITStackFrame, code) % 16 == 0x0, JITStackFrame_maintains_16byte_stack_alignment);
+COMPILE_ASSERT(offsetof(struct JITStackFrame, savedRBX) == 0x58, JITStackFrame_stub_argument_space_matches_ctiTrampoline);
 
 #else
     #error "JIT not supported on this platform."
@@ -908,6 +984,7 @@ NEVER_INLINE void JITThunks::tryCacheGetByID(CallFrame* callFrame, CodeBlock* co
 
     // Uncacheable: give up.
     if (!slot.isCacheable()) {
+        stubInfo->accessType = access_get_by_id_generic;
         ctiPatchCallByReturnAddress(codeBlock, returnAddress, FunctionPtr(cti_op_get_by_id_generic));
         return;
     }
@@ -916,6 +993,7 @@ NEVER_INLINE void JITThunks::tryCacheGetByID(CallFrame* callFrame, CodeBlock* co
     Structure* structure = baseCell->structure();
 
     if (structure->isUncacheableDictionary() || structure->typeInfo().prohibitsPropertyCaching()) {
+        stubInfo->accessType = access_get_by_id_generic;
         ctiPatchCallByReturnAddress(codeBlock, returnAddress, FunctionPtr(cti_op_get_by_id_generic));
         return;
     }
@@ -934,6 +1012,7 @@ NEVER_INLINE void JITThunks::tryCacheGetByID(CallFrame* callFrame, CodeBlock* co
     }
 
     if (structure->isDictionary()) {
+        stubInfo->accessType = access_get_by_id_generic;
         ctiPatchCallByReturnAddress(codeBlock, returnAddress, FunctionPtr(cti_op_get_by_id_generic));
         return;
     }
@@ -943,6 +1022,12 @@ NEVER_INLINE void JITThunks::tryCacheGetByID(CallFrame* callFrame, CodeBlock* co
         
         JSObject* slotBaseObject = asObject(slot.slotBase());
         size_t offset = slot.cachedOffset();
+
+        if (structure->typeInfo().hasImpureGetOwnPropertySlot()) {
+            stubInfo->accessType = access_get_by_id_generic;
+            ctiPatchCallByReturnAddress(codeBlock, returnAddress, FunctionPtr(cti_op_get_by_id_generic));
+            return;
+        }
         
         // Since we're accessing a prototype in a loop, it's a good bet that it
         // should not be treated as a dictionary.
@@ -960,9 +1045,10 @@ NEVER_INLINE void JITThunks::tryCacheGetByID(CallFrame* callFrame, CodeBlock* co
     }
 
     PropertyOffset offset = slot.cachedOffset();
-    size_t count = normalizePrototypeChain(callFrame, baseValue, slot.slotBase(), propertyName, offset);
+    size_t count = normalizePrototypeChainForChainAccess(callFrame, baseValue, slot.slotBase(), propertyName, offset);
     if (count == InvalidPrototypeChain) {
         stubInfo->accessType = access_get_by_id_generic;
+        ctiPatchCallByReturnAddress(codeBlock, returnAddress, FunctionPtr(cti_op_get_by_id_generic));
         return;
     }
 
@@ -1689,6 +1775,12 @@ DEFINE_STUB_FUNCTION(EncodedJSValue, op_get_by_id_proto_list)
         ctiPatchCallByReturnAddress(codeBlock, STUB_RETURN_ADDRESS, FunctionPtr(cti_op_get_by_id_proto_fail));
     else if (slot.slotBase() == baseValue.asCell()->structure()->prototypeForLookup(callFrame)) {
         ASSERT(!baseValue.asCell()->structure()->isDictionary());
+        
+        if (baseValue.asCell()->structure()->typeInfo().hasImpureGetOwnPropertySlot()) {
+            ctiPatchCallByReturnAddress(codeBlock, STUB_RETURN_ADDRESS, FunctionPtr(cti_op_get_by_id_proto_fail));
+            return JSValue::encode(result);
+        }
+        
         // Since we're accessing a prototype in a loop, it's a good bet that it
         // should not be treated as a dictionary.
         if (slotBaseObject->structure()->isDictionary()) {
@@ -1705,7 +1797,7 @@ DEFINE_STUB_FUNCTION(EncodedJSValue, op_get_by_id_proto_list)
                 ctiPatchCallByReturnAddress(codeBlock, STUB_RETURN_ADDRESS, FunctionPtr(cti_op_get_by_id_proto_list_full));
         }
     } else {
-        size_t count = normalizePrototypeChain(callFrame, baseValue, slot.slotBase(), propertyName, offset);
+        size_t count = normalizePrototypeChainForChainAccess(callFrame, baseValue, slot.slotBase(), propertyName, offset);
         if (count == InvalidPrototypeChain) {
             ctiPatchCallByReturnAddress(codeBlock, STUB_RETURN_ADDRESS, FunctionPtr(cti_op_get_by_id_proto_fail));
             return JSValue::encode(result);

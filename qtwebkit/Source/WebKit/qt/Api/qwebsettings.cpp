@@ -28,6 +28,7 @@
 #include "DatabaseTracker.h"
 #include "FileSystem.h"
 #include "FontCache.h"
+#include "GCController.h"
 #include "IconDatabase.h"
 #include "Image.h"
 #if ENABLE(ICONDATABASE)
@@ -76,6 +77,7 @@ public:
     QString defaultTextEncoding;
     QString localStoragePath;
     QString offlineWebApplicationCachePath;
+    QString mediaType;
     qint64 offlineStorageDefaultQuota;
     QWebSettings::ThirdPartyCookiePolicy thirdPartyCookiePolicy;
     void apply();
@@ -224,6 +226,9 @@ void QWebSettingsPrivate::apply()
         QString storagePath = !localStoragePath.isEmpty() ? localStoragePath : global->localStoragePath;
         settings->setLocalStorageDatabasePath(storagePath);
 
+        if (mediaType.isEmpty())
+            mediaType = global->mediaType;
+
         value = attributes.value(QWebSettings::PrintElementBackgrounds,
                                       global->attributes.value(QWebSettings::PrintElementBackgrounds));
         settings->setShouldPrintBackgrounds(value);
@@ -330,7 +335,7 @@ QWebSettings* QWebSettings::globalSettings()
     Support for browser plugins can enabled by setting the
     \l{QWebSettings::PluginsEnabled}{PluginsEnabled} attribute. For many applications,
     this attribute is enabled for all pages by setting it on the
-    \l{globalSettings()}{global settings object}. QtWebKit will always ignore this setting
+    \l{globalSettings()}{global settings object}. Qt WebKit will always ignore this setting
     when processing Qt plugins. The decision to allow a Qt plugin is made by the client
     in its reimplementation of QWebPage::createPlugin().
 
@@ -413,7 +418,7 @@ QWebSettings* QWebSettings::globalSettings()
 
     \value AutoLoadImages Specifies whether images are automatically loaded in
         web pages. This is enabled by default.
-    \value DnsPrefetchEnabled Specifies whether QtWebkit will try to pre-fetch DNS entries to
+    \value DnsPrefetchEnabled Specifies whether Qt WebKit will try to pre-fetch DNS entries to
         speed up browsing. This only works as a global attribute. Only for Qt 4.6 and later. This is disabled by default.
     \value JavascriptEnabled Enables or disables the running of JavaScript
         programs. This is enabled by default
@@ -772,7 +777,7 @@ static const char* resourceNameForWebGraphic(QWebSettings::WebGraphic type)
 }
 
 /*!
-    Sets \a graphic to be drawn when QtWebKit needs to draw an image of the
+    Sets \a graphic to be drawn when Qt WebKit needs to draw an image of the
     given \a type.
 
     For example, when an image cannot be loaded, the pixmap specified by
@@ -805,7 +810,7 @@ QPixmap QWebSettings::webGraphic(WebGraphic type)
 }
 
 /*!
-    Frees up as much memory as possible by cleaning all memory caches such
+    Frees up as much memory as possible by calling the JavaScript garbage collector and cleaning all memory caches such
     as page, object and font cache.
 
     \since 4.6
@@ -832,6 +837,11 @@ void QWebSettings::clearMemoryCaches()
 
     // Empty the Cross-Origin Preflight cache
     WebCore::CrossOriginPreflightResultCache::shared().empty();
+
+    // Drop JIT compiled code from ExecutableAllocator.
+    WebCore::gcController().discardAllCompiledCode();
+    // Garbage Collect to release the references of CachedResource from dead objects.
+    WebCore::gcController().garbageCollectNow();
 }
 
 /*!
@@ -901,6 +911,29 @@ void QWebSettings::setThirdPartyCookiePolicy(ThirdPartyCookiePolicy policy)
 QWebSettings::ThirdPartyCookiePolicy QWebSettings::thirdPartyCookiePolicy() const
 {
     return d->thirdPartyCookiePolicy;
+}
+
+/*!
+    Sets the CSS media type to \a type.
+    
+    Setting this will override the normal value of the CSS media property.
+    
+    \note Setting the value to null QString will restore the default value.
+*/
+void QWebSettings::setCSSMediaType(const QString& type)
+{
+    d->mediaType = type;
+    d->apply();
+}
+
+/*!
+    Returns the current CSS media type.
+    
+    \note It will only return the value set through setCSSMediaType and not the one used internally.
+*/
+QString QWebSettings::cssMediaType() const
+{
+    return d->mediaType;
 }
 
 /*!
