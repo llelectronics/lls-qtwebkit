@@ -1,15 +1,11 @@
-%define _qtmodule_snapshot_version 5.0.2
-%define _qtmodule_base_name qtwebkit
-
-Name:       qt5-%{_qtmodule_base_name}
+Name:       qt5-qtwebkit
 Summary:    Web content engine library for Qt
 Version:    5.0.2
 Release:    1%{?dist}
 Group:      Qt/Qt
 License:    BSD and LGPLv2+
 URL:        http://download.qt-project.org/official_releases/qt/5.0/5.0.2/submodules/qtwebkit-opensource-src-5.0.2.tar.gz
-Source0:    %{_qtmodule_base_name}-opensource-src-%{_qtmodule_snapshot_version}.tar.xz
-Patch0:	    use-gold.patch
+Source0:    %{name}-%{version}.tar.bz2
 BuildRequires:  qt5-qtcore-devel
 BuildRequires:  qt5-qtgui-devel
 BuildRequires:  qt5-qtnetwork-devel
@@ -135,8 +131,8 @@ This package contains the WebKit QML Experimental plugin for QtQml.
 
 
 %prep
-%setup -q -n %{_qtmodule_base_name}-opensource-src-%{_qtmodule_snapshot_version}
-%patch0 -p1
+%setup -q -n %{name}-%{version}/qtwebkit
+
 # remove .../qt/tests directory which introduces nothing but trouble
 rm -rf Source/WebKit/qt/tests/
 
