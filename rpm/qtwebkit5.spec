@@ -36,8 +36,6 @@ BuildRequires:  python
 BuildRequires:  bison
 BuildRequires:  flex
 BuildRequires:  fdupes
-BuildRequires:  ruby
-
 
 %description
 QtWebKit provides a Web browser engine that makes it easy to embed content from
@@ -141,12 +139,24 @@ rm -rf Source/WebKit/qt/tests/
 #export CXXFLAGS="`echo $CXXFLAGS | sed 's/ -g / -gdwarf-4 /g'`"
 #export CFLAGS="`echo $CFLAGS | sed 's/ -g / -gdwarf-4 /g'`"
 # XXX: Remove debug symbols entirely, we're running out of linker memory!
-export CXXFLAGS="`echo $CXXFLAGS | sed 's/ -g //g'`"
-export CFLAGS="`echo $CFLAGS | sed 's/ -g //g'`"
+export CXXFLAGS="`echo $CXXFLAGS | sed 's/ -g / /g'`"
+export CFLAGS="`echo $CFLAGS | sed 's/ -g / /g'`"
 #
 export QMAKEPATH="`pwd`/Tools/qmake"
 export QTDIR=/usr/share/qt5
 #
+cd ..
+ORIG=$PWD
+
+# Build a one-time-use only ruby
+cd ruby
+./configure --prefix=$ORIG --disable-install-doc --disable-install-rdoc --disable-install-capi
+make %{?jobs:-j%jobs}
+make install
+
+cd ../qtwebkit
+
+export PATH=$ORIG/bin:$PATH
 
 qmake -qt=5
 make %{?jobs:-j%jobs}
