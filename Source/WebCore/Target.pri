@@ -3257,8 +3257,6 @@ enable?(VIDEO) {
             DEFINES+=NS_BUILD_32_LIKE_64
         }
 
-        QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.5
-
     } else: use?(GSTREAMER) {
         HEADERS += \
             platform/graphics/gstreamer/GStreamerGWorld.h \
@@ -4043,6 +4041,11 @@ use?(LIBJPEG) {
 use?(WEBP) {
     HEADERS += platform/image-decoders/webp/WEBPImageDecoder.h
     SOURCES += platform/image-decoders/webp/WEBPImageDecoder.cpp
+}
+
+use?(ZLIB) {
+    HEADERS += platform/graphics/WOFFFileFormat.h
+    SOURCES += platform/graphics/WOFFFileFormat.cpp
 }
 
 !have?(sqlite3):exists($${SQLITE3SRCDIR}/sqlite3.c) {

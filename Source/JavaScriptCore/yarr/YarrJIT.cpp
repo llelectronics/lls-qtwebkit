@@ -87,10 +87,20 @@ class YarrGenerator : private MacroAssembler {
     static const RegisterID returnRegister = X86Registers::eax;
     static const RegisterID returnRegister2 = X86Registers::edx;
 #elif CPU(X86_64)
+#if !OS(WINDOWS)
     static const RegisterID input = X86Registers::edi;
     static const RegisterID index = X86Registers::esi;
     static const RegisterID length = X86Registers::edx;
     static const RegisterID output = X86Registers::ecx;
+#else
+    // If the return value doesn't fit in 64bits, its destination is pointed by rcx and the parameters are shifted.
+    // http://msdn.microsoft.com/en-us/library/7572ztz4.aspx
+    COMPILE_ASSERT(sizeof(MatchResult) > sizeof(void*), MatchResult_does_not_fit_in_64bits);
+    static const RegisterID input = X86Registers::edx;
+    static const RegisterID index = X86Registers::r8;
+    static const RegisterID length = X86Registers::r9;
+    static const RegisterID output = X86Registers::r10;
+#endif
 
     static const RegisterID regT0 = X86Registers::eax;
     static const RegisterID regT1 = X86Registers::ebx;
@@ -746,7 +756,11 @@ class YarrGenerator : private MacroAssembler {
         const RegisterID character = regT0;
         int maxCharactersAtOnce = m_charSize == Char8 ? 4 : 2;
         unsigned ignoreCaseMask = 0;
+#if CPU(BIG_ENDIAN)
+        int allCharacters = ch << (m_charSize == Char8 ? 24 : 16);
+#else
         int allCharacters = ch;
+#endif
         int numberCharacters;
         int startTermPosition = term->inputPosition;
 
@@ -755,7 +769,11 @@ class YarrGenerator : private MacroAssembler {
         ASSERT(!m_pattern.m_ignoreCase || isASCIIAlpha(ch) || isCanonicallyUnique(ch));
 
         if (m_pattern.m_ignoreCase && isASCIIAlpha(ch))
+#if CPU(BIG_ENDIAN)
+            ignoreCaseMask |= 32 << (m_charSize == Char8 ? 24 : 16);
+#else
             ignoreCaseMask |= 32;
+#endif
 
         for (numberCharacters = 1; numberCharacters < maxCharactersAtOnce && nextOp->m_op == OpTerm; ++numberCharacters, nextOp = &m_ops[opIndex + numberCharacters]) {
             PatternTerm* nextTerm = nextOp->m_term;
@@ -768,7 +786,11 @@ class YarrGenerator : private MacroAssembler {
 
             nextOp->m_isDeadCode = true;
 
+#if CPU(BIG_ENDIAN)
+            int shiftAmount = (m_charSize == Char8 ? 24 : 16) - ((m_charSize == Char8 ? 8 : 16) * numberCharacters);
+#else
             int shiftAmount = (m_charSize == Char8 ? 8 : 16) * numberCharacters;
+#endif
 
             UChar currentCharacter = nextTerm->patternCharacter;
 
@@ -2502,6 +2524,10 @@ class YarrGenerator : private MacroAssembler {
         push(X86Registers::ebp);
         move(stackPointerRegister, X86Registers::ebp);
         push(X86Registers::ebx);
+#if OS(WINDOWS)
+        if (compileMode == IncludeSubpatterns)
+            loadPtr(Address(X86Registers::ebp, 6 * sizeof(void*)), output);
+#endif
 #elif CPU(X86)
         push(X86Registers::ebp);
         move(stackPointerRegister, X86Registers::ebp);
@@ -2540,6 +2566,12 @@ class YarrGenerator : private MacroAssembler {
     void generateReturn()
     {
 #if CPU(X86_64)
+#if OS(WINDOWS)
+        // Store the return value in the allocated space pointed by rcx.
+        store64(returnRegister, Address(X86Registers::ecx));
+        store64(returnRegister2, Address(X86Registers::ecx, sizeof(void*)));
+        move(X86Registers::ecx, returnRegister);
+#endif
         pop(X86Registers::ebx);
         pop(X86Registers::ebp);
 #elif CPU(X86)

@@ -167,7 +167,13 @@ enable?(GAMEPAD) {
 
 use?(GSTREAMER) {
     DEFINES += ENABLE_GLIB_SUPPORT=1
-    PKGCONFIG += glib-2.0 gio-2.0 gstreamer-0.10 gstreamer-app-0.10 gstreamer-base-0.10 gstreamer-interfaces-0.10 gstreamer-pbutils-0.10 gstreamer-plugins-base-0.10 gstreamer-video-0.10
+    use?(GSTREAMER010) {
+        PKGCONFIG += glib-2.0 gio-2.0 gstreamer-0.10 gstreamer-app-0.10 gstreamer-base-0.10 gstreamer-interfaces-0.10 gstreamer-pbutils-0.10 gstreamer-plugins-base-0.10 gstreamer-video-0.10
+    } else {
+        DEFINES += GST_API_VERSION=1.0
+        DEFINES += GST_API_VERSION_1
+        PKGCONFIG += glib-2.0 gio-2.0 gstreamer-1.0 gstreamer-app-1.0 gstreamer-base-1.0 gstreamer-pbutils-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0
+    }
 }
 
 enable?(VIDEO) {
@@ -179,18 +185,32 @@ enable?(VIDEO) {
                 -framework QuartzCore -framework QTKit \
                 -framework Security -framework IOKit
 
-        # We can know the Mac OS version by using the Darwin major version
         DARWIN_VERSION = $$split(QMAKE_HOST.version, ".")
         DARWIN_MAJOR_VERSION = $$first(DARWIN_VERSION)
-        equals(DARWIN_MAJOR_VERSION, "12") {
-            LIBS += $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceMountainLion.a
-        } else:equals(DARWIN_MAJOR_VERSION, "11") {
-            LIBS += $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceLion.a
-        } else:equals(DARWIN_MAJOR_VERSION, "10") {
-            LIBS += $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceSnowLeopard.a
-        } else:equals(DARWIN_MAJOR_VERSION, "9") {
-            LIBS += $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceLeopard.a
+
+        haveQt(5,1) {
+            equals(QMAKE_MAC_SDK_VERSION, 10.7): \
+                SYSTEM_LIBRARY_PATH = $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceLion.a
+            else:equals(QMAKE_MAC_SDK_VERSION, 10.8): \
+                SYSTEM_LIBRARY_PATH = $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceMountainLion.a
+        } else {
+            # We first check if a specific SDK is set to be used for the build.
+            contains(QMAKE_MAC_SDK, ".*MacOSX10.7.sdk.*") {
+                SYSTEM_LIBRARY_PATH = $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceLion.a
+            } else:contains(QMAKE_MAC_SDK, ".*MacOSX10.8.sdk.*") {
+                SYSTEM_LIBRARY_PATH = $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceMountainLion.a
+            }
+
+            # If the previous check did not yield a result, we resort to the Darwin version.
+            isEmpty(SYSTEM_LIBRARY_PATH) {
+                equals(DARWIN_MAJOR_VERSION, "11") {
+                    SYSTEM_LIBRARY_PATH = $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceLion.a
+                } else:equals(DARWIN_MAJOR_VERSION, "12") {
+                    SYSTEM_LIBRARY_PATH = $${ROOT_WEBKIT_DIR}/WebKitLibraries/libWebKitSystemInterfaceMountainLion.a
+                }
+            }
         }
+        LIBS += $$SYSTEM_LIBRARY_PATH
     } else:use?(GSTREAMER) {
         INCLUDEPATH += $$SOURCE_DIR/platform/graphics/gstreamer
     } else:use?(QT_MULTIMEDIA) {
@@ -202,7 +222,11 @@ enable?(WEB_AUDIO) {
     use?(GSTREAMER) {
         DEFINES += WTF_USE_WEBAUDIO_GSTREAMER=1
         INCLUDEPATH += $$SOURCE_DIR/platform/audio/gstreamer
-        PKGCONFIG += gstreamer-audio-0.10 gstreamer-fft-0.10
+        use?(GSTREAMER010) {
+            PKGCONFIG += gstreamer-audio-0.10 gstreamer-fft-0.10
+        } else {
+            PKGCONFIG += gstreamer-audio-1.0 gstreamer-fft-1.0
+        }
     }
 }
 
@@ -221,7 +245,7 @@ use?(3D_GRAPHICS) {
             }
         }
     } else {
-        contains(QT_CONFIG, opengles2): LIBS += -lEGL
+        contains(QT_CONFIG, opengles2): CONFIG += egl
     }
 }
 
@@ -301,10 +325,6 @@ mac {
 unix:!mac:*-g++*:QMAKE_CXXFLAGS += -fdata-sections
 unix:!mac:*-g++*:QMAKE_LFLAGS += -Wl,--gc-sections
 linux*-g++*:QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
-
-unix|win32-g++* {
-    QMAKE_PKGCONFIG_REQUIRES = QtCore QtGui QtNetwork QtWidgets
-}
 
 contains(DEFINES, ENABLE_OPENCL=1) {
     LIBS += -lOpenCL
