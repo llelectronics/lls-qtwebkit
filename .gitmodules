@@ -1,3 +1,6 @@
 [submodule "upstream"]
 	path = upstream
 	url = git://qt.gitorious.org/qt/qtwebkit.git
+[submodule "upstream-ruby"]
+	path = upstream-ruby
+	url = git://github.com/ruby/ruby.git
