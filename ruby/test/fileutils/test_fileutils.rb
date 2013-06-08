@@ -1,4 +1,4 @@
-# $Id$
+# $Id: test_fileutils.rb 32709 2011-07-27 15:33:56Z naruse $
 
 require 'fileutils'
 require_relative 'fileasserts'

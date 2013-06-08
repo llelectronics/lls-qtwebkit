@@ -2,7 +2,7 @@
 
   objspace.c - ObjectSpace extender for MRI.
 
-  $Author$
+  $Author: usa $
   created at: Wed Jun 17 07:39:17 2009
 
   NOTE: This extension library is not expected to exist except C Ruby.

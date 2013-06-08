@@ -1,4 +1,4 @@
-# $Id$
+# $Id: test_verbose.rb 25189 2009-10-02 12:04:37Z akr $
 
 require 'test/unit'
 require 'fileutils'

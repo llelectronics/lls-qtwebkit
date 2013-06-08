@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2003 GOTOU Yuuzou All rights reserved.
 #
-# $Id$
+# $Id: ssl.rb 28803 2010-07-30 23:26:53Z nahi $
 
 require 'webrick'
 require 'openssl'

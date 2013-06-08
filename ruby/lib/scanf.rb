@@ -2,9 +2,9 @@
 #
 #--
 # $Release Version: 1.1.2 $
-# $Revision$
-# $Id$
-# $Author$
+# $Revision: 31649 $
+# $Id: scanf.rb 31649 2011-05-20 12:22:26Z nagachika $
+# $Author: nagachika $
 #++
 #
 # == Description

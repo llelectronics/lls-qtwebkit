@@ -3,7 +3,7 @@
 /*
  * bytecode.re
  *
- * $Author$
+ * $Author: naruse $
  *
  * Copyright (C) 2003 why the lucky stiff
  */

@@ -1,7 +1,7 @@
 #
 #   fork.rb -
 #   	$Release Version: 0.9.6 $
-#   	$Revision$
+#   	$Revision: 27967 $
 #   	by Keiju ISHITSUKA(keiju@ruby-lang.org)
 #
 # --
@@ -9,7 +9,7 @@
 #
 #
 
-@RCS_ID='-$Id$-'
+@RCS_ID='-$Id: fork.rb 27967 2010-05-23 08:48:44Z nobu $-'
 
 
 module IRB

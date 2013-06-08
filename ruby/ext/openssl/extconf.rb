@@ -11,7 +11,7 @@
   (See the file 'LICENCE'.)
 
 = Version
-  $Id$
+  $Id: extconf.rb 36929 2012-09-09 06:39:23Z kosaki $
 =end
 
 require "mkmf"

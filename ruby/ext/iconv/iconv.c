@@ -3,7 +3,7 @@
 
   iconv.c -
 
-  $Author$
+  $Author: nobu $
   created at: Wed Dec  1 20:28:09 JST 1999
 
   All the files in this distribution are covered under the Ruby's

@@ -1,6 +1,6 @@
 "exec" "${RUBY-ruby}" "-x" "$0" "$@"; true # -*- mode: ruby; coding: utf-8 -*-
 #!./ruby
-# $Id$
+# $Id: runner.rb 32088 2011-06-14 14:17:42Z akr $
 
 # NOTE:
 # Never use optparse in this file.

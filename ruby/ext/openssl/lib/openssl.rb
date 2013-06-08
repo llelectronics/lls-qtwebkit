@@ -11,7 +11,7 @@
   (See the file 'LICENCE'.)
 
 = Version
-  $Id$
+  $Id: openssl.rb 32665 2011-07-25 06:38:44Z nahi $
 =end
 
 require 'openssl.so'

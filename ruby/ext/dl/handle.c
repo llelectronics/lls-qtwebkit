@@ -1,5 +1,5 @@
 /* -*- C -*-
- * $Id$
+ * $Id: handle.c 32983 2011-08-16 00:51:58Z drbrain $
  */
 
 #include <ruby.h>

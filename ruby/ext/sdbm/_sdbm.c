@@ -8,7 +8,7 @@
  */
 
 #ifndef lint
-/*char sdbm_rcsid[] = "$Id$";*/
+/*char sdbm_rcsid[] = "$Id: _sdbm.c 31176 2011-03-25 06:46:57Z naruse $";*/
 #endif
 
 #include "ruby/config.h"
@@ -605,7 +605,7 @@ getnext(register DBM *db)
  */
 
 #ifndef lint
-/*char pair_rcsid[] = "$Id$";*/
+/*char pair_rcsid[] = "$Id: _sdbm.c 31176 2011-03-25 06:46:57Z naruse $";*/
 #endif
 
 #ifndef BSD42

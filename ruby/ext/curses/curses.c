@@ -1,5 +1,5 @@
 /* -*- C -*-
- * $Id$
+ * $Id: curses.c 32145 2011-06-17 04:10:37Z drbrain $
  *
  * ext/curses/curses.c
  *

@@ -1,7 +1,7 @@
 #
 #   irb/lc/error.rb -
 #   	$Release Version: 0.9.6$
-#   	$Revision$
+#   	$Revision: 25189 $
 #   	by Keiju ISHITSUKA(keiju@ruby-lang.org)
 #
 # --

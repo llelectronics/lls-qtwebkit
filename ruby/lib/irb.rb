@@ -1,7 +1,7 @@
 #
 #   irb.rb - irb main module
 #       $Release Version: 0.9.6 $
-#       $Revision$
+#       $Revision: 31641 $
 #       by Keiju ISHITSUKA(keiju@ruby-lang.org)
 #
 # --
@@ -22,7 +22,7 @@ require "irb/locale"
 STDOUT.sync = true
 
 module IRB
-  @RCS_ID='-$Id$-'
+  @RCS_ID='-$Id: irb.rb 31641 2011-05-19 00:07:25Z nobu $-'
 
   class Abort < Exception;end
 

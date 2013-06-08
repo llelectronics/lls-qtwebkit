@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: lexer.rb 25189 2009-10-02 12:04:37Z akr $
 #
 # Copyright (c) 2004,2005 Minero Aoki
 #

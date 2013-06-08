@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: ossl.c 32538 2011-07-14 05:46:00Z nahi $
  * 'OpenSSL for Ruby' project
  * Copyright (C) 2001-2002  Michal Rokos <m.rokos@sh.cvut.cz>
  * All rights reserved.

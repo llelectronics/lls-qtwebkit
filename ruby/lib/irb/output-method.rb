@@ -1,7 +1,7 @@
 #
 #   output-method.rb - output methods used by irb
 #   	$Release Version: 0.9.6$
-#   	$Revision$
+#   	$Revision: 26986 $
 #   	by Keiju ISHITSUKA(keiju@ruby-lang.org)
 #
 # --
@@ -16,7 +16,7 @@ module IRB
   #   StdioOutputMethod
 
   class OutputMethod
-    @RCS_ID='-$Id$-'
+    @RCS_ID='-$Id: output-method.rb 26986 2010-03-20 03:30:59Z nobu $-'
 
     def print(*opts)
       IRB.fail NotImplementError, "print"

@@ -1,7 +1,7 @@
 #
 #   sync.rb - 2 phase lock with counter
 #       $Release Version: 1.0$
-#       $Revision$
+#       $Revision: 32281 $
 #       by Keiju ISHITSUKA(keiju@ishitsuka.com)
 #
 # --
@@ -45,7 +45,7 @@ end
 # A module that provides a two-phase lock with a counter.
 
 module Sync_m
-  RCS_ID='-$Id$-'
+  RCS_ID='-$Id: sync.rb 32281 2011-06-29 03:09:34Z drbrain $-'
 
   # lock mode
   UN = :UN

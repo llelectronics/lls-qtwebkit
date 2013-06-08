@@ -1,4 +1,4 @@
-# $Id$
+# $Id: test_dryrun.rb 30787 2011-02-04 18:37:52Z nobu $
 
 require 'fileutils'
 require 'test/unit'

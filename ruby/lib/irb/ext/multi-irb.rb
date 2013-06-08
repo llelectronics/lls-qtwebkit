@@ -1,7 +1,7 @@
 #
 #   irb/multi-irb.rb - multiple irb module
 #   	$Release Version: 0.9.6$
-#   	$Revision$
+#   	$Revision: 29726 $
 #   	by Keiju ISHITSUKA(keiju@ruby-lang.org)
 #
 # --
@@ -14,7 +14,7 @@ require "thread"
 module IRB
   # job management class
   class JobManager
-    @RCS_ID='-$Id$-'
+    @RCS_ID='-$Id: multi-irb.rb 29726 2010-11-08 20:59:01Z marcandre $-'
 
     def initialize
       # @jobs = [[thread, irb],...]

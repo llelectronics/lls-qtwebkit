@@ -1,7 +1,7 @@
 /*
  * node.c
  *
- * $Author$
+ * $Author: nobu $
  *
  * Copyright (C) 2003 why the lucky stiff
  */

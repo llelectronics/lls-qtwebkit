@@ -1,7 +1,7 @@
  -- forwardable.rb
 						
                                                 $Release Version: 1.1 $
-                                                $Revision$
+                                                $Revision: 25189 $
 						Original version by Tosh
 
 =begin

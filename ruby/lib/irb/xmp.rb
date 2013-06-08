@@ -1,7 +1,7 @@
 #
 #   xmp.rb - irb version of gotoken xmp
 #   	$Release Version: 0.9$
-#   	$Revision$
+#   	$Revision: 26986 $
 #   	by Keiju ISHITSUKA(Nippon Rational Inc.)
 #
 # --
@@ -13,7 +13,7 @@ require "irb"
 require "irb/frame"
 
 class XMP
-  @RCS_ID='-$Id$-'
+  @RCS_ID='-$Id: xmp.rb 26986 2010-03-20 03:30:59Z nobu $-'
 
   def initialize(bind = nil)
     IRB.init_config(nil)

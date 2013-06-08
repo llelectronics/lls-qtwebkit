@@ -1,5 +1,5 @@
 # -*- mode: ruby; ruby-indent-level: 4; tab-width: 4 -*- vim: sw=4 ts=4
-# $Id$
+# $Id: syck.rb 28681 2010-07-19 04:54:06Z tenderlove $
 #
 # = yaml.rb: top-level module with methods for loading and parsing YAML documents
 #

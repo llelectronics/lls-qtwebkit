@@ -7,7 +7,7 @@
 # All rights reserved.  You can redistribute and/or modify it under the same
 # terms as Ruby.
 #
-#   $Id$
+#   $Id: sha2.rb 31594 2011-05-16 20:52:55Z drbrain $
 
 require 'digest'
 require 'digest/sha2.so'

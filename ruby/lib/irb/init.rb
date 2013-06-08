@@ -1,7 +1,7 @@
 #
 #   irb/init.rb - irb initialize module
 #   	$Release Version: 0.9.6$
-#   	$Revision$
+#   	$Revision: 31573 $
 #   	by Keiju ISHITSUKA(keiju@ruby-lang.org)
 #
 # --

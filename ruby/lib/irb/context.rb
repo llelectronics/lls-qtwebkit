@@ -1,7 +1,7 @@
 #
 #   irb/context.rb - irb context
 #   	$Release Version: 0.9.6$
-#   	$Revision$
+#   	$Revision: 27117 $
 #   	by Keiju ISHITSUKA(keiju@ruby-lang.org)
 #
 # --

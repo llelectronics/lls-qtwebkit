@@ -2,7 +2,7 @@
  *
  * nkf.h - Header file for nkf
  *
- * $Id$
+ * $Id: nkf.h 27437 2010-04-22 08:04:13Z nobu $
  */
 
 #ifndef NKF_H

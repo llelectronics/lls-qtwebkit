@@ -2,7 +2,7 @@
 #
 # Author:: Akira Yamada <akira@ruby-lang.org>
 # License:: You can redistribute it and/or modify it under the same term as Ruby.
-# Revision:: $Id$
+# Revision:: $Id: http.rb 31907 2011-06-03 00:32:25Z naruse $
 #
 # See URI for general documentation
 #

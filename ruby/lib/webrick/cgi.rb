@@ -5,7 +5,7 @@
 # Copyright (c) 2003 Internet Programming with Ruby writers. All rights
 # reserved.
 #
-# $Id$
+# $Id: cgi.rb 29726 2010-11-08 20:59:01Z marcandre $
 
 require "webrick/httprequest"
 require "webrick/httpresponse"

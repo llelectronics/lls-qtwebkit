@@ -11,7 +11,7 @@
   (See the file 'LICENCE'.)
 
 = Version
-  $Id$
+  $Id: buffering.rb 34534 2012-02-10 17:27:22Z naruse $
 =end
 
 ##

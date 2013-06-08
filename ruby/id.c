@@ -2,7 +2,7 @@
 
   id.c -
 
-  $Author$
+  $Author: nobu $
   created at: Thu Jul 12 04:37:51 2007
 
   Copyright (C) 2004-2007 Koichi Sasada

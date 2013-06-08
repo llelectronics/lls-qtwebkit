@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2001, 2002, 2003 by Michael Neumann (mneumann@ntecs.de)
 #
-# $Id$
+# $Id: create.rb 31321 2011-04-22 13:35:43Z naruse $
 #
 
 require "date"

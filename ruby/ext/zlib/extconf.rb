@@ -1,7 +1,7 @@
 #
 # extconf.rb
 #
-# $Id$
+# $Id: extconf.rb 37561 2012-11-08 08:34:18Z usa $
 #
 
 require 'mkmf'

@@ -1,7 +1,7 @@
 #
 #   irb/completor.rb -
 #   	$Release Version: 0.9$
-#   	$Revision$
+#   	$Revision: 34384 $
 #   	by Keiju ISHITSUKA(keiju@ishitsuka.com)
 #       From Original Idea of shugo@ruby-lang.org
 #
@@ -11,7 +11,7 @@ require "readline"
 module IRB
   module InputCompletor
 
-    @RCS_ID='-$Id$-'
+    @RCS_ID='-$Id: completion.rb 34384 2012-01-27 20:53:37Z nobu $-'
 
     ReservedWords = [
       "BEGIN", "END",

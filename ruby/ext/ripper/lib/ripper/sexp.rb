@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: sexp.rb 31342 2011-04-25 02:28:49Z naruse $
 #
 # Copyright (c) 2004,2005 Minero Aoki
 #

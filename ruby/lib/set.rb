@@ -9,7 +9,7 @@
 # All rights reserved.  You can redistribute and/or modify it under the same
 # terms as Ruby.
 #
-#   $Id$
+#   $Id: set.rb 34533 2012-02-10 08:28:48Z naruse $
 #
 # == Overview
 #
