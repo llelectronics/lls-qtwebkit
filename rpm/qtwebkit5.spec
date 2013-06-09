@@ -146,7 +146,7 @@ export CFLAGS="`echo $CFLAGS | sed 's/ -g / /g'`"
 export QMAKEPATH="`pwd`/Tools/qmake"
 export QTDIR=/usr/share/qt5
 #
-
+touch .git
 qmake -qt=5
 make %{?jobs:-j%jobs}
 
