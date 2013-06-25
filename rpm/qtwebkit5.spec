@@ -57,6 +57,7 @@ This package contains the UI process launcher for WebKit2 engine
 %package -n libqtwebkit5
 Summary:    Web content engine library for Qt - core runtime files
 Group:      Qt/Qt
+Requires:   %{name}-uiprocess-launcher = %{version}
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 
