@@ -148,7 +148,11 @@ export QMAKEPATH="`pwd`/Tools/qmake"
 export QTDIR=/usr/share/qt5
 #
 touch .git
-qmake -qt=5
+#
+# Configure to release build, drop tests, mimic Tools/qmake/mkspecs/features/production_build.prf for the whole
+# build not just WebCore. We could also drop WebKit1 support aka libqtwebkit5-widgets with WEBKIT_CONFIG-=build_webkit1.
+# See also Tools/qmake/mkspecs/features/features.prf.
+qmake -qt=5 CONFIG+=release CONFIG-=debug WEBKIT_CONFIG-=build_tests CONFIG+=no_debug_info CONFIG-=separate_debug_info QMAKE_CFLAGS+=$QMAKE_CFLAGS_RELEASE QMAKE_CXXFLAGS+=$QMAKE_CXXFLAGS_RELEASE CONFIG*=use_all_in_one_files
 make %{?jobs:-j%jobs}
 
 %install
