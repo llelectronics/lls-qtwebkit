@@ -74,8 +74,8 @@ using namespace WebCore;
 using namespace WebKit;
 
 static bool s_flickableViewportEnabled = true;
-static const int kAxisLockSampleCount = 5;
-static const qreal kAxisLockVelocityThreshold = 300;
+static const int kAxisLockSampleCount = 10;
+static const qreal kAxisLockVelocityThreshold = 150;
 static const qreal kAxisLockVelocityDirectionThreshold = 50;
 
 struct JSCallbackClosure {
