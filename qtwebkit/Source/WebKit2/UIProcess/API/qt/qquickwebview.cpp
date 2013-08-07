@@ -274,6 +274,7 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , m_navigatorQtObjectEnabled(false)
     , m_renderToOffscreenBuffer(false)
     , m_allowAnyHTTPSCertificateForLocalHost(false)
+    , m_autoCorrect(false)
     , m_loadProgress(0)
 {
     viewport->setClip(true);
@@ -983,6 +984,23 @@ void QQuickWebViewExperimental::setPreferredMinimumContentsWidth(int width)
 
     webPreferences->setLayoutFallbackWidth(width);
     emit preferredMinimumContentsWidthChanged();
+}
+
+bool QQuickWebViewExperimental::autoCorrect() const
+{
+    Q_D(const QQuickWebView);
+    return d->autoCorrect();
+}
+
+void QQuickWebViewExperimental::setAutoCorrect(bool autoCorrect)
+{
+    Q_D(QQuickWebView);
+
+    if (autoCorrect == d->autoCorrect())
+        return;
+
+    d->setAutoCorrect(autoCorrect);
+    emit autoCorrectChanged();
 }
 
 void QQuickWebViewExperimental::setFlickableViewportEnabled(bool enable)
@@ -1715,9 +1733,13 @@ QVariant QQuickWebView::inputMethodQuery(Qt::InputMethodQuery property) const
         return QString(state.selectedText);
     case Qt::ImMaximumTextLength:
         return QVariant(); // No limit.
-    case Qt::ImHints:
-        return int(Qt::InputMethodHints(state.inputMethodHints));
-    default:
+    case Qt::ImHints: {
+        if (state.inputMethodHints == Qt::ImhNone && !d->autoCorrect()) {
+            return int(Qt::InputMethodHints(Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText));
+        } else {
+            return int(Qt::InputMethodHints(state.inputMethodHints));
+        }
+    } default:
         // Rely on the base implementation for ImEnabled, ImHints and ImPreferredLanguage.
         return QQuickFlickable::inputMethodQuery(property);
     }

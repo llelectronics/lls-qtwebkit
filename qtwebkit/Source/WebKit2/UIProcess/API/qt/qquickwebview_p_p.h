@@ -122,6 +122,9 @@ public:
     void setNavigatorQtObjectEnabled(bool);
     void updateUserScripts();
 
+    void setAutoCorrect(bool autoCorrect) { m_autoCorrect = autoCorrect; }
+    bool autoCorrect() const { return m_autoCorrect; }
+
     QPointF contentPos() const;
     void setContentPos(const QPointF&);
 
@@ -193,6 +196,7 @@ protected:
     bool m_navigatorQtObjectEnabled;
     bool m_renderToOffscreenBuffer;
     bool m_allowAnyHTTPSCertificateForLocalHost;
+    bool m_autoCorrect;
     WTF::String m_iconUrl;
     int m_loadProgress;
     WTF::String m_currentUrl;
