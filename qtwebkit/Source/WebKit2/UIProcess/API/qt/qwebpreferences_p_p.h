@@ -44,7 +44,8 @@ public:
         WebAudioEnabled,
         ScrollAnimatorEnabled,
         CaretBrowsingEnabled,
-        NotificationsEnabled
+        NotificationsEnabled,
+        CookiesEnabled
     };
 
     enum FontFamily {
