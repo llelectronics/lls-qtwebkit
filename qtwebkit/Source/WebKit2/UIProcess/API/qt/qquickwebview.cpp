@@ -40,6 +40,8 @@
 #if ENABLE(FULLSCREEN_API)
 #include "WebFullScreenManagerProxy.h"
 #endif
+#include "WebContext.h"
+#include "WebCookieManagerProxy.h"
 #include "WebPageGroup.h"
 #include "WebPreferences.h"
 #include "qquicknetworkreply_p.h"
@@ -304,6 +306,7 @@ void QQuickWebViewPrivate::initialize(WKContextRef contextRef, WKPageGroupRef pa
 #if ENABLE(FULLSCREEN_API)
     webPageProxy->fullScreenManager()->setWebView(q_ptr);
 #endif
+    cookieManagerProxy = context->context()->cookieManagerProxy();
 
     QQuickWebPagePrivate* const pageViewPrivate = pageView.data()->d;
     pageViewPrivate->initialize(webPageProxy.get());
@@ -1273,6 +1276,18 @@ void QQuickWebViewExperimental::evaluateJavaScript(const QString& script, const 
     closure->value = value;
 
     d_ptr->webPageProxy.get()->runJavaScriptInMainFrame(script, ScriptValueCallback::create(closure, javaScriptCallback));
+}
+
+void QQuickWebViewExperimental::deleteCookiesForHostname(const QString& hostname)
+{
+    if (d_ptr->cookieManagerProxy)
+        d_ptr->cookieManagerProxy.get()->deleteCookiesForHostname(hostname);
+}
+
+void QQuickWebViewExperimental::deleteAllCookies()
+{
+    if (d_ptr->cookieManagerProxy)
+        d_ptr->cookieManagerProxy.get()->deleteAllCookies();
 }
 
 QList<QUrl> QQuickWebViewExperimental::userScripts() const

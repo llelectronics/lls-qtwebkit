@@ -354,6 +354,8 @@ public Q_SLOTS:
     void goForwardTo(int index);
     void postMessage(const QString&);
     void evaluateJavaScript(const QString& script, const QJSValue& value = QJSValue());
+    void deleteCookiesForHostname(const QString&);
+    void deleteAllCookies();
 
 Q_SIGNALS:
     void loadVisuallyCommitted();
