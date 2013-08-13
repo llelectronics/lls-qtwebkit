@@ -199,6 +199,7 @@ protected:
     bool m_renderToOffscreenBuffer;
     bool m_allowAnyHTTPSCertificateForLocalHost;
     bool m_autoCorrect;
+    bool m_temporaryCookies;
     WTF::String m_iconUrl;
     int m_loadProgress;
     WTF::String m_currentUrl;

@@ -277,6 +277,7 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , m_renderToOffscreenBuffer(false)
     , m_allowAnyHTTPSCertificateForLocalHost(false)
     , m_autoCorrect(false)
+    , m_temporaryCookies(false)
     , m_loadProgress(0)
 {
     viewport->setClip(true);
@@ -915,6 +916,9 @@ QQuickWebViewExperimental::QQuickWebViewExperimental(QQuickWebView *webView, QQu
 
 QQuickWebViewExperimental::~QQuickWebViewExperimental()
 {
+    Q_D(QQuickWebView);
+    if (d->m_temporaryCookies)
+        deleteAllCookies();
 }
 
 void QQuickWebViewExperimental::setRenderToOffscreenBuffer(bool enable)
@@ -1004,6 +1008,22 @@ void QQuickWebViewExperimental::setAutoCorrect(bool autoCorrect)
 
     d->setAutoCorrect(autoCorrect);
     emit autoCorrectChanged();
+}
+
+bool QQuickWebViewExperimental::temporaryCookies() const
+{
+    Q_D(const QQuickWebView);
+    return d->m_temporaryCookies;
+}
+
+void QQuickWebViewExperimental::setTemporaryCookies(bool enable)
+{
+    Q_D(QQuickWebView);
+    if (enable == d->m_temporaryCookies)
+        return;
+
+    d->m_temporaryCookies = enable;
+    emit temporaryCookiesChanged();
 }
 
 void QQuickWebViewExperimental::setFlickableViewportEnabled(bool enable)
