@@ -45,6 +45,7 @@ class QtWebContext;
 class QtWebError;
 class QtWebPageLoadClient;
 class QtWebPagePolicyClient;
+class WebCookieManagerProxy;
 class WebPageProxy;
 }
 
@@ -162,6 +163,7 @@ protected:
     QQuickWebViewPrivate(QQuickWebView* viewport);
     RefPtr<WebKit::QtWebContext> context;
     RefPtr<WebKit::WebPageProxy> webPageProxy;
+    RefPtr<WebKit::WebCookieManagerProxy> cookieManagerProxy;
 
     WebKit::QtPageClient pageClient;
     WebKit::DefaultUndoController undoController;
@@ -197,6 +199,7 @@ protected:
     bool m_renderToOffscreenBuffer;
     bool m_allowAnyHTTPSCertificateForLocalHost;
     bool m_autoCorrect;
+    bool m_temporaryCookies;
     WTF::String m_iconUrl;
     int m_loadProgress;
     WTF::String m_currentUrl;

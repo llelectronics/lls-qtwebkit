@@ -80,6 +80,8 @@ bool QWebPreferencesPrivate::testAttribute(QWebPreferencesPrivate::WebAttribute 
         return preferences()->caretBrowsingEnabled();
     case NotificationsEnabled:
         return preferences()->notificationsEnabled();
+    case CookiesEnabled:
+        return preferences()->cookieEnabled();
     default:
         ASSERT_NOT_REACHED();
         return false;
@@ -149,6 +151,9 @@ void QWebPreferencesPrivate::setAttribute(QWebPreferencesPrivate::WebAttribute a
         break;
     case NotificationsEnabled:
         preferences()->setNotificationsEnabled(enable);
+        break;
+    case CookiesEnabled:
+        preferences()->setCookieEnabled(enable);
         break;
     default:
         ASSERT_NOT_REACHED();
@@ -585,6 +590,17 @@ void QWebPreferences::setNotificationsEnabled(bool enable)
 {
     d->setAttribute(QWebPreferencesPrivate::NotificationsEnabled, enable);
     emit notificationsEnabledChanged();
+}
+
+bool QWebPreferences::cookiesEnabled() const
+{
+    return d->testAttribute(QWebPreferencesPrivate::CookiesEnabled);
+}
+
+void QWebPreferences::setCookiesEnabled(bool enable)
+{
+    d->setAttribute(QWebPreferencesPrivate::CookiesEnabled, enable);
+    emit cookiesEnabledChanged();
 }
 
 WebKit::WebPreferences* QWebPreferencesPrivate::preferences() const
