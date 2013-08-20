@@ -256,6 +256,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(int preferredMinimumContentsWidth WRITE setPreferredMinimumContentsWidth READ preferredMinimumContentsWidth NOTIFY preferredMinimumContentsWidthChanged)
     Q_PROPERTY(int deviceWidth WRITE setDeviceWidth READ deviceWidth NOTIFY deviceWidthChanged)
     Q_PROPERTY(int deviceHeight WRITE setDeviceHeight READ deviceHeight NOTIFY deviceHeightChanged)
+    Q_PROPERTY(int customLayoutWidth WRITE setCustomLayoutWidth READ customLayoutWidth NOTIFY customLayoutWidthChanged)
 
     Q_PROPERTY(bool autoCorrect WRITE setAutoCorrect READ autoCorrect NOTIFY autoCorrectChanged)
     Q_PROPERTY(bool temporaryCookies WRITE setTemporaryCookies READ temporaryCookies NOTIFY temporaryCookiesChanged FINAL)
@@ -341,6 +342,9 @@ public:
     int preferredMinimumContentsWidth() const;
     void setPreferredMinimumContentsWidth(int);
 
+    int customLayoutWidth() const;
+    void setCustomLayoutWidth(int);
+
     bool autoCorrect() const;
     void setAutoCorrect(bool autoCorrect);
 
@@ -352,6 +356,8 @@ public:
     void setRenderToOffscreenBuffer(bool enable);
     static void setFlickableViewportEnabled(bool enable);
     static bool flickableViewportEnabled();
+
+    bool firstFrameRendered() const;
 
 public Q_SLOTS:
     void goBackTo(int index);
@@ -385,6 +391,7 @@ Q_SIGNALS:
     void preferredMinimumContentsWidthChanged();
     void remoteInspectorUrlChanged();
     void autoCorrectChanged();
+    void customLayoutWidthChanged();
     void temporaryCookiesChanged();
 
 private:
