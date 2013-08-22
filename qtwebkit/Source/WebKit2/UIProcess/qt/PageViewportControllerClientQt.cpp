@@ -507,7 +507,8 @@ void PageViewportControllerClientQt::didChangeContentsSize(const IntSize& newSiz
     // we didn't do scale adjustment.
     emit m_viewportItem->experimental()->test()->contentsScaleCommitted();
 
-    if (!m_scaleChange.inProgress() && !m_scrollChange.inProgress())
+    if (!m_scaleChange.inProgress() && !m_scrollChange.inProgress()
+            && m_viewportItem->experimental()->firstFrameRendered())
         setContentsRectToNearestValidBounds();
 }
 

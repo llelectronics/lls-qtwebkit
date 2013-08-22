@@ -271,7 +271,10 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , filePicker(0)
     , databaseQuotaDialog(0)
     , colorChooser(0)
+    , m_firstFrameRendered(false)
     , m_betweenLoadCommitAndFirstFrame(false)
+    , m_customLayoutWidth(0)
+    , m_relayoutRequested(false)
     , m_useDefaultContentItemSize(true)
     , m_navigatorQtObjectEnabled(false)
     , m_renderToOffscreenBuffer(false)
@@ -468,8 +471,14 @@ void QQuickWebViewPrivate::didRenderFrame()
 {
     Q_Q(QQuickWebView);
     if (m_betweenLoadCommitAndFirstFrame) {
-        emit q->experimental()->loadVisuallyCommitted();
-        m_betweenLoadCommitAndFirstFrame = false;
+        if (m_customLayoutWidth > 0 && m_relayoutRequested) {
+            webPageProxy->setFixedLayoutSize(WebCore::IntSize(m_customLayoutWidth, q->height()));
+            m_relayoutRequested = false;
+        } else {
+            emit q->experimental()->loadVisuallyCommitted();
+            m_betweenLoadCommitAndFirstFrame = false;
+            m_firstFrameRendered = true;
+        }
     }
 }
 
@@ -1036,6 +1045,12 @@ bool QQuickWebViewExperimental::flickableViewportEnabled()
     return s_flickableViewportEnabled;
 }
 
+bool QQuickWebViewExperimental::firstFrameRendered() const
+{
+     Q_D(const QQuickWebView);
+    return d->m_firstFrameRendered;
+}
+
 /*!
     \internal
 
@@ -1278,6 +1293,25 @@ void QQuickWebViewExperimental::setDeviceHeight(int value)
     Q_D(QQuickWebView);
     d->webPageProxy->pageGroup()->preferences()->setDeviceHeight(qMax(0, value));
     emit deviceHeightChanged();
+}
+
+int QQuickWebViewExperimental::customLayoutWidth() const
+{
+    Q_D(const QQuickWebView);
+    return d->webPageProxy->fixedLayoutSize().width();
+}
+
+void QQuickWebViewExperimental::setCustomLayoutWidth(int value)
+{
+    Q_D(QQuickWebView);
+
+    WebCore::IntSize oldSize = d->webPageProxy->fixedLayoutSize();
+    if (oldSize.width() == value)
+        return;
+
+    d->m_customLayoutWidth = value;
+    d->m_relayoutRequested = true;
+    emit customLayoutWidthChanged();
 }
 
 /*!
