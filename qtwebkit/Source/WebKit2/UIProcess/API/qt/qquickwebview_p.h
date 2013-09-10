@@ -273,6 +273,8 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(QQmlComponent* filePicker READ filePicker WRITE setFilePicker NOTIFY filePickerChanged)
     Q_PROPERTY(QQmlComponent* databaseQuotaDialog READ databaseQuotaDialog WRITE setDatabaseQuotaDialog NOTIFY databaseQuotaDialogChanged)
     Q_PROPERTY(QQmlComponent* colorChooser READ colorChooser WRITE setColorChooser NOTIFY colorChooserChanged)
+    Q_PROPERTY(QQmlComponent* header READ header WRITE setHeader NOTIFY headerChanged FINAL)
+    Q_PROPERTY(QQuickItem* headerItem READ headerItem NOTIFY headerItemChanged FINAL)
 
     Q_PROPERTY(QWebPreferences* preferences READ preferences CONSTANT FINAL)
     Q_PROPERTY(QWebKitTest* test READ test CONSTANT FINAL)
@@ -309,6 +311,10 @@ public:
     void setDatabaseQuotaDialog(QQmlComponent*);
     QQmlComponent* colorChooser() const;
     void setColorChooser(QQmlComponent*);
+    QQmlComponent* header() const;
+    void setHeader(QQmlComponent*);
+    QQuickItem* headerItem() const;
+
     QString userAgent() const;
     void setUserAgent(const QString& userAgent);
     int deviceWidth() const;
@@ -378,6 +384,8 @@ Q_SIGNALS:
     void filePickerChanged();
     void databaseQuotaDialogChanged();
     void colorChooserChanged();
+    void headerChanged();
+    void headerItemChanged();
     void downloadRequested(QWebDownloadItem* downloadItem);
     void permissionRequested(QWebPermissionRequest* permission);
     void messageReceived(const QVariantMap& message);
