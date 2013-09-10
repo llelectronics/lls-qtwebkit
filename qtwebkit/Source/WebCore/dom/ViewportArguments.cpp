@@ -275,7 +275,7 @@ float computeMinimumScaleFactorForContentContained(const ViewportAttributes& res
 {
     FloatSize viewportSize = convertToUserSpace(visibleViewport, devicePixelRatio);
 
-    return max<float>(result.minimumScale, max(viewportSize.width() / contentsSize.width(), viewportSize.height() / contentsSize.height()));
+    return max<float>(result.minimumScale, viewportSize.width() / contentsSize.width());
 }
 
 void restrictMinimumScaleFactorToViewportSize(ViewportAttributes& result, IntSize visibleViewport, float devicePixelRatio)
