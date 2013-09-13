@@ -366,6 +366,12 @@ void QQuickWebViewPrivate::provisionalLoadDidStart(const WTF::String& url)
 
     q->emitUrlChangeIfNeeded();
 
+    m_firstFrameRendered = false;
+    m_relayoutRequested = m_customLayoutWidth > 0 ? true : false;
+    if (m_relayoutRequested) {
+        webPageProxy->setFixedLayoutSize(WebCore::IntSize(0, 0));
+    }
+
     QWebLoadRequest loadRequest(QString(url), QQuickWebView::LoadStartedStatus);
     emit q->loadingChanged(&loadRequest);
 }
