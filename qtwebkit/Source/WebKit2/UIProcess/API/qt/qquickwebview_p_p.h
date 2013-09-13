@@ -129,6 +129,8 @@ public:
     QPointF contentPos() const;
     void setContentPos(const QPointF&);
 
+    void updateHeader();
+
     void updateIcon();
 
     // PageClient.
@@ -175,6 +177,7 @@ protected:
     QScopedPointer<WebKit::QtWebPageUIClient> pageUIClient;
 
     QScopedPointer<QQuickWebPage> pageView;
+    QScopedPointer<QQuickItem> headerItem;
     QQuickWebView* q_ptr;
     QQuickWebViewExperimental* experimental;
 
@@ -190,6 +193,7 @@ protected:
     QQmlComponent* filePicker;
     QQmlComponent* databaseQuotaDialog;
     QQmlComponent* colorChooser;
+    QQmlComponent* headerComponent;
 
     QList<QUrl> userScripts;
 

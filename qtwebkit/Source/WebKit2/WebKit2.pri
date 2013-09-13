@@ -76,6 +76,6 @@ linux-*: {
     LIBS += -lrt
 }
 
-have?(QTQUICK): QT += qml quick
+have?(QTQUICK): QT += qml qml-private quick v8-private
 
 enable?(GEOLOCATION): QT += location

@@ -61,6 +61,9 @@
 #include <JavaScriptCore/JSRetainPtr.h>
 #include <QDateTime>
 #include <QtCore/QFile>
+#include <qqmlinfo.h>
+#include <QtQml/private/qqmlglobal_p.h>
+#include <QtQml/QQmlContext>
 #include <QtQml/QJSValue>
 #include <QtQuick/QQuickView>
 #include <WKOpenPanelResultListener.h>
@@ -271,6 +274,7 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , filePicker(0)
     , databaseQuotaDialog(0)
     , colorChooser(0)
+    , headerComponent(0)
     , m_firstFrameRendered(false)
     , m_betweenLoadCommitAndFirstFrame(false)
     , m_customLayoutWidth(0)
@@ -361,6 +365,12 @@ void QQuickWebViewPrivate::provisionalLoadDidStart(const WTF::String& url)
     Q_Q(QQuickWebView);
 
     q->emitUrlChangeIfNeeded();
+
+    m_firstFrameRendered = false;
+    m_relayoutRequested = m_customLayoutWidth > 0 ? true : false;
+    if (m_relayoutRequested) {
+        webPageProxy->setFixedLayoutSize(WebCore::IntSize(0, 0));
+    }
 
     QWebLoadRequest loadRequest(QString(url), QQuickWebView::LoadStartedStatus);
     emit q->loadingChanged(&loadRequest);
@@ -799,6 +809,50 @@ void QQuickWebViewPrivate::setContentPos(const QPointF& pos)
     q->setContentY(pos.y());
 }
 
+void QQuickWebViewPrivate::updateHeader()
+{
+    Q_Q(QQuickWebView);
+    if (!q->isComponentComplete()) {
+        return;
+    }
+
+    bool headerItemChanged = false;
+    if (headerItem) {
+        headerItem->setParentItem(0);
+        headerItem.reset();
+        headerItemChanged = true;
+    }
+
+    QQuickItem *item = 0;
+    if (headerComponent) {
+        QQmlContext *creationContext = headerComponent->creationContext();
+        QQmlContext *context = new QQmlContext(
+                creationContext ? creationContext : qmlContext(q));
+        QObject *nobj = headerComponent->beginCreate(context);
+        if (nobj) {
+            QQml_setParent_noEvent(context, nobj);
+            item = qobject_cast<QQuickItem *>(nobj);
+            if (item) {
+                headerItem.reset(item);
+                QQml_setParent_noEvent(item, q->contentItem());
+                headerItem->setParentItem(q->contentItem());
+                headerItemChanged = true;
+            } else {
+                qmlInfo(q) << "Header component must be an Item";
+                delete nobj;
+            }
+        } else {
+            qmlInfo(q) << "Creation of the header failed. Error: " << headerComponent->errors();
+            delete context;
+        }
+        headerComponent->completeCreate();
+    }
+
+    if (headerItemChanged) {
+        emit q->experimental()->headerItemChanged();
+    }
+}
+
 WebCore::IntSize QQuickWebViewPrivate::viewSize() const
 {
     return WebCore::IntSize(pageView->width(), pageView->height());
@@ -1229,6 +1283,29 @@ void QQuickWebViewExperimental::setColorChooser(QQmlComponent* colorChooser)
 
     d->colorChooser = colorChooser;
     emit colorChooserChanged();
+}
+
+QQmlComponent *QQuickWebViewExperimental::header() const
+{
+    Q_D(const QQuickWebView);
+    return d->headerComponent;
+}
+
+void QQuickWebViewExperimental::setHeader(QQmlComponent *headerComponent)
+{
+    Q_Q(QQuickWebView);
+    Q_D(QQuickWebView);
+    if (d->headerComponent != headerComponent) {
+        d->headerComponent = headerComponent;
+        d->updateHeader();
+        emit headerChanged();
+    }
+}
+
+QQuickItem *QQuickWebViewExperimental::headerItem() const
+{
+    Q_D(const QQuickWebView);
+    return d->headerItem.data();
 }
 
 QString QQuickWebViewExperimental::userAgent() const
@@ -1877,6 +1954,7 @@ void QQuickWebView::componentComplete()
 
     d->onComponentComplete();
     d->updateViewportSize();
+    d->updateHeader();
 }
 
 void QQuickWebView::keyPressEvent(QKeyEvent* event)
