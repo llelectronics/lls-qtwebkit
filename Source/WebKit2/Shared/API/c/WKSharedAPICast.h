@@ -35,6 +35,8 @@
 #include "WKGeometry.h"
 #include "WKImage.h"
 #include "WKPageLoadTypes.h"
+#include "WKPageLoadTypesPrivate.h"
+#include "WKPageVisibilityTypes.h"
 #include "WebError.h"
 #include "WebEvent.h"
 #include "WebFindOptions.h"
@@ -49,6 +51,7 @@
 #include <WebCore/FrameLoaderTypes.h>
 #include <WebCore/IntRect.h>
 #include <WebCore/LayoutMilestones.h>
+#include <WebCore/PageVisibilityState.h>
 #include <WebCore/SecurityOrigin.h>
 #include <WebCore/UserContentTypes.h>
 #include <WebCore/UserScriptTypes.h>
@@ -60,6 +63,9 @@ class ImmutableArray;
 class ImmutableDictionary;
 class MutableArray;
 class MutableDictionary;
+class ObjCObjectGraph;
+class WebArchive;
+class WebArchiveResource;
 class WebCertificateInfo;
 class WebConnection;
 class WebContextMenuItem;
@@ -107,6 +113,12 @@ WK_ADD_API_MAPPING(WKURLRef, WebURL)
 WK_ADD_API_MAPPING(WKURLRequestRef, WebURLRequest)
 WK_ADD_API_MAPPING(WKURLResponseRef, WebURLResponse)
 WK_ADD_API_MAPPING(WKUserContentURLPatternRef, WebUserContentURLPattern)
+
+#if PLATFORM(MAC)
+WK_ADD_API_MAPPING(WKWebArchiveRef, WebArchive)
+WK_ADD_API_MAPPING(WKWebArchiveResourceRef, WebArchiveResource)
+WK_ADD_API_MAPPING(WKObjCTypeWrapperRef, ObjCObjectGraph)
+#endif
 
 template<typename ImplType, typename APIType = typename ImplTypeInfo<ImplType*>::APIType>
 class ProxyingRefPtr {
@@ -326,6 +338,10 @@ inline WKContextMenuItemTag toAPI(WebCore::ContextMenuAction action)
         return kWKContextMenuItemTagDownloadImageToDisk;
     case WebCore::ContextMenuItemTagCopyImageToClipboard:
         return kWKContextMenuItemTagCopyImageToClipboard;
+#if PLATFORM(EFL) || PLATFORM(GTK) || PLATFORM(QT)
+    case WebCore::ContextMenuItemTagCopyImageUrlToClipboard:
+        return kWKContextMenuItemTagCopyImageUrlToClipboard;
+#endif
     case WebCore::ContextMenuItemTagOpenFrameInNewWindow:
         return kWKContextMenuItemTagOpenFrameInNewWindow;
     case WebCore::ContextMenuItemTagCopy:
@@ -342,6 +358,10 @@ inline WKContextMenuItemTag toAPI(WebCore::ContextMenuAction action)
         return kWKContextMenuItemTagCut;
     case WebCore::ContextMenuItemTagPaste:
         return kWKContextMenuItemTagPaste;
+#if PLATFORM(EFL) || PLATFORM(GTK) || PLATFORM(QT)
+    case WebCore::ContextMenuItemTagSelectAll:
+        return kWKContextMenuItemTagSelectAll;
+#endif
     case WebCore::ContextMenuItemTagSpellingGuess:
         return kWKContextMenuItemTagSpellingGuess;
     case WebCore::ContextMenuItemTagNoGuessesFound:
@@ -442,12 +462,16 @@ inline WKContextMenuItemTag toAPI(WebCore::ContextMenuAction action)
         return kWKContextMenuItemTagTextDirectionRightToLeft;
     case WebCore::ContextMenuItemTagOpenMediaInNewWindow:
         return kWKContextMenuItemTagOpenMediaInNewWindow;
+    case WebCore::ContextMenuItemTagDownloadMediaToDisk:
+        return kWKContextMenuItemTagDownloadMediaToDisk;
     case WebCore::ContextMenuItemTagCopyMediaLinkToClipboard:
         return kWKContextMenuItemTagCopyMediaLinkToClipboard;
     case WebCore::ContextMenuItemTagToggleMediaControls:
         return kWKContextMenuItemTagToggleMediaControls;
     case WebCore::ContextMenuItemTagToggleMediaLoop:
         return kWKContextMenuItemTagToggleMediaLoop;
+    case WebCore::ContextMenuItemTagToggleVideoFullscreen:
+        return kWKContextMenuItemTagToggleVideoFullscreen;
     case WebCore::ContextMenuItemTagEnterVideoFullscreen:
         return kWKContextMenuItemTagEnterVideoFullscreen;
     case WebCore::ContextMenuItemTagMediaPlayPause:
@@ -482,6 +506,8 @@ inline WKContextMenuItemTag toAPI(WebCore::ContextMenuAction action)
     case WebCore::ContextMenuItemTagChangeBack:
         return kWKContextMenuItemTagChangeBack;
 #endif
+    case WebCore::ContextMenuItemTagOpenLinkInThisWindow:
+        return kWKContextMenuItemTagOpenLinkInThisWindow;
     default:
         if (action < WebCore::ContextMenuItemBaseApplicationTag)
             LOG_ERROR("ContextMenuAction %i is an unknown tag but is below the allowable custom tag value of %i", action, WebCore::  ContextMenuItemBaseApplicationTag);
@@ -507,6 +533,10 @@ inline WebCore::ContextMenuAction toImpl(WKContextMenuItemTag tag)
     case kWKContextMenuItemTagCopyImageToClipboard:
         return WebCore::ContextMenuItemTagCopyImageToClipboard;
     case kWKContextMenuItemTagOpenFrameInNewWindow:
+#if PLATFORM(EFL) || PLATFORM(GTK) || PLATFORM(QT)
+    case kWKContextMenuItemTagCopyImageUrlToClipboard:
+        return WebCore::ContextMenuItemTagCopyImageUrlToClipboard;
+#endif
         return WebCore::ContextMenuItemTagOpenFrameInNewWindow;
     case kWKContextMenuItemTagCopy:
         return WebCore::ContextMenuItemTagCopy;
@@ -522,6 +552,10 @@ inline WebCore::ContextMenuAction toImpl(WKContextMenuItemTag tag)
         return WebCore::ContextMenuItemTagCut;
     case kWKContextMenuItemTagPaste:
         return WebCore::ContextMenuItemTagPaste;
+#if PLATFORM(EFL) || PLATFORM(GTK) || PLATFORM(QT)
+    case kWKContextMenuItemTagSelectAll:
+        return WebCore::ContextMenuItemTagSelectAll;
+#endif
     case kWKContextMenuItemTagSpellingGuess:
         return WebCore::ContextMenuItemTagSpellingGuess;
     case kWKContextMenuItemTagNoGuessesFound:
@@ -622,12 +656,16 @@ inline WebCore::ContextMenuAction toImpl(WKContextMenuItemTag tag)
         return WebCore::ContextMenuItemTagTextDirectionRightToLeft;
     case kWKContextMenuItemTagOpenMediaInNewWindow:
         return WebCore::ContextMenuItemTagOpenMediaInNewWindow;
+    case kWKContextMenuItemTagDownloadMediaToDisk:
+        return WebCore::ContextMenuItemTagDownloadMediaToDisk;
     case kWKContextMenuItemTagCopyMediaLinkToClipboard:
         return WebCore::ContextMenuItemTagCopyMediaLinkToClipboard;
     case kWKContextMenuItemTagToggleMediaControls:
         return WebCore::ContextMenuItemTagToggleMediaControls;
     case kWKContextMenuItemTagToggleMediaLoop:
         return WebCore::ContextMenuItemTagToggleMediaLoop;
+    case kWKContextMenuItemTagToggleVideoFullscreen:
+        return WebCore::ContextMenuItemTagToggleVideoFullscreen;
     case kWKContextMenuItemTagEnterVideoFullscreen:
         return WebCore::ContextMenuItemTagEnterVideoFullscreen;
     case kWKContextMenuItemTagMediaPlayPause:
@@ -662,6 +700,8 @@ inline WebCore::ContextMenuAction toImpl(WKContextMenuItemTag tag)
     case kWKContextMenuItemTagChangeBack:
         return WebCore::ContextMenuItemTagChangeBack;
 #endif
+    case kWKContextMenuItemTagOpenLinkInThisWindow:
+        return WebCore::ContextMenuItemTagOpenLinkInThisWindow;
     default:
         if (tag < kWKContextMenuItemBaseApplicationTag)
             LOG_ERROR("WKContextMenuItemTag %i is an unknown tag but is below the allowable custom tag value of %i", tag, kWKContextMenuItemBaseApplicationTag);
@@ -770,6 +810,12 @@ inline WKLayoutMilestones toWKLayoutMilestones(WebCore::LayoutMilestones milesto
         wkMilestones |= kWKDidFirstVisuallyNonEmptyLayout;
     if (milestones & WebCore::DidHitRelevantRepaintedObjectsAreaThreshold)
         wkMilestones |= kWKDidHitRelevantRepaintedObjectsAreaThreshold;
+    if (milestones & WebCore::DidFirstFlushForHeaderLayer)
+        wkMilestones |= kWKDidFirstFlushForHeaderLayer;
+    if (milestones & WebCore::DidFirstLayoutAfterSuppressedIncrementalRendering)
+        wkMilestones |= kWKDidFirstLayoutAfterSuppressedIncrementalRendering;
+    if (milestones & WebCore::DidFirstPaintAfterSuppressedIncrementalRendering)
+        wkMilestones |= kWKDidFirstPaintAfterSuppressedIncrementalRendering;
     
     return wkMilestones;
 }
@@ -784,8 +830,31 @@ inline WebCore::LayoutMilestones toLayoutMilestones(WKLayoutMilestones wkMilesto
         milestones |= WebCore::DidFirstVisuallyNonEmptyLayout;
     if (wkMilestones & kWKDidHitRelevantRepaintedObjectsAreaThreshold)
         milestones |= WebCore::DidHitRelevantRepaintedObjectsAreaThreshold;
+    if (wkMilestones & kWKDidFirstFlushForHeaderLayer)
+        milestones |= WebCore::DidFirstFlushForHeaderLayer;
+    if (wkMilestones & kWKDidFirstLayoutAfterSuppressedIncrementalRendering)
+        milestones |= WebCore::DidFirstLayoutAfterSuppressedIncrementalRendering;
+    if (wkMilestones & kWKDidFirstPaintAfterSuppressedIncrementalRendering)
+        milestones |= WebCore::DidFirstPaintAfterSuppressedIncrementalRendering;
     
     return milestones;
+}
+
+inline WebCore::PageVisibilityState toPageVisibilityState(WKPageVisibilityState wkPageVisibilityState)
+{
+    switch (wkPageVisibilityState) {
+    case kWKPageVisibilityStateVisible:
+        return WebCore::PageVisibilityStateVisible;
+    case kWKPageVisibilityStateHidden:
+        return WebCore::PageVisibilityStateHidden;
+    case kWKPageVisibilityStatePrerender:
+        return WebCore::PageVisibilityStatePrerender;
+    case kWKPageVisibilityStateUnloaded:
+        return WebCore::PageVisibilityStateUnloaded;
+    }
+
+    ASSERT_NOT_REACHED();
+    return WebCore::PageVisibilityStateVisible;
 }
 
 inline ImageOptions toImageOptions(WKImageOptions wkImageOptions)
