@@ -23,8 +23,11 @@
 
 #include "qwebkitglobal.h"
 #include <QObject>
-#include <QtCore/QUrl>
 #include <QtQuick/qquickitem.h>
+
+QT_BEGIN_NAMESPACE
+class QUrl;
+QT_END_NAMESPACE
 
 class QQuickNetworkRequest;
 class QQuickNetworkReply;

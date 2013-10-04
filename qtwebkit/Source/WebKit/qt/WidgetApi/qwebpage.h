@@ -78,7 +78,8 @@ class QWEBKITWIDGETS_EXPORT QWebPage : public QObject {
     Q_PROPERTY(LinkDelegationPolicy linkDelegationPolicy READ linkDelegationPolicy WRITE setLinkDelegationPolicy)
     Q_PROPERTY(QPalette palette READ palette WRITE setPalette)
     Q_PROPERTY(bool contentEditable READ isContentEditable WRITE setContentEditable)
-    Q_ENUMS(LinkDelegationPolicy NavigationType WebAction)
+    Q_PROPERTY(VisibilityState visibilityState READ visibilityState WRITE setVisibilityState)
+    Q_ENUMS(LinkDelegationPolicy NavigationType VisibilityState WebAction)
 public:
     enum NavigationType {
         NavigationTypeLinkClicked,
@@ -187,7 +188,10 @@ public:
         FindBackward = 1,
         FindCaseSensitively = 2,
         FindWrapsAroundDocument = 4,
-        HighlightAllOccurrences = 8
+        HighlightAllOccurrences = 8,
+        FindAtWordBeginningsOnly = 16,
+        TreatMedialCapitalAsWordBeginning = 32,
+        FindBeginsInSelection = 64
     };
     Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
@@ -211,6 +215,13 @@ public:
     enum Feature {
         Notifications,
         Geolocation
+    };
+
+    enum VisibilityState {
+        VisibilityStateVisible,
+        VisibilityStateHidden,
+        VisibilityStatePrerender,
+        VisibilityStateUnloaded
     };
 
     class QWEBKITWIDGETS_EXPORT ViewportAttributes {
@@ -271,6 +282,9 @@ public:
 
     quint64 totalBytes() const;
     quint64 bytesReceived() const;
+
+    VisibilityState visibilityState() const;
+    void setVisibilityState(VisibilityState);
 
     bool hasSelection() const;
     QString selectedText() const;

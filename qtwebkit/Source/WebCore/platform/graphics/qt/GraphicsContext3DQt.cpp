@@ -34,10 +34,15 @@
 #include "OpenGLShims.h"
 #include "QWebPageClient.h"
 #include "SharedBuffer.h"
-#include <QWindow>
+#include "TextureMapperPlatformLayer.h"
 #include <qpa/qplatformpixmap.h>
-#include <wtf/UnusedParam.h>
 #include <wtf/text/CString.h>
+
+#if QT_VERSION >= 0x050100
+#include <QOffscreenSurface>
+#else
+#include <QWindow>
+#endif
 
 #if USE(TEXTURE_MAPPER_GL)
 #include <texmap/TextureMapperGL.h>
@@ -65,7 +70,7 @@ public:
     ~GraphicsContext3DPrivate();
 
 #if USE(ACCELERATED_COMPOSITING)
-    virtual void paintToTextureMapper(TextureMapper*, const FloatRect& target, const TransformationMatrix&, float opacity, BitmapTexture* mask);
+    virtual void paintToTextureMapper(TextureMapper*, const FloatRect& target, const TransformationMatrix&, float opacity);
 #endif
 #if USE(GRAPHICS_SURFACE)
     virtual IntSize platformLayerSize() const;
@@ -115,21 +120,34 @@ GraphicsContext3DPrivate::GraphicsContext3DPrivate(GraphicsContext3D* context, H
         return;
     }
 
-#if USE(GRAPHICS_SURFACE)
-    // FIXME: Find a way to create a QOpenGLContext without creating a QWindow at all.
-    // We need to create a surface in order to create a QOpenGLContext and make it current.
+    QOpenGLContext* shareContext = 0;
+    if (hostWindow && hostWindow->platformPageClient() && hostWindow->platformPageClient()->makeOpenGLContextCurrentIfAvailable())
+        shareContext = QOpenGLContext::currentContext();
+
+#if QT_VERSION >= 0x050100
+    QOffscreenSurface* surface = new QOffscreenSurface;
+    surface->create();
+    m_surface = surface;
+    m_surfaceOwner = surface;
+#else
     QWindow* window = new QWindow;
     window->setSurfaceType(QSurface::OpenGLSurface);
     window->setGeometry(-10, -10, 1, 1);
     window->create();
     m_surface = window;
     m_surfaceOwner = window;
+#endif
 
-    m_platformContext = new QOpenGLContext(window);
+    m_platformContext = new QOpenGLContext(m_surfaceOwner);
+    if (shareContext)
+        m_platformContext->setShareContext(shareContext);
+
     if (!m_platformContext->create())
         return;
 
     makeCurrentIfNeeded();
+
+#if USE(GRAPHICS_SURFACE)
     IntSize surfaceSize(m_context->m_currentWidth, m_context->m_currentHeight);
     m_surfaceFlags = GraphicsSurface::SupportsTextureTarget
                     | GraphicsSurface::SupportsSharing;
@@ -155,14 +173,14 @@ void GraphicsContext3DPrivate::createOffscreenBuffers()
     if (m_context->m_attrs.antialias) {
         glGenFramebuffers(1, &m_context->m_multisampleFBO);
         glBindFramebuffer(GraphicsContext3D::FRAMEBUFFER, m_context->m_multisampleFBO);
-        m_context->m_boundFBO = m_context->m_multisampleFBO;
+        m_context->m_state.boundFBO = m_context->m_multisampleFBO;
         glGenRenderbuffers(1, &m_context->m_multisampleColorBuffer);
         if (m_context->m_attrs.stencil || m_context->m_attrs.depth)
             glGenRenderbuffers(1, &m_context->m_multisampleDepthStencilBuffer);
     } else {
         // Bind canvas FBO.
         glBindFramebuffer(GraphicsContext3D::FRAMEBUFFER, m_context->m_fbo);
-        m_context->m_boundFBO = m_context->m_fbo;
+        m_context->m_state.boundFBO = m_context->m_fbo;
 #if USE(OPENGL_ES_2)
         if (m_context->m_attrs.depth)
             glGenRenderbuffers(1, &m_context->m_depthBuffer);
@@ -194,6 +212,10 @@ void GraphicsContext3DPrivate::initializeANGLE()
     if (extensions->supports("GL_ARB_texture_rectangle"))
         ANGLEResources.ARB_texture_rectangle = 1;
 
+    GC3Dint range[2], precision;
+    m_context->getShaderPrecisionFormat(GraphicsContext3D::FRAGMENT_SHADER, GraphicsContext3D::HIGH_FLOAT, range, &precision);
+    ANGLEResources.FragmentPrecisionHigh = (range[0] || range[1] || precision);
+
     m_context->m_compiler.setResources(ANGLEResources);
 }
 
@@ -205,16 +227,19 @@ GraphicsContext3DPrivate::~GraphicsContext3DPrivate()
 
 static inline quint32 swapBgrToRgb(quint32 pixel)
 {
-    return ((pixel << 16) & 0xff0000) | ((pixel >> 16) & 0xff) | (pixel & 0xff00ff00);
+    return (((pixel << 16) | (pixel >> 16)) & 0x00ff00ff) | (pixel & 0xff00ff00);
 }
 
 #if USE(ACCELERATED_COMPOSITING)
-void GraphicsContext3DPrivate::paintToTextureMapper(TextureMapper* textureMapper, const FloatRect& targetRect, const TransformationMatrix& matrix, float opacity, BitmapTexture* mask)
+void GraphicsContext3DPrivate::paintToTextureMapper(TextureMapper* textureMapper, const FloatRect& targetRect, const TransformationMatrix& matrix, float opacity)
 {
+    m_context->markLayerComposited();
     blitMultisampleFramebufferAndRestoreContext();
 
     if (textureMapper->accelerationMode() == TextureMapper::OpenGLMode) {
+        TextureMapperGL* texmapGL = static_cast<TextureMapperGL*>(textureMapper);
 #if USE(GRAPHICS_SURFACE)
+        ASSERT(m_graphicsSurface);
         // CGL only provides us the context, but not the view the context is currently bound to.
         // To make sure the context is bound the the right surface we have to do a makeCurrent through QOpenGL again.
         // FIXME: Remove this code as soon as GraphicsSurfaceMac makes use of NSOpenGL.
@@ -229,8 +254,11 @@ void GraphicsContext3DPrivate::paintToTextureMapper(TextureMapper* textureMapper
         // FIXME: Remove this code as soon as GraphicsSurfaceMac makes use of NSOpenGL.
         currentContext->makeCurrent(currentSurface);
 
-        TextureMapperGL* texmapGL = static_cast<TextureMapperGL*>(textureMapper);
-        m_graphicsSurface->paintToTextureMapper(texmapGL, targetRect, matrix, opacity, mask);
+        m_graphicsSurface->paintToTextureMapper(texmapGL, targetRect, matrix, opacity);
+#else
+        TextureMapperGL::Flags flags = TextureMapperGL::ShouldFlipTexture | (m_context->m_attrs.alpha ? TextureMapperGL::ShouldBlend : 0);
+        IntSize textureSize(m_context->m_currentWidth, m_context->m_currentHeight);
+        texmapGL->drawTexture(m_context->m_texture, flags, textureSize, targetRect, matrix, opacity);
 #endif
         return;
     }
@@ -251,7 +279,7 @@ void GraphicsContext3DPrivate::paintToTextureMapper(TextureMapper* textureMapper
     makeCurrentIfNeeded();
     glBindFramebuffer(GraphicsContext3D::FRAMEBUFFER, m_context->m_fbo);
     glReadPixels(/* x */ 0, /* y */ 0, width, height, GraphicsContext3D::RGBA, GraphicsContext3D::UNSIGNED_BYTE, imagePixels);
-    glBindFramebuffer(GraphicsContext3D::FRAMEBUFFER, m_context->m_boundFBO);
+    glBindFramebuffer(GraphicsContext3D::FRAMEBUFFER, m_context->m_state.boundFBO);
 
     // OpenGL gives us ABGR on 32 bits, and with the origin at the bottom left
     // We need RGB32 or ARGB32_PM, with the origin at the top left.
@@ -291,6 +319,7 @@ uint32_t GraphicsContext3DPrivate::copyToGraphicsSurface()
     if (!m_graphicsSurface)
         return 0;
 
+    m_context->markLayerComposited();
     blitMultisampleFramebufferAndRestoreContext();
     m_graphicsSurface->copyFromTexture(m_context->m_texture, IntRect(0, 0, m_context->m_currentWidth, m_context->m_currentHeight));
     return m_graphicsSurface->frontBuffer();
@@ -316,21 +345,25 @@ void GraphicsContext3DPrivate::blitMultisampleFramebuffer() const
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, m_context->m_fbo);
     glBlitFramebuffer(0, 0, m_context->m_currentWidth, m_context->m_currentHeight, 0, 0, m_context->m_currentWidth, m_context->m_currentHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 #endif
-    glBindFramebuffer(GraphicsContext3D::FRAMEBUFFER, m_context->m_boundFBO);
+    glBindFramebuffer(GraphicsContext3D::FRAMEBUFFER, m_context->m_state.boundFBO);
 }
 
 void GraphicsContext3DPrivate::blitMultisampleFramebufferAndRestoreContext() const
 {
-    if (!m_context->m_attrs.antialias)
-        return;
-
     const QOpenGLContext* currentContext = QOpenGLContext::currentContext();
     QSurface* currentSurface = 0;
     if (currentContext && currentContext != m_platformContext) {
         currentSurface = currentContext->surface();
         m_platformContext->makeCurrent(m_surface);
     }
-    blitMultisampleFramebuffer();
+
+    if (m_context->m_attrs.antialias)
+        blitMultisampleFramebuffer();
+
+    // While the context is still bound, make sure all the Framebuffer content is in finished state.
+    // This is necessary as we are doing our own double buffering instead of using a drawable that provides swapBuffers.
+    glFinish();
+
     if (currentContext && currentContext != m_platformContext)
         const_cast<QOpenGLContext*>(currentContext)->makeCurrent(currentSurface);
 }
@@ -378,9 +411,6 @@ GraphicsContext3D::GraphicsContext3D(GraphicsContext3D::Attributes attrs, HostWi
     , m_depthStencilBuffer(0)
     , m_layerComposited(false)
     , m_internalColorFormat(0)
-    , m_boundFBO(0)
-    , m_activeTexture(GL_TEXTURE0)
-    , m_boundTexture0(0)
     , m_multisampleFBO(0)
     , m_multisampleDepthStencilBuffer(0)
     , m_multisampleColorBuffer(0)
@@ -487,57 +517,56 @@ void GraphicsContext3D::createGraphicsSurfaces(const IntSize& size)
 }
 #endif
 
-bool GraphicsContext3D::getImageData(Image* image,
-                                     GC3Denum format,
-                                     GC3Denum type,
-                                     bool premultiplyAlpha,
-                                     bool ignoreGammaAndColorProfile,
-                                     Vector<uint8_t>& outputVector)
+GraphicsContext3D::ImageExtractor::~ImageExtractor()
+{
+}
+
+bool GraphicsContext3D::ImageExtractor::extractImage(bool premultiplyAlpha, bool ignoreGammaAndColorProfile)
 {
     UNUSED_PARAM(ignoreGammaAndColorProfile);
-    if (!image)
+    if (!m_image)
         return false;
 
-    QImage qtImage;
     // Is image already loaded? If not, load it.
-    if (image->data())
-        qtImage = QImage::fromData(reinterpret_cast<const uchar*>(image->data()->data()), image->data()->size());
+    if (m_image->data())
+        m_qtImage = QImage::fromData(reinterpret_cast<const uchar*>(m_image->data()->data()), m_image->data()->size());
     else {
-        QPixmap* nativePixmap = image->nativeImageForCurrentFrame();
+        QPixmap* nativePixmap = m_image->nativeImageForCurrentFrame();
         if (!nativePixmap)
             return false;
 
         // With QPA, we can avoid a deep copy.
-        qtImage = *nativePixmap->handle()->buffer();
+        m_qtImage = *nativePixmap->handle()->buffer();
     }
 
-    AlphaOp alphaOp = AlphaDoNothing;
-    switch (qtImage.format()) {
+    m_alphaOp = AlphaDoNothing;
+    switch (m_qtImage.format()) {
     case QImage::Format_RGB32:
         // For opaque images, we should not premultiply or unmultiply alpha.
         break;
     case QImage::Format_ARGB32:
         if (premultiplyAlpha)
-            alphaOp = AlphaDoPremultiply;
+            m_alphaOp = AlphaDoPremultiply;
         break;
     case QImage::Format_ARGB32_Premultiplied:
         if (!premultiplyAlpha)
-            alphaOp = AlphaDoUnmultiply;
+            m_alphaOp = AlphaDoUnmultiply;
         break;
     default:
         // The image has a format that is not supported in packPixels. We have to convert it here.
-        qtImage = qtImage.convertToFormat(premultiplyAlpha ? QImage::Format_ARGB32_Premultiplied : QImage::Format_ARGB32);
+        m_qtImage = m_qtImage.convertToFormat(premultiplyAlpha ? QImage::Format_ARGB32_Premultiplied : QImage::Format_ARGB32);
         break;
     }
 
-    unsigned int packedSize;
-    // Output data is tightly packed (alignment == 1).
-    if (computeImageSizeInBytes(format, type, image->width(), image->height(), 1, &packedSize, 0) != GraphicsContext3D::NO_ERROR)
+    m_imageWidth = m_image->width();
+    m_imageHeight = m_image->height();
+    if (!m_imageWidth || !m_imageHeight)
         return false;
+    m_imagePixelData = m_qtImage.constBits();
+    m_imageSourceFormat = DataFormatBGRA8;
+    m_imageSourceUnpackAlignment = 0;
 
-    outputVector.resize(packedSize);
-
-    return packPixels(qtImage.constBits(), SourceFormatBGRA8, image->width(), image->height(), 0, format, type, alphaOp, outputVector.data());
+    return true;
 }
 
 void GraphicsContext3D::setContextLostCallback(PassOwnPtr<ContextLostCallback>)
