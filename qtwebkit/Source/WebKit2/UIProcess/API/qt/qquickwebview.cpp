@@ -345,7 +345,7 @@ void QQuickWebViewPrivate::initialize(WKContextRef contextRef, WKPageGroupRef pa
 #if ENABLE(FULLSCREEN_API)
     webPageProxy->fullScreenManager()->setWebView(q_ptr);
 #endif
-    cookieManagerProxy = context->context()->cookieManagerProxy();
+    cookieManagerProxy = toImpl(context->context())->supplement<WebCookieManagerProxy>();
 
     pageEventHandler.reset(new QtWebPageEventHandler(webPage.get(), pageView.data(), q_ptr));
 
@@ -414,14 +414,16 @@ void QQuickWebViewPrivate::didStartProvisionalLoadForFrame(WKPageRef, WKFrameRef
 
     WKRetainPtr<WKURLRef> url  = adoptWK(WKFrameCopyProvisionalURL(frame));
 
-    QQuickWebView* const q = toQQuickWebViewPrivate(clientInfo)->q_func();
+    QQuickWebViewPrivate* d = toQQuickWebViewPrivate(clientInfo);
+    QQuickWebView* const q = d->q_func();
+
 
     q->emitUrlChangeIfNeeded();
 
-    m_firstFrameRendered = false;
-    m_relayoutRequested = m_customLayoutWidth > 0 ? true : false;
-    if (m_relayoutRequested) {
-        webPageProxy->setFixedLayoutSize(WebCore::IntSize(0, 0));
+    d->m_firstFrameRendered = false;
+    d->m_relayoutRequested = d->m_customLayoutWidth > 0 ? true : false;
+    if (d->m_relayoutRequested) {
+        d->webPageProxy->setFixedLayoutSize(WebCore::IntSize(0, 0));
     }
 
     QWebLoadRequest loadRequest(WKURLCopyQUrl(url.get()), QQuickWebView::LoadStartedStatus);
