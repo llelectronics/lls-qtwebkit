@@ -80,6 +80,9 @@ public:
     void pageTransitionViewportReady();
     void pageDidRequestScroll(const WebCore::IntPoint& cssPosition);
 
+    // Enabled overview mode when loading (initially fit to viewport)
+    void setOverview(bool enabled) { m_overview = enabled; }
+
 private:
     void syncVisibleContents(const WebCore::FloatPoint &trajectoryVector = WebCore::FloatPoint::zero());
     void applyScaleAfterRenderingContents(float scale);
@@ -94,6 +97,7 @@ private:
     bool m_allowsUserScaling;
     float m_minimumScaleToFit;
     bool m_initiallyFitToViewport;
+    bool m_overview;
 
     bool m_hadUserInteraction;
 
