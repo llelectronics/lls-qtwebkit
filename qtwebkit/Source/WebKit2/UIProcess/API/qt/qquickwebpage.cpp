@@ -155,14 +155,14 @@ QPointF QQuickWebPage::adjustedPosition() const
     return QPointF(xPos, yPos);
 }
 
-QTransform QQuickWebPage::transformFromItem() const
+QTransform QQuickWebPage::transformFromItem(bool adjusted) const
 {
-    return transformToItem().inverted();
+    return transformToItem(adjusted).inverted();
 }
 
-QTransform QQuickWebPage::transformToItem() const
+QTransform QQuickWebPage::transformToItem(bool adjusted) const
 {
-    QPointF pos = adjustedPosition();
+    QPointF pos = adjusted ? adjustedPosition() : position();
     qreal xPos = pos.x();
     qreal yPos = pos.y();
 
