@@ -115,7 +115,13 @@ enum {
 };
 typedef NSUInteger WebLayoutMilestones;
 
-// This needs to be in sync with WebCore::NotificationClient::Permission
+typedef enum {
+    WebPageVisibilityStateVisible,
+    WebPageVisibilityStateHidden,
+    WebPageVisibilityStatePrerender,
+    WebPageVisibilityStateUnloaded
+} WebPageVisibilityState;
+
 typedef enum {
     WebNotificationPermissionAllowed,
     WebNotificationPermissionNotAllowed,
@@ -315,6 +321,10 @@ Could be worth adding to the API.
 
 // Indicates if the WebView is in the midst of a user gesture.
 - (BOOL)_isProcessingUserGesture;
+
+// Determining and updating page visibility state.
+- (BOOL)_isViewVisible;
+- (void)_updateVisibilityState;
 
 // SPI for DumpRenderTree
 - (void)_updateActiveState;
@@ -574,6 +584,9 @@ Could be worth adding to the API.
 - (void)_listenForLayoutMilestones:(WebLayoutMilestones)layoutMilestones;
 - (WebLayoutMilestones)_layoutMilestones;
 
+- (WebPageVisibilityState)_visibilityState;
+- (void)_setVisibilityState:(WebPageVisibilityState)visibilityState isInitialState:(BOOL)isInitialState;
+
 // Whether the column-break-{before,after} properties are respected instead of the
 // page-break-{before,after} properties.
 - (void)_setPaginationBehavesLikeColumns:(BOOL)behavesLikeColumns;
@@ -608,23 +621,6 @@ Could be worth adding to the API.
 - (BOOL)searchFor:(NSString *)string direction:(BOOL)forward caseSensitive:(BOOL)caseFlag wrap:(BOOL)wrapFlag startInSelection:(BOOL)startInSelection;
 
 /*!
-    @method defaultMinimumTimerInterval
-    @discussion Should consider moving this to the public API.
-    @result Returns the default minimum timer interval.
-*/
-+ (double)_defaultMinimumTimerInterval;
-
-/*!
-    @method setMinimumTimerInterval:
-    @discussion Sets the minimum interval for DOMTimers in this WebView. This method is
-    exposed here in the Mac port rather than through WebPreferences (which generally
-    governs Settings) because this value is something adjusted at run time, not set
-    globally via "defaults write". Should consider adding this to the public API.
-    @param intervalInSeconds The new minimum timer interval, in seconds.
-*/
-- (void)_setMinimumTimerInterval:(double)intervalInSeconds;
-
-/*!
     @method _HTTPPipeliningEnabled
     @abstract Checks the HTTP pipelining status.
     @discussion Defaults to NO.
@@ -640,8 +636,7 @@ Could be worth adding to the API.
  */
 + (void)_setHTTPPipeliningEnabled:(BOOL)enabled;
 
-// SPI for DumpRenderTree
-- (void)_setVisibilityState:(int)visibilityState isInitialState:(BOOL)isInitialState;
+@property (nonatomic, copy, getter=_sourceApplicationAuditData, setter=_setSourceApplicationAuditData:) NSData *sourceApplicationAuditData;
 
 @end
 
@@ -685,7 +680,6 @@ Could be worth adding to the API.
 - (BOOL)isAutomaticDashSubstitutionEnabled;
 - (BOOL)isAutomaticTextReplacementEnabled;
 - (BOOL)isAutomaticSpellingCorrectionEnabled;
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
 - (void)setAutomaticQuoteSubstitutionEnabled:(BOOL)flag;
 - (void)toggleAutomaticQuoteSubstitution:(id)sender;
 - (void)setAutomaticLinkDetectionEnabled:(BOOL)flag;
@@ -696,7 +690,6 @@ Could be worth adding to the API.
 - (void)toggleAutomaticTextReplacement:(id)sender;
 - (void)setAutomaticSpellingCorrectionEnabled:(BOOL)flag;
 - (void)toggleAutomaticSpellingCorrection:(id)sender;
-#endif
 @end
 
 @interface WebView (WebViewEditingInMail)
@@ -751,10 +744,6 @@ Could be worth adding to the API.
 - (void)_notificationsDidClose:(NSArray *)notificationIDs;
 
 - (uint64_t)_notificationIDForTesting:(JSValueRef)jsNotification;
-@end
-
-@interface WebView (WebViewPrivateStyleInfo)
-- (JSValueRef)_computedStyleIncludingVisitedInfo:(JSContextRef)context forElement:(JSValueRef)value;
 @end
 
 @interface NSObject (WebViewFrameLoadDelegatePrivate)

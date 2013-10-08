@@ -10,6 +10,10 @@ load(qt_build_config)
 TEMPLATE = lib
 TARGET = QtWebKitWidgets
 
+# This is relied upon by our export macros and seems not to be properly
+# defined by the logic in qt_module.prf as it should
+DEFINES += QT_BUILD_WEBKITWIDGETS_LIB
+
 WEBKIT_DESTDIR = $${ROOT_BUILD_DIR}/lib
 
 SOURCE_DIR = $${ROOT_WEBKIT_DIR}/Source/WebKit
@@ -21,11 +25,9 @@ INCLUDEPATH += \
     $$SOURCE_DIR/qt/WidgetSupport \
     $$ROOT_WEBKIT_DIR/Source/WTF/wtf/qt
 
-enable?(DEVICE_ORIENTATION)|enable?(ORIENTATION_EVENTS) {
-    QT += sensors
-}
+have?(qtsensors):if(enable?(DEVICE_ORIENTATION)|enable?(ORIENTATION_EVENTS)): QT += sensors
 
-enable?(GEOLOCATION): QT += location
+have?(qtlocation):enable?(GEOLOCATION): QT += location
 
 use?(QT_MULTIMEDIA): QT *= multimediawidgets
 
@@ -72,7 +74,7 @@ BASE_TARGET = $$TARGET
 load(qt_module)
 
 # Make sure the install_name of the QtWebKit library point to webkit
-force_independent:macx {
+!production_build:force_independent:macx {
     # We do our own absolute path so that we can trick qmake into
     # using the webkit build path instead of the Qt install path.
     CONFIG -= absolute_library_soname
@@ -108,7 +110,6 @@ SOURCES += \
     $$PWD/WebKit/qt/WidgetSupport/QtFallbackWebPopup.cpp \
     $$PWD/WebKit/qt/WidgetSupport/QtWebComboBox.cpp \
     $$PWD/WebKit/qt/WidgetSupport/QWebUndoCommand.cpp \
-    $$PWD/WebKit/qt/WidgetSupport/DefaultFullScreenVideoHandler.cpp \
     $$PWD/WebKit/qt/WidgetSupport/InitWebKitQt.cpp \
     $$PWD/WebKit/qt/WidgetSupport/InspectorClientWebPage.cpp \
     $$PWD/WebKit/qt/WidgetSupport/PageClientQt.cpp \
@@ -128,7 +129,6 @@ HEADERS += \
     $$PWD/WebKit/qt/Api/qwebkitplatformplugin.h \
     $$PWD/WebKit/qt/WidgetSupport/InitWebKitQt.h \
     $$PWD/WebKit/qt/WidgetSupport/InspectorClientWebPage.h \
-    $$PWD/WebKit/qt/WidgetSupport/DefaultFullScreenVideoHandler.h \
     $$PWD/WebKit/qt/WidgetSupport/QtFallbackWebPopup.h \
     $$PWD/WebKit/qt/WidgetSupport/QtWebComboBox.h \
     $$PWD/WebKit/qt/WidgetSupport/QWebUndoCommand.h \
@@ -147,9 +147,13 @@ INCLUDEPATH += \
     $$PWD/qt/WebCoreSupport
 
 enable?(VIDEO) {
-    !use?(QTKIT):!use?(GSTREAMER):use?(QT_MULTIMEDIA) {
+    !use?(GSTREAMER):use?(QT_MULTIMEDIA) {
         HEADERS += $$PWD/WebKit/qt/WidgetSupport/FullScreenVideoWidget.h
         SOURCES += $$PWD/WebKit/qt/WidgetSupport/FullScreenVideoWidget.cpp
     }
 }
 
+use?(QT_MULTIMEDIA) {
+    SOURCES += $$PWD/WebKit/qt/WidgetSupport/DefaultFullScreenVideoHandler.cpp
+    HEADERS += $$PWD/WebKit/qt/WidgetSupport/DefaultFullScreenVideoHandler.h
+}

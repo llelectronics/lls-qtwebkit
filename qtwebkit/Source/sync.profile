@@ -19,7 +19,8 @@
 #
 %dependencies = (
     "qtbase" => "",
-    "qtxmlpatterns" => "",
     "qtdeclarative" => "",
-    "qtjsbackend" => "",
+    "qtlocation" => "",
+    "qtmultimedia" => "",
+    "qtsensors" => "",
 );

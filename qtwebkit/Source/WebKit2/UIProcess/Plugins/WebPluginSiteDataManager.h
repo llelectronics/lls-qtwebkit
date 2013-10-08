@@ -41,10 +41,8 @@ class WebProcessProxy;
 
 typedef GenericCallback<WKArrayRef> ArrayCallback;
 
-class WebPluginSiteDataManager : public APIObject {
+class WebPluginSiteDataManager : public TypedAPIObject<APIObject::TypePluginSiteDataManager> {
 public:
-    static const Type APIType = TypePluginSiteDataManager;
-
     static PassRefPtr<WebPluginSiteDataManager> create(WebContext*);
     virtual ~WebPluginSiteDataManager();
 
@@ -67,8 +65,6 @@ public:
 private:
     explicit WebPluginSiteDataManager(WebContext*);
 
-    virtual Type type() const { return APIType; }
-
     WebContext* m_webContext;
     HashMap<uint64_t, RefPtr<ArrayCallback> > m_arrayCallbacks;
     HashMap<uint64_t, RefPtr<VoidCallback> > m_voidCallbacks;
@@ -78,10 +74,10 @@ private:
     void didClearSiteDataForAllPlugins(uint64_t callbackID);
 
     class GetSitesWithDataState;
-    HashMap<uint64_t, GetSitesWithDataState*> m_pendingGetSitesWithData;
+    HashMap<uint64_t, OwnPtr<GetSitesWithDataState> > m_pendingGetSitesWithData;
 
     class ClearSiteDataState;
-    HashMap<uint64_t, ClearSiteDataState*> m_pendingClearSiteData;
+    HashMap<uint64_t, OwnPtr<ClearSiteDataState> > m_pendingClearSiteData;
 #endif
 };
 

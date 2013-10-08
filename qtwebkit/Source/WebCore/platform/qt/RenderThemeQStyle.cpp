@@ -68,33 +68,30 @@ QSharedPointer<StylePainter> RenderThemeQStyle::getStylePainter(const PaintInfo&
 }
 
 StylePainterQStyle::StylePainterQStyle(RenderThemeQStyle* theme, const PaintInfo& paintInfo, RenderObject* renderObject)
-    : StylePainter(theme, paintInfo)
+    : StylePainter(paintInfo.context)
     , qStyle(theme->qStyle())
     , appearance(NoControlPart)
 {
-    init(paintInfo.context ? paintInfo.context : 0);
+    setupStyleOption();
     if (renderObject)
         appearance = theme->initializeCommonQStyleOptions(styleOption, renderObject);
 }
 
 StylePainterQStyle::StylePainterQStyle(ScrollbarThemeQStyle* theme, GraphicsContext* context)
-    : StylePainter()
+    : StylePainter(context)
     , qStyle(theme->qStyle())
     , appearance(NoControlPart)
 {
-    init(context);
+    setupStyleOption();
 }
 
-void StylePainterQStyle::init(GraphicsContext* context)
+void StylePainterQStyle::setupStyleOption()
 {
-    painter = static_cast<QPainter*>(context->platformContext());
     if (QObject* widget = qStyle->widgetForPainter(painter)) {
         styleOption.palette = widget->property("palette").value<QPalette>();
         styleOption.rect = widget->property("rect").value<QRect>();
         styleOption.direction = static_cast<Qt::LayoutDirection>(widget->property("layoutDirection").toInt());
     }
-
-    StylePainter::init(context);
 }
 
 PassRefPtr<RenderTheme> RenderThemeQStyle::create(Page* page)
@@ -134,8 +131,7 @@ void RenderThemeQStyle::setPaletteFromPageClientIfExists(QPalette& palette) cons
     if (!m_page)
         return;
 
-    ASSERT(m_page->chrome());
-    ChromeClient* chromeClient = m_page->chrome()->client();
+    ChromeClient* chromeClient = m_page->chrome().client();
     if (!chromeClient)
         return;
 
@@ -251,9 +247,9 @@ void RenderThemeQStyle::adjustButtonStyle(StyleResolver* styleResolver, RenderSt
     fontDescription.setComputedSize(style->fontSize());
 #endif
 
-    FontFamily fontFamily;
-    fontFamily.setFamily(m_buttonFontFamily);
-    fontDescription.setFamily(fontFamily);
+    Vector<AtomicString, 1> families;
+    families.append(m_buttonFontFamily);
+    fontDescription.setFamilies(families);
     style->setFontDescription(fontDescription);
     style->font().update(styleResolver->fontSelector());
     style->setLineHeight(RenderStyle::initialLineHeight());
@@ -538,8 +534,9 @@ bool RenderThemeQStyle::paintInnerSpinButton(RenderObject* o, const PaintInfo& p
 
 ControlPart RenderThemeQStyle::initializeCommonQStyleOptions(QStyleFacadeOption &option, RenderObject* o) const
 {
-    // Default bits: no focus, no mouse over
+    // Default bits: no focus, no mouse over, enabled
     option.state &= ~(QStyleFacade::State_HasFocus | QStyleFacade::State_MouseOver);
+    option.state |= QStyleFacade::State_Enabled;
 
     if (isReadOnlyControl(o))
         // Readonly is supported on textfields.
