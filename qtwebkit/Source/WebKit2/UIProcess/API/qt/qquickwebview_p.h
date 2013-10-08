@@ -261,6 +261,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(int deviceWidth WRITE setDeviceWidth READ deviceWidth NOTIFY deviceWidthChanged)
     Q_PROPERTY(int deviceHeight WRITE setDeviceHeight READ deviceHeight NOTIFY deviceHeightChanged)
     Q_PROPERTY(int customLayoutWidth WRITE setCustomLayoutWidth READ customLayoutWidth NOTIFY customLayoutWidthChanged)
+    Q_PROPERTY(bool overview WRITE setOverview READ overview NOTIFY overviewChanged FINAL)
 
     Q_PROPERTY(bool autoCorrect WRITE setAutoCorrect READ autoCorrect NOTIFY autoCorrectChanged)
     Q_PROPERTY(bool temporaryCookies WRITE setTemporaryCookies READ temporaryCookies NOTIFY temporaryCookiesChanged FINAL)
@@ -363,6 +364,8 @@ public:
 
     int customLayoutWidth() const;
     void setCustomLayoutWidth(int);
+    bool overview() const;
+    void setOverview(bool enabled);
 
     bool autoCorrect() const;
     void setAutoCorrect(bool autoCorrect);
@@ -414,6 +417,7 @@ Q_SIGNALS:
     void remoteInspectorUrlChanged();
     void autoCorrectChanged();
     void customLayoutWidthChanged();
+    void overviewChanged();
     void temporaryCookiesChanged();
     void textFound(int matchCount);
 

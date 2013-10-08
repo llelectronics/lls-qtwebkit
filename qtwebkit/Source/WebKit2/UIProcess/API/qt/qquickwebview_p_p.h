@@ -95,6 +95,8 @@ public:
     virtual void updateViewportSize() { }
     void updateTouchViewportSize();
 
+    virtual void setOverview(bool) {}
+
     virtual qreal zoomFactor() const { return 1; }
     virtual void setZoomFactor(qreal) { }
 
@@ -224,6 +226,7 @@ protected:
     bool m_betweenLoadCommitAndFirstFrame;
     int m_customLayoutWidth;
     bool m_relayoutRequested;
+    bool m_overviewRequested;
     bool m_useDefaultContentItemSize;
     bool m_navigatorQtObjectEnabled;
     bool m_renderToOffscreenBuffer;
@@ -260,6 +263,8 @@ public:
     virtual void updateViewportSize();
 
     virtual void pageDidRequestScroll(const QPoint& pos);
+
+    virtual void setOverview(bool enabled);
 
 private:
     QScopedPointer<WebKit::PageViewportController> m_pageViewportController;
