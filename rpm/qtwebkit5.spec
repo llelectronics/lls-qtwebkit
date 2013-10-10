@@ -31,12 +31,18 @@ BuildRequires:  gst-plugins-base-devel
 BuildRequires:  gstreamer-devel
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  libpng-devel
+BuildRequires:  libxml2-devel
+BuildRequires:  libudev-devel
+BuildRequires:  libxslt-devel
 BuildRequires:  gperf
 BuildRequires:  python
 BuildRequires:  bison
 BuildRequires:  flex
 BuildRequires:  fdupes
 BuildRequires:  ruby
+BuildRequires:  perl
+BuildRequires:  perl-version
+BuildRequires:  perl-libs
 
 %description
 QtWebKit provides a Web browser engine that makes it easy to embed content from
