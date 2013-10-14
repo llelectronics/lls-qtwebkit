@@ -66,6 +66,8 @@
 #endif
 
 #include <wtf/DisallowCType.h>
+#include "JSCellInlines.h"
+#include "JSDestructibleObject.h"
 
 #if COMPILER(MSVC)
 #define SKIP_STATIC_CONSTRUCTORS_ON_MSVC 1
