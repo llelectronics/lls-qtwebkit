@@ -1,6 +1,9 @@
+# Conditional building of X11 related things 
+%bcond_with X11
+
 Name:       qt5-qtwebkit
 Summary:    Web content engine library for Qt
-Version:    5.0.2
+Version:    5.1.0
 Release:    1%{?dist}
 Group:      Qt/Qt
 License:    BSD and LGPLv2+
@@ -24,8 +27,10 @@ BuildRequires:  qt5-qmake
 BuildRequires:  qt5-qtsql-devel
 BuildRequires:  pkgconfig(icu-uc)
 BuildRequires:  pkgconfig(sqlite3)
+%if %{with X11}
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xrender)
+%endif
 BuildRequires:  glib2-devel
 BuildRequires:  gst-plugins-base-devel
 BuildRequires:  gstreamer-devel
@@ -203,12 +208,12 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 
 
 
-
 %files uiprocess-launcher
 %defattr(-,root,root,-)
 %{_libdir}/qt5/libexec/QtWebProcess
+%if %{with X11}
 %{_libdir}/qt5/libexec/QtWebPluginProcess
-
+%endif
 
 %files -n libqtwebkit5
 %defattr(-,root,root,-)
