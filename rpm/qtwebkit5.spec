@@ -3,11 +3,11 @@
 
 Name:       qt5-qtwebkit
 Summary:    Web content engine library for Qt
-Version:    5.1.0
+Version:    5.2.2
 Release:    1%{?dist}
 Group:      Qt/Qt
 License:    BSD and LGPLv2+
-URL:        http://download.qt-project.org/official_releases/qt/5.0/5.0.2/submodules/qtwebkit-opensource-src-5.0.2.tar.gz
+URL:        https://qt.gitorious.org/qt/qtwebkit/commit/5e64d7e
 Source0:    %{name}-%{version}.tar.bz2
 BuildRequires:  qt5-qtcore-devel
 BuildRequires:  qt5-qtgui-devel
@@ -17,7 +17,6 @@ BuildRequires:  qt5-qtprintsupport-devel
 #BuildRequires:  qt5-qtlocation-devel
 BuildRequires:  qt5-qtmultimedia-devel
 BuildRequires:  qt5-qtscript-devel
-BuildRequires:  qt5-qtv8-devel
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  qt5-qt3d-devel
