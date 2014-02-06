@@ -433,7 +433,7 @@ void QQuickWebViewPrivate::didFailLoad(WKPageRef, WKFrameRef frame, WKErrorRef e
     }
 
     int errorCode = error.errorCode();
-    if (errorCode == kWKErrorCodeFrameLoadInterruptedByPolicyChange && errorCode == kWKErrorCodePlugInWillHandleLoad) {
+    if (errorCode == kWKErrorCodeFrameLoadInterruptedByPolicyChange || errorCode == kWKErrorCodePlugInWillHandleLoad) {
         QWebLoadRequest loadRequest(q->url(), QQuickWebView::LoadSucceededStatus);
         q->emitUrlChangeIfNeeded();
         emit q->loadingChanged(&loadRequest);
@@ -1063,6 +1063,11 @@ void QQuickWebViewFlickablePrivate::pageDidRequestScroll(const QPoint& pos)
         m_pageViewportController->pageDidRequestScroll(pos);
 }
 
+void QQuickWebViewFlickablePrivate::handleMouseEvent(QMouseEvent* event)
+{
+    pageEventHandler->handleInputEvent(event);
+}
+
 QQuickWebViewExperimental::QQuickWebViewExperimental(QQuickWebView *webView, QQuickWebViewPrivate* webViewPrivate)
     : QObject(webView)
     , q_ptr(webView)
@@ -1591,19 +1596,23 @@ QQuickWebPage* QQuickWebViewExperimental::page()
     links to different pages load within the same WebView, but applications
     may intercept requests to delegate links to other functions.
 
-    This sample QML application loads a web page, responds to session
-    history context, and intercepts requests for external links:
+    The following sample QML application loads a web page, responds to session
+    history context, and intercepts requests for external links. It also makes
+    use of \l ScrollView from \l {Qt Quick Controls} to add scroll bars for
+    the content area.
 
     \code
     import QtQuick 2.0
+    import QtQuick.Controls 1.0
     import QtWebKit 3.0
 
-    Page {
+    ScrollView {
+        width: 1280
+        height: 720
         WebView {
             id: webview
             url: "http://qt-project.org"
-            width: parent.width
-            height: parent.height
+            anchors.fill: parent
             onNavigationRequested: {
                 // detect URL scheme prefix, most likely an external link
                 var schemaRE = /^\w+:/;

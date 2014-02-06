@@ -123,6 +123,7 @@ inline bool signbit(double x) { struct ieee_double *p = (struct ieee_double *)&x
 
 #if COMPILER(MSVC)
 
+#if _MSC_VER < 1800
 // We must not do 'num + 0.5' or 'num - 0.5' because they can cause precision loss.
 static double round(double num)
 {
@@ -138,6 +139,7 @@ static float roundf(float num)
         return integer - num > 0.5f ? integer - 1.0f : integer;
     return integer - num >= 0.5f ? integer - 1.0f : integer;
 }
+#endif
 inline long long llround(double num) { return static_cast<long long>(round(num)); }
 inline long long llroundf(float num) { return static_cast<long long>(roundf(num)); }
 inline long lround(double num) { return static_cast<long>(round(num)); }
@@ -151,17 +153,17 @@ inline double trunc(double num) { return num > 0 ? floor(num) : ceil(num); }
 inline long long abs(long num) { return labs(num); }
 #endif
 
-#if COMPILER(MSVC)
-// MSVC's math.h does not currently supply log2 or log2f.
+#if OS(ANDROID) || COMPILER(MSVC)
+// ANDROID and MSVC's math.h does not currently supply log2 or log2f.
 inline double log2(double num)
 {
-    // This constant is roughly M_LN2, which is not provided by default on Windows.
+    // This constant is roughly M_LN2, which is not provided by default on Windows and Android.
     return log(num) / 0.693147180559945309417232121458176568;
 }
 
 inline float log2f(float num)
 {
-    // This constant is roughly M_LN2, which is not provided by default on Windows.
+    // This constant is roughly M_LN2, which is not provided by default on Windows and Android.
     return logf(num) / 0.693147180559945309417232121458176568f;
 }
 #endif
@@ -177,7 +179,9 @@ namespace std {
 inline bool isinf(double num) { return !_finite(num) && !_isnan(num); }
 inline bool isnan(double num) { return !!_isnan(num); }
 inline bool isfinite(double x) { return _finite(x); }
+#if _MSC_VER < 1800
 inline bool signbit(double num) { return _copysign(1.0, num) < 0; }
+#endif
 
 } // namespace std
 
