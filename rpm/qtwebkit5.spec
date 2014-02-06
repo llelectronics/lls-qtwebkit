@@ -226,6 +226,7 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %{_libdir}/libQt5WebKit.so
 %{_libdir}/pkgconfig/Qt5WebKit.pc
 %{_datadir}/qt5/mkspecs/modules/qt_lib_webkit.pri
+%{_datadir}/qt5/mkspecs/modules/qt_lib_webkit_private.pri
 
 %files -n libqtwebkit5-widgets
 %defattr(-,root,root,-)
@@ -239,6 +240,7 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %{_libdir}/libQt5WebKitWidgets.so
 %{_libdir}/pkgconfig/Qt5WebKitWidgets.pc
 %{_datadir}/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri
+%{_datadir}/qt5/mkspecs/modules/qt_lib_webkitwidgets_private.pri
 
 %files -n qt5-qtqml-import-webkitplugin
 %defattr(-,root,root,-)
