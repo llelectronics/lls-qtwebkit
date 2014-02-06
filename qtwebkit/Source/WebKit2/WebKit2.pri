@@ -80,7 +80,7 @@ linux-*:!android {
     LIBS += -lrt
 }
 
-have?(QTQUICK): QT += qml qml-private quick v8-private
+have?(QTQUICK): QT += qml qml-private quick
 
 have?(qtpositioning):enable?(GEOLOCATION): QT += positioning
 
