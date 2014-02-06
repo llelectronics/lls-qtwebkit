@@ -350,11 +350,10 @@ static inline IntPoint contentsToNativeWindow(FrameView* view, const IntPoint& p
 #if PLATFORM(QT)
     // Our web view's QWidget isn't necessarily a native window itself. Map the position
     // all the way up to the QWidget associated with the HWND returned as NPNVnetscapeWindow.
-    PlatformPageClient client = view->hostWindow()->platformPageClient();
-    return client->mapToOwnerWindow(view->contentsToWindow(point));
-#else
-    return view->contentsToWindow(point);
+    if (PlatformPageClient client = view->hostWindow()->platformPageClient())
+        return client->mapToOwnerWindow(view->contentsToWindow(point));
 #endif
+    return view->contentsToWindow(point);
 }
 
 static inline IntRect contentsToNativeWindow(FrameView* view, const IntRect& rect)
@@ -455,7 +454,6 @@ void PluginView::updatePluginWidget()
 #endif
     m_clipRect = windowClipRect();
     m_clipRect.move(-m_windowRect.x(), -m_windowRect.y());
-
     if (platformPluginWidget() && (!m_haveUpdatedPluginWidget || m_windowRect != oldWindowRect || m_clipRect != oldClipRect)) {
         HRGN rgn;
 
@@ -474,8 +472,10 @@ void PluginView::updatePluginWidget()
             ::SetWindowRgn(platformPluginWidget(), rgn, TRUE);
         }
 
-        if (!m_haveUpdatedPluginWidget || m_windowRect != oldWindowRect)
-            ::MoveWindow(platformPluginWidget(), m_windowRect.x(), m_windowRect.y(), m_windowRect.width(), m_windowRect.height(), TRUE);
+        if (!m_haveUpdatedPluginWidget || m_windowRect != oldWindowRect) {
+            IntRect nativeWindowRect = contentsToNativeWindow(frameView, frameRect());
+            ::MoveWindow(platformPluginWidget(), nativeWindowRect.x(), nativeWindowRect.y(), nativeWindowRect.width(), nativeWindowRect.height(), TRUE);
+        }
 
         if (clipToZeroRect) {
             rgn = ::CreateRectRgn(m_clipRect.x(), m_clipRect.y(), m_clipRect.maxX(), m_clipRect.maxY());

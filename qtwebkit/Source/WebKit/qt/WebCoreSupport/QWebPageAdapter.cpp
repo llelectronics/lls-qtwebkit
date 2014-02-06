@@ -54,13 +54,14 @@
 #if ENABLE(GEOLOCATION)
 #include "GeolocationClientMock.h"
 #include "GeolocationController.h"
-#if HAVE(QTLOCATION)
+#if HAVE(QTPOSITIONING)
 #include "GeolocationClientQt.h"
 #endif
 #endif
 #include "GeolocationPermissionClientQt.h"
 #include "HTMLFrameOwnerElement.h"
 #include "HTMLInputElement.h"
+#include "HTMLMediaElement.h"
 #include "HitTestResult.h"
 #include "InitWebCoreQt.h"
 #include "InspectorClientQt.h"
@@ -89,6 +90,7 @@
 #include "Settings.h"
 #include "UndoStepQt.h"
 #include "UserAgentQt.h"
+#include "UserGestureIndicator.h"
 #include "WebEventConversion.h"
 #include "WebKitVersion.h"
 #include "WindowFeatures.h"
@@ -237,7 +239,7 @@ void QWebPageAdapter::initializeWebCorePage()
         WebCore::provideGeolocationTo(page, mock);
         mock->setController(WebCore::GeolocationController::from(page));
     }
-#if HAVE(QTLOCATION)
+#if HAVE(QTPOSITIONING)
     else
         WebCore::provideGeolocationTo(page, new GeolocationClientQt(this));
 #endif
@@ -449,6 +451,11 @@ void QWebPageAdapter::adjustPointForClicking(QMouseEvent* ev)
     touchModifier = nullptr;
 
     if (!topPadding && !rightPadding && !bottomPadding && !leftPadding)
+        return;
+
+    FrameView* view = page->mainFrame()->view();
+    ASSERT(view);
+    if (view->scrollbarAtPoint(ev->pos()))
         return;
 
     EventHandler* eventHandler = page->mainFrame()->eventHandler();
@@ -887,6 +894,7 @@ QList<MenuItem> descriptionForPlatformMenu(const Vector<ContextMenuItem>& items,
                     if (it.checked())
                         description.traits |= MenuItem::Checked;
                 }
+                description.title = item.title();
             }
             break;
         }
@@ -896,7 +904,7 @@ QList<MenuItem> descriptionForPlatformMenu(const Vector<ContextMenuItem>& items,
         case WebCore::SubmenuType: {
             description.type = MenuItem::SubMenu;
             description.subMenu = descriptionForPlatformMenu(item.subMenuItems(), page);
-            description.subMenuTitle = item.title();
+            description.title = item.title();
             // Don't append empty submenu descriptions.
             if (description.subMenu.isEmpty())
                 continue;
@@ -1049,6 +1057,21 @@ void QWebPageAdapter::updateActionInternal(QWebPageAdapter::MenuAction action, c
     }
 }
 
+#if ENABLE(VIDEO)
+static WebCore::HTMLMediaElement* mediaElement(WebCore::Node* innerNonSharedNode)
+{
+    if (!(innerNonSharedNode && innerNonSharedNode->document()))
+        return 0;
+
+    if (!(innerNonSharedNode->renderer() && innerNonSharedNode->renderer()->isMedia()))
+        return 0;
+
+    if (innerNonSharedNode->hasTagName(WebCore::HTMLNames::videoTag) || innerNonSharedNode->hasTagName(WebCore::HTMLNames::audioTag))
+        return WebCore::toHTMLMediaElement(innerNonSharedNode);
+    return 0;
+}
+#endif
+
 void QWebPageAdapter::triggerAction(QWebPageAdapter::MenuAction action, QWebHitTestResultPrivate* hitTestResult, const char* commandName, bool endToEndReload)
 {
     Frame* frame = page->focusController()->focusedOrMainFrame();
@@ -1100,6 +1123,9 @@ void QWebPageAdapter::triggerAction(QWebPageAdapter::MenuAction action, QWebHitT
     case DownloadLinkToDisk:
         frame->loader()->client()->startDownload(WebCore::ResourceRequest(hitTestResult->linkUrl, frame->loader()->outgoingReferrer()));
         break;
+    case DownloadMediaToDisk:
+        frame->loader()->client()->startDownload(WebCore::ResourceRequest(hitTestResult->mediaUrl, frame->loader()->outgoingReferrer()));
+        break;
     case Back:
         page->goBack();
         break;
@@ -1123,6 +1149,31 @@ void QWebPageAdapter::triggerAction(QWebPageAdapter::MenuAction action, QWebHitT
     case SetTextDirectionRightToLeft:
         editor.setBaseWritingDirection(RightToLeftWritingDirection);
         break;
+#if ENABLE(VIDEO)
+    case ToggleMediaControls:
+        if (HTMLMediaElement* mediaElt = mediaElement(hitTestResult->innerNonSharedNode))
+            mediaElt->setControls(!mediaElt->controls());
+        break;
+    case ToggleMediaLoop:
+        if (HTMLMediaElement* mediaElt = mediaElement(hitTestResult->innerNonSharedNode))
+            mediaElt->setLoop(!mediaElt->loop());
+        break;
+    case ToggleMediaPlayPause:
+        if (HTMLMediaElement* mediaElt = mediaElement(hitTestResult->innerNonSharedNode))
+            mediaElt->togglePlayState();
+    case ToggleMediaMute:
+        if (HTMLMediaElement* mediaElt = mediaElement(hitTestResult->innerNonSharedNode))
+            mediaElt->setMuted(!mediaElt->muted());
+        break;
+    case ToggleVideoFullscreen:
+        if (HTMLMediaElement* mediaElt = mediaElement(hitTestResult->innerNonSharedNode)) {
+            if (mediaElt->isVideo() && mediaElt->supportsFullscreen()) {
+                UserGestureIndicator indicator(DefinitelyProcessingUserGesture);
+                mediaElt->toggleFullscreenState();
+            }
+        }
+        break;
+#endif
 #if ENABLE(INSPECTOR)
     case InspectElement: {
         ASSERT(hitTestResult != &hitTest);
@@ -1201,6 +1252,23 @@ QString QWebPageAdapter::contextMenuItemTagForAction(QWebPageAdapter::MenuAction
     case ToggleUnderline:
         *checkable = true;
         return contextMenuItemTagUnderline();
+    case DownloadMediaToDisk:
+        return contextMenuItemTagDownloadMediaToDisk();
+    case CopyMediaUrlToClipboard:
+        return contextMenuItemTagCopyMediaLinkToClipboard();
+    case ToggleMediaControls:
+        *checkable = true;
+        return contextMenuItemTagShowMediaControls();
+    case ToggleMediaLoop:
+        *checkable = true;
+        return contextMenuItemTagToggleMediaLoop();
+    case ToggleMediaPlayPause:
+        return contextMenuItemTagMediaPlayPause();
+    case ToggleMediaMute:
+        *checkable = true;
+        return contextMenuItemTagMediaMute();
+    case ToggleVideoFullscreen:
+        return contextMenuItemTagToggleVideoFullscreen();
 
 #if ENABLE(INSPECTOR)
     case InspectElement:
@@ -1236,7 +1304,7 @@ void QWebPageAdapter::setSystemTrayIcon(QObject *icon)
 #endif // QT_NO_SYSTEMTRAYICON
 #endif // ENABLE(NOTIFICATIONS) || ENABLE(LEGACY_NOTIFICATIONS)
 
-#if ENABLE(GEOLOCATION) && HAVE(QTLOCATION)
+#if ENABLE(GEOLOCATION) && HAVE(QTPOSITIONING)
 void QWebPageAdapter::setGeolocationEnabledForFrame(QWebFrameAdapter* frame, bool on)
 {
     GeolocationPermissionClientQt::geolocationPermissionClient()->setPermission(frame, on);
@@ -1294,6 +1362,10 @@ QWebPageAdapter::ViewportAttributes QWebPageAdapter::viewportAttributesForSize(c
     return result;
 }
 
+void QWebPageAdapter::setDevicePixelRatio(int devicePixelRatio)
+{
+    page->setDeviceScaleFactor(devicePixelRatio);
+}
 
 bool QWebPageAdapter::handleKeyEvent(QKeyEvent *ev)
 {
@@ -1405,7 +1477,12 @@ bool QWebPageAdapter::touchEvent(QTouchEvent* event)
 {
 #if ENABLE(TOUCH_EVENTS)
     Frame* frame = mainFrameAdapter()->frame;
-    if (!frame->view())
+    if (!frame->view() || !frame->document())
+        return false;
+
+    // If the document doesn't have touch-event handles, we just ignore it
+    // and let QGuiApplication convert it to a mouse event.
+    if (!frame->document()->hasTouchEventHandlers())
         return false;
 
     // Always accept the QTouchEvent so that we'll receive also TouchUpdate and TouchEnd events

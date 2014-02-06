@@ -263,6 +263,7 @@ public:
     virtual void updateViewportSize();
 
     virtual void pageDidRequestScroll(const QPoint& pos);
+    virtual void handleMouseEvent(QMouseEvent*);
 
     virtual void setOverview(bool enabled);
 

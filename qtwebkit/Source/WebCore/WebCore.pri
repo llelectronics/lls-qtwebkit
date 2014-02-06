@@ -112,7 +112,7 @@ INCLUDEPATH += $$WEBCORE_GENERATED_SOURCES_DIR
 enable?(XSLT) {
     use?(LIBXML2) {
         mac {
-            INCLUDEPATH += /usr/include/libxslt /usr/include/libxml2
+            QMAKE_CXXFLAGS += -iwithsysroot /usr/include/libxslt -iwithsysroot /usr/include/libxml2
             LIBS += -lxml2 -lxslt
         } else {
             PKGCONFIG += libxslt libxml-2.0
@@ -165,17 +165,19 @@ enable?(GAMEPAD) {
     INCLUDEPATH += \
         $$SOURCE_DIR/platform/linux \
         $$SOURCE_DIR/Modules/gamepad
-    PKGCONFIG += libudev
+}
+
+use?(GLIB) {
+    PKGCONFIG *= glib-2.0 gio-2.0
 }
 
 use?(GSTREAMER) {
-    DEFINES += WTF_USE_GLIB=1
     use?(GSTREAMER010) {
-        PKGCONFIG += glib-2.0 gio-2.0 gstreamer-0.10 gstreamer-app-0.10 gstreamer-base-0.10 gstreamer-interfaces-0.10 gstreamer-pbutils-0.10 gstreamer-plugins-base-0.10 gstreamer-video-0.10
+        PKGCONFIG += gstreamer-0.10 gstreamer-app-0.10 gstreamer-base-0.10 gstreamer-interfaces-0.10 gstreamer-pbutils-0.10 gstreamer-plugins-base-0.10 gstreamer-video-0.10
     } else {
         DEFINES += GST_API_VERSION=1.0
         DEFINES += GST_API_VERSION_1
-        PKGCONFIG += glib-2.0 gio-2.0 gstreamer-1.0 gstreamer-app-1.0 gstreamer-base-1.0 gstreamer-pbutils-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0
+        PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0 gstreamer-base-1.0 gstreamer-pbutils-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 gstreamer-audio-1.0
     }
 }
 
@@ -201,7 +203,7 @@ enable?(WEB_AUDIO) {
 
 use?(3D_GRAPHICS) {
     win32: {
-        win32-g++: {
+        win32-g++*: {
             # Make sure OpenGL libs are after the webcore lib so MinGW can resolve symbols
             contains(QT_CONFIG, opengles2) {
                 CONFIG(debug, debug|release):contains(QT_CONFIG, angle) {
@@ -275,7 +277,7 @@ win32 {
 }
 
 # Remove whole program optimizations due to miscompilations
-win32-msvc2005|win32-msvc2008|win32-msvc2010|win32-msvc2012|wince*:{
+win32-msvc2005|win32-msvc2008|win32-msvc2010|win32-msvc2012|win32-msvc2013|wince*:{
     QMAKE_CFLAGS_LTCG -= -GL
     QMAKE_CXXFLAGS_LTCG -= -GL
 

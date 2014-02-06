@@ -113,13 +113,21 @@ defineTest(finalizeConfigure) {
     !mac:!contains(QT_CONFIG,icu) {
         addReasonForSkippingBuild("ICU is required. To build QtWebKit with Qt 5 you need to build Qt 5 with libICU support. Check for ICU support being mentioned in qtbase/config.summary.")
     }
-    production_build:blackberry {
-        addReasonForSkippingBuild("Build not supported on BB10 yet.")
+    production_build:blackberry|qnx {
+        addReasonForSkippingBuild("Build not supported on BB10/QNX yet.")
+    }
+    !gnu_thin_archives:contains(QT_CONFIG, static) {
+        addReasonForSkippingBuild("QtWebKit cannot be built as a static library on this platform. Check your configuration in qtbase/config.summary.")
     }
     requiredPrograms = gperf python perl bison ruby flex
     for(program, requiredPrograms): \
         !programExistsInPath($$program): \
             addReasonForSkippingBuild("Missing $$program from PATH")
+
+    requiredModules = gui
+    for(module, requiredModules): \
+        !qtHaveModule($$module): \
+            addReasonForSkippingBuild("QtWebKit depends on $$module for building.")
 
     # Detect changes to the configuration. Changes need a clean build.
     webkit_configured {

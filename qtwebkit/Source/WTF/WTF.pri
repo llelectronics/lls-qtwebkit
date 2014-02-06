@@ -16,13 +16,14 @@ mac {
 } else {
     contains(QT_CONFIG,icu) {
         win32: LIBS += -licuin -licuuc -licudt
+        else:!contains(QT_CONFIG,no-pkg-config):packagesExist("icu-i18n"): PKGCONFIG *= icu-i18n
+        else:android: LIBS += -licui18n -licuuc
         else: LIBS += -licui18n -licuuc -licudata
     }
 }
 
-linux-*:use?(GSTREAMER) {
-    DEFINES += WTF_USE_GLIB=1
-    PKGCONFIG += glib-2.0 gio-2.0
+use?(GLIB) {
+    PKGCONFIG *= glib-2.0 gio-2.0
 }
 
 win32-* {
