@@ -1,4 +1,4 @@
-# Conditional building of X11 related things 
+# Conditional building of X11 related things
 %bcond_with X11
 
 Name:       qt5-qtwebkit
@@ -9,36 +9,40 @@ Group:      Qt/Qt
 License:    BSD and LGPLv2+
 URL:        http://download.qt-project.org/official_releases/qt/5.0/5.0.2/submodules/qtwebkit-opensource-src-5.0.2.tar.gz
 Source0:    %{name}-%{version}.tar.bz2
-BuildRequires:  qt5-qtcore-devel
-BuildRequires:  qt5-qtgui-devel
-BuildRequires:  qt5-qtnetwork-devel
-BuildRequires:  qt5-qtwidgets-devel
-BuildRequires:  qt5-qtprintsupport-devel
+BuildRequires:  pkgconfig(Qt5Core)
+BuildRequires:  pkgconfig(Qt5Gui)
+BuildRequires:  pkgconfig(Qt5Network)
+BuildRequires:  pkgconfig(Qt5Widgets)
+BuildRequires:  pkgconfig(Qt5PrintSupport)
 #BuildRequires:  qt5-qtlocation-devel
-BuildRequires:  qt5-qtmultimedia-devel
-BuildRequires:  qt5-qtscript-devel
-BuildRequires:  qt5-qtv8-devel
+BuildRequires:  pkgconfig(Qt5Multimedia)
+BuildRequires:  pkgconfig(Qt5Script)
+BuildRequires:  pkgconfig(Qt5V8)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
-BuildRequires:  qt5-qt3d-devel
+BuildRequires:  pkgconfig(Qt53D)
 #BuildRequires:  qt5-qtsensors-devel
-BuildRequires:  qt5-qtxmlpatterns-devel
+BuildRequires:  pkgconfig(Qt5XmlPatterns)
 BuildRequires:  qt5-qmake
-BuildRequires:  qt5-qtsql-devel
+BuildRequires:  pkgconfig(Qt5Sql)
 BuildRequires:  pkgconfig(icu-uc)
 BuildRequires:  pkgconfig(sqlite3)
 %if %{with X11}
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xrender)
 %endif
-BuildRequires:  glib2-devel
+# FIXME, it needs checking if other glib modules are used, those need
+#        to be added separately!
+BuildRequires:  pkgconfig(glib-2.0)
+# FIXME, the following two packages provide several pkgconfig files
+#        needs checking which ones we're using
 BuildRequires:  gst-plugins-base-devel
 BuildRequires:  gstreamer-devel
 BuildRequires:  libjpeg-turbo-devel
-BuildRequires:  libpng-devel
-BuildRequires:  libxml2-devel
-BuildRequires:  libudev-devel
-BuildRequires:  libxslt-devel
+BuildRequires:  pkgconfig(libpng)
+BuildRequires:  pkgconfig(libxml-2.0)
+BuildRequires:  pkgconfig(libudev)
+BuildRequires:  pkgconfig(libxslt)
 BuildRequires:  gperf
 BuildRequires:  python
 BuildRequires:  bison
@@ -253,4 +257,3 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 
 
 #### No changelog section, separate $pkg.changes contains the history
-
