@@ -306,6 +306,14 @@ void WebPage::registerApplicationScheme(const String& scheme)
     qnam->registerApplicationScheme(this, QString(scheme));
 }
 
+void WebPage::setOffline(bool state)
+{
+    QtNetworkAccessManager* qnam = qobject_cast<QtNetworkAccessManager*>(WebProcess::shared().networkAccessManager());
+    if (!qnam)
+        return;
+    qnam->setOffline(state, m_pageID);
+}
+
 void WebPage::receivedApplicationSchemeRequest(const QNetworkRequest& request, QtNetworkReply* reply)
 {
     QtNetworkRequestData requestData(request, reply);

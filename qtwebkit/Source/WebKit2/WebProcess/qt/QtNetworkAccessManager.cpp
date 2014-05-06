@@ -42,6 +42,7 @@ namespace WebKit {
 QtNetworkAccessManager::QtNetworkAccessManager(WebProcess* webProcess)
     : QNetworkAccessManager()
     , m_webProcess(webProcess)
+    , m_offline(0)
 {
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)), SLOT(onAuthenticationRequired(QNetworkReply*, QAuthenticator*)));
     connect(this, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy&, QAuthenticator*)), SLOT(onProxyAuthenticationRequired(const QNetworkProxy&, QAuthenticator*)));
@@ -63,18 +64,37 @@ WebPage* QtNetworkAccessManager::obtainOriginatingWebPage(const QNetworkRequest&
 QNetworkReply* QtNetworkAccessManager::createRequest(Operation operation, const QNetworkRequest& request, QIODevice* outData)
 {
     WebPage* webPage = obtainOriginatingWebPage(request);
-    if (webPage && m_applicationSchemes.contains(webPage, request.url().scheme().toLower())) {
-        QtNetworkReply* reply = new QtNetworkReply(request, this);
-        webPage->receivedApplicationSchemeRequest(request, reply);
-        return reply;
+    if (!m_offline) {
+        if (webPage && m_applicationSchemes.contains(webPage, request.url().scheme().toLower())) {
+            QtNetworkReply* reply = new QtNetworkReply(request, this);
+            webPage->receivedApplicationSchemeRequest(request, reply);
+            return reply;
+        }
+        return QNetworkAccessManager::createRequest(operation, request, outData);
+    } else {
+         if (webPage) {
+             webPage->send(Messages::WebPageProxy::NetworkRequestIgnored());
+         }
+         // Return empty reply if offline mode is enabled
+         QtNetworkReply* reply = new QtNetworkReply(QNetworkRequest(QUrl(QLatin1String(""))),this);
+         return reply;
     }
-
-    return QNetworkAccessManager::createRequest(operation, request, outData);
 }
 
 void QtNetworkAccessManager::registerApplicationScheme(const WebPage* page, const QString& scheme)
 {
     m_applicationSchemes.insert(page, scheme.toLower());
+}
+
+void QtNetworkAccessManager::setOffline(bool state, qulonglong pageId)
+{
+    WebPage* webPage = m_webProcess->webPage(pageId);
+
+    if (!webPage)
+        return;
+
+    m_offline = state;
+    webPage->send(Messages::WebPageProxy::OfflineChanged(m_offline));
 }
 
 void QtNetworkAccessManager::onProxyAuthenticationRequired(const QNetworkProxy& proxy, QAuthenticator* authenticator)

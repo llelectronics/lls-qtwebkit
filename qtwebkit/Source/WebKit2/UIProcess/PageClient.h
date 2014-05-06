@@ -129,6 +129,8 @@ public:
     virtual void handleCertificateVerificationRequest(const String& hostname, bool& ignoreErrors) = 0;
     virtual void handleProxyAuthenticationRequiredRequest(const String& hostname, uint16_t port, const String& prefilledUsername, String& username, String& password) = 0;
     virtual void handleWillSetInputMethodState() = 0;
+    virtual void handleNetworkRequestIgnored() = 0;
+    virtual void handleOfflineChanged(bool state) = 0;
 #endif // PLATFORM(QT).
 
 #if PLATFORM(QT) || PLATFORM(EFL) || PLATFORM(GTK)

@@ -84,6 +84,8 @@ messages -> WebPageProxy {
     AuthenticationRequiredRequest(WTF::String hostname, WTF::String realm, WTF::String prefilledUsername) -> (WTF::String username, WTF::String password)
     CertificateVerificationRequest(WTF::String hostname) -> (bool ignoreErrors)
     ProxyAuthenticationRequiredRequest(WTF::String hostname, uint16_t port, WTF::String prefilledUsername) -> (WTF::String username, WTF::String password)
+    NetworkRequestIgnored()
+    OfflineChanged(bool state)
 #endif
 
 #if PLATFORM(QT) || PLATFORM(EFL)
