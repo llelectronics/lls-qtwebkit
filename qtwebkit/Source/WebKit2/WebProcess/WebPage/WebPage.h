@@ -586,6 +586,7 @@ public:
 
 #if PLATFORM(QT)
     void registerApplicationScheme(const String& scheme);
+    void setOffline(bool state);
     void applicationSchemeReply(const QtNetworkReplyData&);
     void receivedApplicationSchemeRequest(const QNetworkRequest&, QtNetworkReply*);
     void setUserScripts(const Vector<String>&);

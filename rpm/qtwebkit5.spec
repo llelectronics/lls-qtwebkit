@@ -3,7 +3,7 @@
 
 Name:       qt5-qtwebkit
 Summary:    Web content engine library for Qt
-Version:    5.1.0
+Version:    5.1.0+git13
 Release:    1%{?dist}
 Group:      Qt/Qt
 License:    BSD and LGPLv2+
