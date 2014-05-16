@@ -15,7 +15,6 @@ BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5Widgets)
 BuildRequires:  pkgconfig(Qt5PrintSupport)
 #BuildRequires:  qt5-qtlocation-devel
-BuildRequires:  pkgconfig(Qt5Multimedia)
 BuildRequires:  pkgconfig(Qt5Script)
 BuildRequires:  pkgconfig(Qt5V8)
 BuildRequires:  pkgconfig(Qt5Qml)
@@ -34,10 +33,6 @@ BuildRequires:  pkgconfig(xrender)
 # FIXME, it needs checking if other glib modules are used, those need
 #        to be added separately!
 BuildRequires:  pkgconfig(glib-2.0)
-# FIXME, the following two packages provide several pkgconfig files
-#        needs checking which ones we're using
-BuildRequires:  gst-plugins-base-devel
-BuildRequires:  gstreamer-devel
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(libxml-2.0)
@@ -173,7 +168,21 @@ qmake -qt=5 CONFIG+=release CONFIG-=debug \
        CONFIG-=separate_debug_info \
        QMAKE_CFLAGS+=$QMAKE_CFLAGS_RELEASE \
        QMAKE_CXXFLAGS+=$QMAKE_CXXFLAGS_RELEASE \
-       CONFIG*=use_all_in_one_files
+       CONFIG*=use_all_in_one_files \
+       WEBKIT_CONFIG-=ftpdir \
+       WEBKIT_CONFIG-=video \
+       WEBKIT_CONFIG-=web_audio \
+       WEBKIT_CONFIG-=legacy_web_audio \
+       WEBKIT_CONFIG-=use_gstreamer \
+       WEBKIT_CONFIG-=use_gstreamer010 \
+       WEBKIT_CONFIG-=use_qt_multimedia \
+       WEBKIT_CONFIG-=gamepad \
+       WEBKIT_CONFIG-=svg \
+       WEBKIT_CONFIG-=inspector \
+       WEBKIT_CONFIG-=fullscreen_api \
+       WEBKIT_CONFIG-=netscape_plugin_api \
+       WEBKIT_CONFIG-=build_qttestsupport
+
 make %{?jobs:-j%jobs}
 
 %install
