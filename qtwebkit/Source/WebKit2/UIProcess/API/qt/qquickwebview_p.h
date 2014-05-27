@@ -265,6 +265,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
 
     Q_PROPERTY(bool autoCorrect WRITE setAutoCorrect READ autoCorrect NOTIFY autoCorrectChanged)
     Q_PROPERTY(bool temporaryCookies WRITE setTemporaryCookies READ temporaryCookies NOTIFY temporaryCookiesChanged FINAL)
+    Q_PROPERTY(bool offline WRITE setOffline READ offline NOTIFY offlineChanged FINAL)
 
     Q_PROPERTY(QWebNavigationHistory* navigationHistory READ navigationHistory CONSTANT FINAL)
 
@@ -373,7 +374,11 @@ public:
     bool temporaryCookies() const;
     void setTemporaryCookies(bool enable);
 
+    bool offline() const;
+    void setOffline(bool state);
+
     // C++ only
+    void handleOfflineChanged(bool state);
     bool renderToOffscreenBuffer() const;
     void setRenderToOffscreenBuffer(bool enable);
     static void setFlickableViewportEnabled(bool enable);
@@ -420,11 +425,13 @@ Q_SIGNALS:
     void overviewChanged();
     void temporaryCookiesChanged();
     void textFound(int matchCount);
+    void offlineChanged();
 
     void processDidCrash();
     void didRelaunchProcess();
     void processDidBecomeUnresponsive();
     void processDidBecomeResponsive();
+    void networkRequestIgnored();
 
 private:
     QQuickWebViewExperimental(QQuickWebView* webView, QQuickWebViewPrivate* webViewPrivate);
@@ -432,6 +439,7 @@ private:
     QQuickWebViewPrivate* d_ptr;
     QObject* schemeParent;
     QWebKitTest* m_test;
+    bool m_offline;
 
     friend class WebKit::QtWebPageUIClient;
 

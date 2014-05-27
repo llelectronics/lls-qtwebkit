@@ -42,6 +42,7 @@ class QtNetworkAccessManager : public QNetworkAccessManager {
 public:
     QtNetworkAccessManager(WebProcess*);
     void registerApplicationScheme(const WebPage*, const QString& scheme);
+    void setOffline(bool state, qulonglong pageId);
 
 protected:
     virtual QNetworkReply* createRequest(Operation, const QNetworkRequest&, QIODevice* outgoingData = 0) OVERRIDE;
@@ -56,6 +57,7 @@ private:
 
     QMultiHash<const WebPage*, QString> m_applicationSchemes;
     WebProcess* m_webProcess;
+    bool m_offline;
 
 };
 

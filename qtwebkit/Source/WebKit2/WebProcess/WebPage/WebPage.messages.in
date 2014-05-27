@@ -79,6 +79,7 @@ messages -> WebPage LegacyReceiver {
 
 #if PLATFORM(QT)
     ApplicationSchemeReply(WebKit::QtNetworkReplyData reply)
+    SetOffline(bool value)
     RegisterApplicationScheme(WTF::String scheme)
 #endif
 

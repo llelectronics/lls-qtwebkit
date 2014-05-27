@@ -65,6 +65,11 @@ void WebPageProxy::registerApplicationScheme(const String& scheme)
     process()->send(Messages::WebPage::RegisterApplicationScheme(scheme), m_pageID);
 }
 
+void WebPageProxy::setOffline(bool state)
+{
+    process()->send(Messages::WebPage::SetOffline(state), m_pageID);
+}
+
 void WebPageProxy::resolveApplicationSchemeRequest(QtNetworkRequestData request)
 {
 #if HAVE(QTQUICK)
@@ -99,6 +104,16 @@ void WebPageProxy::proxyAuthenticationRequiredRequest(const String& hostname, ui
 void WebPageProxy::certificateVerificationRequest(const String& hostname, bool& ignoreErrors)
 {
     m_pageClient->handleCertificateVerificationRequest(hostname, ignoreErrors);
+}
+
+void WebPageProxy::networkRequestIgnored()
+{
+    m_pageClient->handleNetworkRequestIgnored();
+}
+
+void WebPageProxy::offlineChanged(bool state)
+{
+    m_pageClient->handleOfflineChanged(state);
 }
 
 #if PLUGIN_ARCHITECTURE(X11)
