@@ -643,6 +643,7 @@ void QQuickWebViewPrivate::didRelaunchProcess()
 
         updateViewportSize();
         updateUserScripts();
+        updateUserStyleSheet();
         updateSchemeDelegates();
     }
 
@@ -950,6 +951,24 @@ void QQuickWebViewPrivate::updateUserScripts()
         if (!contents || WKStringIsEmpty(contents.get()))
             continue;
         WKPageGroupAddUserScript(pageGroup.get(), contents.get(), /*baseURL*/ 0, /*whitelistedURLPatterns*/ 0, /*blacklistedURLPatterns*/ 0, kWKInjectInTopFrameOnly, kWKInjectAtDocumentEnd);
+    }
+}
+
+void QQuickWebViewPrivate::updateUserStyleSheet()
+{
+    // This feature works per-WebView because we keep an unique page group for
+    // each Page/WebView pair we create.
+    WKPageGroupRemoveAllUserStyleSheets(pageGroup.get());
+
+    if (!userStyleSheet.isValid()) {
+        qWarning("QQuickWebView: Couldn't open '%s' as user style sheet because URL is invalid.", qPrintable(userStyleSheet.toString()));
+        return;
+    }
+
+    // Name of readUserScript is bad but it is suitable for reading style sheet as well.
+    WKRetainPtr<WKStringRef> contents = readUserScript(userStyleSheet);
+    if (contents && !WKStringIsEmpty(contents.get())) {
+        WKPageGroupAddUserStyleSheet(pageGroup.get(), contents.get(), /*baseURL*/ 0, /*whitelistedURLPatterns*/ 0, /*blacklistedURLPatterns*/ 0, kWKInjectInTopFrameOnly);
     }
 }
 
@@ -1693,6 +1712,22 @@ void QQuickWebViewExperimental::setUserScripts(const QList<QUrl>& userScripts)
     d->userScripts = userScripts;
     d->updateUserScripts();
     emit userScriptsChanged();
+}
+
+QUrl QQuickWebViewExperimental::userStyleSheet() const
+{
+    Q_D(const QQuickWebView);
+    return d->userStyleSheet;
+}
+
+void QQuickWebViewExperimental::setUserStyleSheet(const QUrl &userStyleSheet)
+{
+    Q_D(QQuickWebView);
+    if (d->userStyleSheet == userStyleSheet)
+        return;
+    d->userStyleSheet = userStyleSheet;
+    d->updateUserStyleSheet();
+    emit userStyleSheetChanged();
 }
 
 QUrl QQuickWebViewExperimental::remoteInspectorUrl() const
