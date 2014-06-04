@@ -287,6 +287,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(QQmlListProperty<QQuickUrlSchemeDelegate> urlSchemeDelegates READ schemeDelegates)
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent NOTIFY userAgentChanged)
     Q_PROPERTY(QList<QUrl> userScripts READ userScripts WRITE setUserScripts NOTIFY userScriptsChanged)
+    Q_PROPERTY(QUrl userStyleSheet READ userStyleSheet WRITE setUserStyleSheet NOTIFY userStyleSheetChanged)
     Q_PROPERTY(QUrl remoteInspectorUrl READ remoteInspectorUrl NOTIFY remoteInspectorUrlChanged FINAL)
     Q_ENUMS(NavigationRequestActionExperimental)
     Q_FLAGS(FindFlags)
@@ -338,6 +339,8 @@ public:
     void setDeviceHeight(int);
     QList<QUrl> userScripts() const;
     void setUserScripts(const QList<QUrl>& userScripts);
+    QUrl userStyleSheet() const;
+    void setUserStyleSheet(const QUrl& userStyleSheet);
     QUrl remoteInspectorUrl() const;
 
     QWebKitTest* test();
@@ -418,6 +421,7 @@ Q_SIGNALS:
     void enterFullScreenRequested();
     void exitFullScreenRequested();
     void userScriptsChanged();
+    void userStyleSheetChanged();
     void preferredMinimumContentsWidthChanged();
     void remoteInspectorUrlChanged();
     void autoCorrectChanged();
