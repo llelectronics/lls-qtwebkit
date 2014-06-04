@@ -126,6 +126,7 @@ public:
     bool transparentBackground() const;
     void setNavigatorQtObjectEnabled(bool);
     void updateUserScripts();
+    void updateUserStyleSheet();
     void updateSchemeDelegates();
 
     void setAutoCorrect(bool autoCorrect) { m_autoCorrect = autoCorrect; }
@@ -223,6 +224,7 @@ protected:
     QQmlComponent* headerComponent;
 
     QList<QUrl> userScripts;
+    QUrl userStyleSheet;
 
     bool m_firstFrameRendered;
     bool m_betweenLoadCommitAndFirstFrame;
