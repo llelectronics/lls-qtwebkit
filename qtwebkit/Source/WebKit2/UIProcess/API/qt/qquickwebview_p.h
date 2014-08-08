@@ -217,6 +217,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_onUrlChanged());
     Q_PRIVATE_SLOT(d_func(), void _q_onReceivedResponseFromDownload(QWebDownloadItem*));
     Q_PRIVATE_SLOT(d_func(), void _q_onIconChangedForPageURL(const QString&));
+    Q_PRIVATE_SLOT(d_func(), void _q_onPinchingChanged(bool));
 
     // Hides QObject::d_ptr allowing us to use the convenience macros.
     QScopedPointer<QQuickWebViewPrivate> d_ptr;
@@ -262,6 +263,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(int deviceHeight WRITE setDeviceHeight READ deviceHeight NOTIFY deviceHeightChanged)
     Q_PROPERTY(int customLayoutWidth WRITE setCustomLayoutWidth READ customLayoutWidth NOTIFY customLayoutWidthChanged)
     Q_PROPERTY(bool overview WRITE setOverview READ overview NOTIFY overviewChanged FINAL)
+    Q_PROPERTY(bool pinching READ pinching NOTIFY pinchingChanged FINAL)
 
     Q_PROPERTY(bool autoCorrect WRITE setAutoCorrect READ autoCorrect NOTIFY autoCorrectChanged)
     Q_PROPERTY(bool temporaryCookies WRITE setTemporaryCookies READ temporaryCookies NOTIFY temporaryCookiesChanged FINAL)
@@ -371,6 +373,8 @@ public:
     bool overview() const;
     void setOverview(bool enabled);
 
+    bool pinching() const;
+
     bool autoCorrect() const;
     void setAutoCorrect(bool autoCorrect);
 
@@ -427,6 +431,8 @@ Q_SIGNALS:
     void autoCorrectChanged();
     void customLayoutWidthChanged();
     void overviewChanged();
+    void pinchingChanged();
+
     void temporaryCookiesChanged();
     void textFound(int matchCount);
     void offlineChanged();

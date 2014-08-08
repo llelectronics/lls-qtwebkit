@@ -489,8 +489,10 @@ void QtWebPageEventHandler::handleInputEvent(const QInputEvent* event)
 
         // If the scale animation is active we don't pass the event to the recognizers. In the future
         // we would want to queue the event here and repost then when the animation ends.
-        if (m_viewportController->scaleAnimationActive())
+        if (m_viewportController->scaleAnimationActive()) {
+            emit pinching(false);
             return;
+        }
     }
 
     bool isMouseEvent = false;
@@ -510,6 +512,7 @@ void QtWebPageEventHandler::handleInputEvent(const QInputEvent* event)
         m_isMouseButtonPressed = false;
         break;
     case QEvent::MouseButtonDblClick:
+        emit pinching(false);
         return;
     default:
         break;
@@ -564,6 +567,7 @@ void QtWebPageEventHandler::handleInputEvent(const QInputEvent* event)
             m_pinchGestureRecognizer.finish();
 
         // Early return since this was a touch-end event.
+        emit pinching(false);
         return;
     } else if (activeTouchPointCount == 1) {
         // If the pinch gesture recognizer was previously in active state the content might
@@ -571,9 +575,11 @@ void QtWebPageEventHandler::handleInputEvent(const QInputEvent* event)
         // This will resume the content to valid zoom levels before the pan gesture is started.
         m_pinchGestureRecognizer.finish();
         m_panGestureRecognizer.update(activeTouchPoints.first(), eventTimestampMillis);
+        emit pinching(false);
     } else if (activeTouchPointCount == 2) {
         m_panGestureRecognizer.cancel();
         m_pinchGestureRecognizer.update(activeTouchPoints.first(), activeTouchPoints.last());
+        emit pinching(true);
     }
 
     if (m_panGestureRecognizer.isRecognized() || m_pinchGestureRecognizer.isRecognized() || m_webView->isMoving())

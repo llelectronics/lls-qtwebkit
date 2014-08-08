@@ -349,6 +349,7 @@ void QQuickWebViewPrivate::initialize(WKContextRef contextRef, WKPageGroupRef pa
     cookieManagerProxy = toImpl(context->context())->supplement<WebCookieManagerProxy>();
 
     pageEventHandler.reset(new QtWebPageEventHandler(webPage.get(), pageView.data(), q_ptr));
+    QObject::connect(pageEventHandler.data(), SIGNAL(pinching(bool)), q_ptr, SLOT(_q_onPinchingChanged(bool)));
 
     {
         WKPageFindClient findClient;
@@ -699,6 +700,15 @@ void QQuickWebViewPrivate::_q_onIconChangedForPageURL(const QString& pageUrl)
         return;
 
     updateIcon();
+}
+
+void QQuickWebViewPrivate::_q_onPinchingChanged(bool pinching)
+{
+    if (pinching == m_pinching)
+        return;
+
+    m_pinching = pinching;
+    emit experimental->pinchingChanged();
 }
 
 /* Called either when the url changes, or when the icon for the current page changes */
@@ -1647,6 +1657,12 @@ void QQuickWebViewExperimental::setOverview(bool enabled)
     if (oldValue != d->m_overviewRequested) {
         emit overviewChanged();
     }
+}
+
+bool QQuickWebViewExperimental::pinching() const
+{
+    Q_D(const QQuickWebView);
+    return d->m_pinching;
 }
 
 /*!

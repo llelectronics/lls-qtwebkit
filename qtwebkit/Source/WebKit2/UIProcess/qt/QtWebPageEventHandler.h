@@ -96,6 +96,9 @@ public:
 
     void startDrag(const WebCore::DragData&, PassRefPtr<ShareableBitmap> dragImage);
 
+Q_SIGNALS:
+    void pinching(bool enabled);
+
 protected:
     WebPageProxy* m_webPageProxy;
     PageViewportControllerClientQt* m_viewportController;
