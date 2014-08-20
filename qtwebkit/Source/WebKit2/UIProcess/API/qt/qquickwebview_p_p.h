@@ -104,6 +104,7 @@ public:
     void _q_onUrlChanged();
     void _q_onReceivedResponseFromDownload(QWebDownloadItem*);
     void _q_onIconChangedForPageURL(const QString&);
+    void _q_onPinchingChanged(bool);
 
     void chooseFiles(WKOpenPanelResultListenerRef, const QStringList& selectedFileNames, WebKit::QtWebPageUIClient::FileChooserType);
     quint64 exceededDatabaseQuota(const QString& databaseName, const QString& displayName, WKSecurityOriginRef securityOrigin, quint64 currentQuota, quint64 currentOriginUsage, quint64 currentDatabaseUsage, quint64 expectedUsage);
@@ -240,6 +241,7 @@ protected:
     QUrl m_iconUrl;
     int m_loadProgress;
     QString m_currentUrl;
+    bool m_pinching;
 };
 
 class QQuickWebViewLegacyPrivate : public QQuickWebViewPrivate {
