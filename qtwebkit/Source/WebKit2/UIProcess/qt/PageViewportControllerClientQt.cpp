@@ -208,10 +208,15 @@ void PageViewportControllerClientQt::touchEnd()
     m_touchInteraction.end();
 }
 
-void PageViewportControllerClientQt::focusEditableArea(const QRectF& caretArea, const QRectF& targetArea)
+void PageViewportControllerClientQt::focusEditableArea(const QRectF& caretArea,
+                                                       const QRectF& targetArea,
+                                                       bool userTriggered)
 {
     // This can only happen as a result of a user interaction.
     ASSERT(m_controller->hadUserInteraction());
+
+    if (!userTriggered && m_viewportItem->experimental()->enableInputFieldAnimation() == false)
+        return;
 
     const float editingFixedScale = 2;
     float targetScale = m_controller->innerBoundedViewportScale(editingFixedScale);
