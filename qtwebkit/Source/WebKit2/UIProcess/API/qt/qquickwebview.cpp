@@ -316,6 +316,7 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , m_autoCorrect(false)
     , m_temporaryCookies(false)
     , m_loadProgress(0)
+    , m_enableInputFieldAnimation(true)
 {
     viewport->setClip(true);
     viewport->setPixelAligned(true);
@@ -1348,6 +1349,37 @@ bool QQuickWebViewExperimental::firstFrameRendered() const
 {
      Q_D(const QQuickWebView);
     return d->m_firstFrameRendered;
+}
+
+
+bool QQuickWebViewExperimental::enableInputFieldAnimation() const
+{
+    Q_D(const QQuickWebView);
+    return d->m_enableInputFieldAnimation;
+}
+
+void QQuickWebViewExperimental::setEnableInputFieldAnimation(bool enableInputFieldAnimation)
+{
+    Q_D(QQuickWebView);
+
+    if (d->m_enableInputFieldAnimation == enableInputFieldAnimation)
+        return;
+
+    d->m_enableInputFieldAnimation = enableInputFieldAnimation;
+    emit enableInputFieldAnimationChanged();
+}
+
+void QQuickWebViewExperimental::animateInputFieldVisible()
+{
+    Q_D(QQuickWebView);
+
+    const EditorState& editor = d->webPageProxy->editorState();
+    if (editor.isContentEditable) {
+        PageViewportControllerClientQt* viewportControllerClient = d->viewportControllerClient();
+        if (viewportControllerClient) {
+            viewportControllerClient->focusEditableArea(QRectF(editor.cursorRect), QRectF(editor.editorRect), true);
+        }
+    }
 }
 
 /*!

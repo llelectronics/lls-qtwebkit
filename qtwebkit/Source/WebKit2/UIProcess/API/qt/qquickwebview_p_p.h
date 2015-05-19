@@ -92,6 +92,8 @@ public:
     void didRenderFrame();
 
     virtual WebKit::PageViewportController* viewportController() const { return 0; }
+    virtual WebKit::PageViewportControllerClientQt* viewportControllerClient() const { return 0; }
+
     virtual void updateViewportSize() { }
     void updateTouchViewportSize();
 
@@ -242,6 +244,7 @@ protected:
     int m_loadProgress;
     QString m_currentUrl;
     bool m_pinching;
+    bool m_enableInputFieldAnimation;
 };
 
 class QQuickWebViewLegacyPrivate : public QQuickWebViewPrivate {
@@ -266,6 +269,7 @@ public:
 
     virtual void didChangeViewportProperties(const WebCore::ViewportAttributes&);
     virtual WebKit::PageViewportController* viewportController() const { return m_pageViewportController.data(); }
+    virtual WebKit::PageViewportControllerClientQt* viewportControllerClient() const { return m_pageViewportControllerClient.data(); }
     virtual void updateViewportSize();
 
     virtual void pageDidRequestScroll(const QPoint& pos);
