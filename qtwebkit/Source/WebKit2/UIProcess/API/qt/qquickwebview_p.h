@@ -292,6 +292,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(QUrl userStyleSheet READ userStyleSheet WRITE setUserStyleSheet NOTIFY userStyleSheetChanged)
     Q_PROPERTY(QUrl remoteInspectorUrl READ remoteInspectorUrl NOTIFY remoteInspectorUrlChanged FINAL)
     Q_PROPERTY(bool enableInputFieldAnimation READ enableInputFieldAnimation WRITE setEnableInputFieldAnimation NOTIFY enableInputFieldAnimationChanged)
+    Q_PROPERTY(bool enableResizeContent READ enableResizeContent WRITE setEnableResizeContent NOTIFY enableResizeContentChanged)
     Q_ENUMS(NavigationRequestActionExperimental)
     Q_FLAGS(FindFlags)
 
@@ -347,6 +348,8 @@ public:
     QUrl remoteInspectorUrl() const;
     bool enableInputFieldAnimation() const;
     void setEnableInputFieldAnimation(bool enableInputFieldAnimation);
+    bool enableResizeContent() const;
+    void setEnableResizeContent(bool enableResizeContent);
 
     Q_INVOKABLE void animateInputFieldVisible();
 
@@ -438,6 +441,8 @@ Q_SIGNALS:
     void overviewChanged();
     void pinchingChanged();
     void enableInputFieldAnimationChanged();
+    void enableResizeContentChanged();
+
 
     void temporaryCookiesChanged();
     void textFound(int matchCount);
