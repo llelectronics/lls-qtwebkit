@@ -245,6 +245,7 @@ protected:
     QString m_currentUrl;
     bool m_pinching;
     bool m_enableInputFieldAnimation;
+    bool m_enableResizeContent;
 };
 
 class QQuickWebViewLegacyPrivate : public QQuickWebViewPrivate {
