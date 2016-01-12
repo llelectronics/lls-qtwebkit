@@ -224,9 +224,6 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %files uiprocess-launcher
 %defattr(-,root,root,-)
 %{_libdir}/qt5/libexec/QtWebProcess
-%if %{with X11}
-%{_libdir}/qt5/libexec/QtWebPluginProcess
-%endif
 
 %files -n libqtwebkit5
 %defattr(-,root,root,-)
