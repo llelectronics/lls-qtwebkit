@@ -16,7 +16,6 @@ BuildRequires:  pkgconfig(Qt5Widgets)
 BuildRequires:  pkgconfig(Qt5PrintSupport)
 #BuildRequires:  qt5-qtlocation-devel
 BuildRequires:  pkgconfig(Qt5Script)
-BuildRequires:  pkgconfig(Qt5V8)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt53D)
