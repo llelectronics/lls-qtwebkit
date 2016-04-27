@@ -157,11 +157,19 @@ export QMAKEPATH="`pwd`/Tools/qmake"
 export QTDIR=/usr/share/qt5
 #
 touch .git
+
+%ifarch aarch64
+%global qtdefines  DEFINES+=ENABLE_JIT=0 DEFINES+=ENABLE_YARR_JIT=0 DEFINES+=ENABLE_ASSEMBLER=0
+%else
+%global qtdefines  
+%endif
+
 #
 # Configure to release build, drop tests, mimic Tools/qmake/mkspecs/features/production_build.prf for the whole
 # build not just WebCore. We could also drop WebKit1 support aka libqtwebkit5-widgets with WEBKIT_CONFIG-=build_webkit1.
 # See also Tools/qmake/mkspecs/features/features.prf.
 qmake -qt=5 CONFIG+=release CONFIG-=debug \
+       %{?qtdefines} \
        WEBKIT_CONFIG-=build_tests \
        CONFIG+=no_debug_info \
        CONFIG-=separate_debug_info \
@@ -201,12 +209,6 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %fdupes %{buildroot}/%{_libdir}
 %fdupes %{buildroot}/%{_includedir}
 
-
-
-
-
-
-
 %post -n libqtwebkit5 -p /sbin/ldconfig
 
 %postun -n libqtwebkit5 -p /sbin/ldconfig
@@ -214,11 +216,6 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %post -n libqtwebkit5-widgets -p /sbin/ldconfig
 
 %postun -n libqtwebkit5-widgets -p /sbin/ldconfig
-
-
-
-
-
 
 %files uiprocess-launcher
 %defattr(-,root,root,-)

@@ -322,6 +322,14 @@
 
 #endif /* ARM */
 
+/* CPU(AARCH64) - AArch64 */
+#if defined(__aarch64__)
+#define WTF_CPU_AARCH64 1
+#if defined(__AARCH64EB__)
+#define WTF_CPU_BIG_ENDIAN 1
+#endif
+#endif
+
 #if CPU(ARM) || CPU(MIPS) || CPU(SH4) || CPU(SPARC)
 #define WTF_CPU_NEEDS_ALIGNED_ACCESS 1
 #endif
@@ -725,6 +733,7 @@
     || CPU(ALPHA) \
     || CPU(SPARC64) \
     || CPU(S390X) \
+    || CPU(AARCH64) \
     || CPU(PPC64)
 #define WTF_USE_JSVALUE64 1
 #else
