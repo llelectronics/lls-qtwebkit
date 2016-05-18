@@ -250,6 +250,10 @@ namespace JSC { namespace DFG {
     macro(NewFunction, NodeResultJS) \
     macro(NewFunctionExpression, NodeResultJS) \
     \
+    /* These aren't terminals but always exit */ \
+    macro(Throw, NodeMustGenerate) \
+    macro(ThrowReferenceError, NodeMustGenerate) \
+    \
     /* Block terminals. */\
     macro(Jump, NodeMustGenerate) \
     macro(Branch, NodeMustGenerate) \
