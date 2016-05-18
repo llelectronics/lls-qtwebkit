@@ -258,6 +258,7 @@ namespace JSC { namespace DFG {
     macro(Jump, NodeMustGenerate) \
     macro(Branch, NodeMustGenerate) \
     macro(Return, NodeMustGenerate) \
+    macro(Unreachable, NodeMustGenerate) \
     \
     macro(GarbageValue, NodeResultJS | NodeClobbersWorld) \
     \
