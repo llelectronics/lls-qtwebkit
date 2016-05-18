@@ -665,6 +665,10 @@ void QNetworkReplyHandler::redirect(ResourceResponse& response, const QUrl& redi
 void QNetworkReplyHandler::forwardData()
 {
     ASSERT(m_replyWrapper && m_replyWrapper->reply() && !wasAborted() && !m_replyWrapper->wasRedirected());
+    
+    // reply may be closed if reply->close() or reply->abort() is called
+    if (!m_replyWrapper->reply()->isReadable())
+        return;
 
     QByteArray data = m_replyWrapper->reply()->read(m_replyWrapper->reply()->bytesAvailable());
 
