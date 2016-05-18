@@ -45,6 +45,10 @@ ImageGStreamer::ImageGStreamer(GstBuffer* buffer, GstCaps* caps)
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_READ);
     uchar* bufferData = reinterpret_cast<uchar*>(info.data);
+    if (size.width() * size.height() * 4 > m_mapInfo.maxsize) {
+        qWarning("Ignoring dangerously invalid frame emitted by GStreamer.");
+        return;
+    }
 #else
     uchar* bufferData = reinterpret_cast<uchar*>(GST_BUFFER_DATA(buffer));
 #endif
