@@ -168,6 +168,8 @@ protected:
     virtual void setPopupPadding(RenderStyle*) const = 0;
 
     virtual QSharedPointer<StylePainter> getStylePainter(const PaintInfo&) = 0;
+    
+    virtual bool shouldShowPlaceholderWhenFocused() const OVERRIDE { return true; }
 
     bool supportsFocus(ControlPart) const;
 
