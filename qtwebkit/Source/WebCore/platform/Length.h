@@ -232,6 +232,11 @@ public:
 
     Length blend(const Length& from, double progress) const
     {
+        if (from.isUndefined())
+            return *this;
+        if (isUndefined())
+            return from;
+        
         // Blend two lengths to produce a new length that is in between them.  Used for animation.
         if (from.type() == Calculated || type() == Calculated)
             return blendMixedTypes(from, progress);
