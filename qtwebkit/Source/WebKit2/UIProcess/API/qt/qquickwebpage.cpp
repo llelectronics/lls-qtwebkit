@@ -78,8 +78,6 @@ QSGNode* QQuickWebPage::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 
     if (!node) {
         node = new QtWebPageSGNode();
-        window->setPersistentOpenGLContext(true);
-        window->setPersistentSceneGraph(true);
     }
 
     node->setCoordinatedGraphicsScene(scene);
