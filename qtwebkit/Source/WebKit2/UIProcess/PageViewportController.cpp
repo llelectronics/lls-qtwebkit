@@ -68,15 +68,15 @@ PageViewportController::PageViewportController(WebKit::WebPageProxy* proxy, Page
 
 float PageViewportController::innerBoundedViewportScale(float viewportScale) const
 {
-    return clampTo(viewportScale, m_minimumScaleToFit, m_rawAttributes.maximumScale);
+    return clampTo(viewportScale, toViewportScale(m_minimumScaleToFit), toViewportScale(m_rawAttributes.maximumScale));
 }
 
 float PageViewportController::outerBoundedViewportScale(float viewportScale) const
 {
     if (m_allowsUserScaling) {
         // Bounded by [0.1, 10.0] like the viewport meta code in WebCore.
-        float hardMin = std::max<float>(0.1, 0.5 * m_minimumScaleToFit);
-        float hardMax = std::min<float>(10, 2 * m_rawAttributes.maximumScale);
+        float hardMin = toViewportScale(std::max<float>(0.1, 0.5 * m_minimumScaleToFit));
+        float hardMax = toViewportScale(std::min<float>(10, 2 * m_rawAttributes.maximumScale));
         return clampTo(viewportScale, hardMin, hardMax);
     }
     return innerBoundedViewportScale(viewportScale);
@@ -213,7 +213,7 @@ void PageViewportController::pageTransitionViewportReady()
     if (!m_rawAttributes.layoutSize.isEmpty()) {
         m_hadUserInteraction = false;
         float initialScale = m_initiallyFitToViewport ? m_minimumScaleToFit : m_rawAttributes.initialScale;
-        applyScaleAfterRenderingContents(innerBoundedViewportScale(initialScale));
+        applyScaleAfterRenderingContents(innerBoundedViewportScale(toViewportScale(initialScale)));
     }
 
     // At this point we should already have received the first viewport arguments and the requested scroll
@@ -330,9 +330,9 @@ bool PageViewportController::updateMinimumScaleToFit(bool userInitiatedUpdate)
     if (m_viewportSize.isEmpty() || m_contentsSize.isEmpty())
         return false;
 
-    bool currentlyScaledToFit = fuzzyCompare(m_pageScaleFactor, m_minimumScaleToFit, 0.0001);
+    bool currentlyScaledToFit = fuzzyCompare(m_pageScaleFactor, toViewportScale(m_minimumScaleToFit), 0.0001);
 
-    float minimumScale = WebCore::computeMinimumScaleFactorForContentContained(m_rawAttributes, WebCore::roundedIntSize(m_viewportSize), WebCore::roundedIntSize(m_contentsSize));
+    float minimumScale = WebCore::computeMinimumScaleFactorForContentContained(m_rawAttributes, WebCore::roundedIntSize(m_viewportSize), WebCore::roundedIntSize(m_contentsSize), deviceScaleFactor());
 
     if (minimumScale <= 0)
         return false;
@@ -342,7 +342,7 @@ bool PageViewportController::updateMinimumScaleToFit(bool userInitiatedUpdate)
 
         if (!m_webPageProxy->areActiveDOMObjectsAndAnimationsSuspended()) {
             if (!m_hadUserInteraction || (userInitiatedUpdate && currentlyScaledToFit))
-                applyScaleAfterRenderingContents(m_minimumScaleToFit);
+                applyScaleAfterRenderingContents(toViewportScale(m_minimumScaleToFit));
             else {
                 // Ensure the effective scale stays within bounds.
                 float boundedScale = innerBoundedViewportScale(m_pageScaleFactor);

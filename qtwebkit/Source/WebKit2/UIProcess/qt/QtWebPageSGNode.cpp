@@ -48,13 +48,7 @@ public:
 
     virtual void render(const RenderState& state)
     {
-        TransformationMatrix renderMatrix;
-        if (pageNode()->devicePixelRatio() != 1.0) {
-            renderMatrix.scale(pageNode()->devicePixelRatio());
-            if (matrix())
-                renderMatrix.multiply(*matrix());
-        } else if (matrix())
-            renderMatrix = *matrix();
+        QMatrix4x4 renderMatrix = matrix() ? *matrix() : QMatrix4x4();
 
         // When rendering to an intermediate surface, Qt will
         // mirror the projection matrix to fit on the destination coordinate system.
@@ -70,13 +64,6 @@ public:
         coordinatedGraphicsScene()->purgeGLResources();
     }
 
-    const QtWebPageSGNode* pageNode() const
-    {
-        const QtWebPageSGNode* parent = static_cast<QtWebPageSGNode*>(this->parent());
-        ASSERT(parent);
-        return parent;
-    }
-
     WebCore::CoordinatedGraphicsScene* coordinatedGraphicsScene() const { return m_scene.get(); }
 
 private:
@@ -87,11 +74,7 @@ private:
 
         for (const QSGClipNode* clip = clipList(); clip; clip = clip->clipList()) {
             QMatrix4x4 clipMatrix;
-            if (pageNode()->devicePixelRatio() != 1.0) {
-                clipMatrix.scale(pageNode()->devicePixelRatio());
-                if (clip->matrix())
-                    clipMatrix *= (*clip->matrix());
-            } else if (clip->matrix())
+            if (clip->matrix())
                 clipMatrix = *clip->matrix();
 
             QRectF currentClip;
@@ -132,7 +115,6 @@ private:
 QtWebPageSGNode::QtWebPageSGNode()
     : m_contentsNode(0)
     , m_backgroundNode(new QSGSimpleRectNode)
-    , m_devicePixelRatio(1)
 {
     appendChildNode(m_backgroundNode);
 }

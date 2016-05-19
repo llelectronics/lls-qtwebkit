@@ -64,7 +64,7 @@ public:
     float deviceScaleFactor() const;
     float minimumScale() const { return m_minimumScaleToFit; }
     float maximumScale() const { return m_rawAttributes.maximumScale; }
-    float currentScale() const { return m_pageScaleFactor; }
+    float currentScale() const { return fromViewportScale(m_pageScaleFactor); }
 
     void setHadUserInteraction(bool didUserInteract) { m_hadUserInteraction = didUserInteract; }
 
@@ -84,6 +84,8 @@ public:
     void setOverview(bool enabled) { m_overview = enabled; }
 
 private:
+    float fromViewportScale(float scale) const { return scale / deviceScaleFactor(); }
+    float toViewportScale(float scale) const { return scale * deviceScaleFactor(); }
     void syncVisibleContents(const WebCore::FloatPoint &trajectoryVector = WebCore::FloatPoint::zero());
     void applyScaleAfterRenderingContents(float scale);
     void applyPositionAfterRenderingContents(const WebCore::FloatPoint& pos);

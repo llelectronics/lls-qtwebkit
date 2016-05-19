@@ -76,19 +76,8 @@ QSGNode* QQuickWebPage::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 
     QtWebPageSGNode* node = static_cast<QtWebPageSGNode*>(oldNode);
 
-    QQuickWindow* window = this->window();
-    ASSERT(window);
-
-    WKPageRef pageRef = webViewPrivate->webPage.get();
-    if (window && WKPageGetBackingScaleFactor(pageRef) != window->devicePixelRatio()) {
-        WKPageSetCustomBackingScaleFactor(pageRef, window->devicePixelRatio());
-        // This signal is queued since if we are running a threaded renderer. This might cause failures
-        // if tests are reading the new value between the property change and the signal emission.
-        emit d->viewportItem->experimental()->test()->devicePixelRatioChanged();
-    }
-
     if (!node) {
-        node = new QtWebPageSGNode;
+        node = new QtWebPageSGNode();
         window->setPersistentOpenGLContext(true);
         window->setPersistentSceneGraph(true);
     }
@@ -96,7 +85,6 @@ QSGNode* QQuickWebPage::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
     node->setCoordinatedGraphicsScene(scene);
 
     node->setScale(d->contentsScale);
-    node->setDevicePixelRatio(window->devicePixelRatio());
     QColor backgroundColor = webViewPrivate->transparentBackground() ? Qt::transparent : Qt::white;
     QRectF backgroundRect(QPointF(0, 0), d->contentsSize);
     node->setBackground(backgroundRect, backgroundColor);

@@ -261,6 +261,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(int preferredMinimumContentsWidth WRITE setPreferredMinimumContentsWidth READ preferredMinimumContentsWidth NOTIFY preferredMinimumContentsWidthChanged)
     Q_PROPERTY(int deviceWidth WRITE setDeviceWidth READ deviceWidth NOTIFY deviceWidthChanged)
     Q_PROPERTY(int deviceHeight WRITE setDeviceHeight READ deviceHeight NOTIFY deviceHeightChanged)
+    Q_PROPERTY(qreal devicePixelRatio READ devicePixelRatio WRITE setDevicePixelRatio NOTIFY devicePixelRatioChanged)
     Q_PROPERTY(int customLayoutWidth WRITE setCustomLayoutWidth READ customLayoutWidth NOTIFY customLayoutWidthChanged)
     Q_PROPERTY(bool overview WRITE setOverview READ overview NOTIFY overviewChanged FINAL)
     Q_PROPERTY(bool pinching READ pinching NOTIFY pinchingChanged FINAL)
@@ -341,6 +342,8 @@ public:
     void setDeviceWidth(int);
     int deviceHeight() const;
     void setDeviceHeight(int);
+    qreal devicePixelRatio() const;
+    void setDevicePixelRatio(qreal);
     QList<QUrl> userScripts() const;
     void setUserScripts(const QList<QUrl>& userScripts);
     QUrl userStyleSheet() const;
@@ -429,6 +432,7 @@ Q_SIGNALS:
     void proxyAuthenticationDialogChanged();
     void userAgentChanged();
     void deviceWidthChanged();
+    void devicePixelRatioChanged();
     void deviceHeightChanged();
     void enterFullScreenRequested();
     void exitFullScreenRequested();

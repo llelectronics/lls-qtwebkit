@@ -218,12 +218,12 @@ void PageViewportControllerClientQt::focusEditableArea(const QRectF& caretArea,
     if (!userTriggered && m_viewportItem->experimental()->enableInputFieldAnimation() == false)
         return;
 
-    const float editingFixedScale = 2;
+    const float editingFixedScale = 2 * m_controller->deviceScaleFactor();
     float targetScale = m_controller->innerBoundedViewportScale(editingFixedScale);
     const QRectF viewportRect = m_viewportItem->boundingRect();
 
     qreal x;
-    const qreal borderOffset = 10;
+    const qreal borderOffset = 10 * m_controller->deviceScaleFactor();
     if ((targetArea.width() + borderOffset) * targetScale <= viewportRect.width()) {
         // Center the input field in the middle of the view, if it is smaller than
         // the view at the scale target.
@@ -271,12 +271,12 @@ void PageViewportControllerClientQt::zoomToAreaGestureEnded(const QPointF& touch
     if (m_scrollChange.inProgress() || m_scaleChange.inProgress())
         return;
 
-    const float margin = 10; // We want at least a little bit of margin.
+    const float margin = 10 * m_controller->deviceScaleFactor(); // We want at least a little bit of margin.
     QRectF endArea = targetArea.adjusted(-margin, -margin, margin, margin);
 
     const QRectF viewportRect = m_viewportItem->boundingRect();
 
-    const qreal minViewportScale = qreal(2.5);
+    const qreal minViewportScale = qreal(2.5) * m_controller->deviceScaleFactor();
     qreal targetScale = viewportRect.size().width() / endArea.size().width();
     targetScale = m_controller->innerBoundedViewportScale(qMin(minViewportScale, targetScale));
     qreal currentScale = m_pageItem->contentsScale();
@@ -318,7 +318,7 @@ void PageViewportControllerClientQt::zoomToAreaGestureEnded(const QPointF& touch
         break;
     case ZoomBack: {
         if (m_scaleStack.isEmpty()) {
-            targetScale = m_controller->minimumScale();
+            targetScale = m_controller->minimumScale() * m_controller->deviceScaleFactor();
             endPosition.setY(hotspot.y() - viewportHotspot.y() / targetScale);
             endPosition.setX(0);
             m_zoomOutScale = 0;
