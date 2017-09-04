@@ -76,7 +76,7 @@ QSGNode* QQuickWebPage::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
 
     QtWebPageSGNode* node = static_cast<QtWebPageSGNode*>(oldNode);
 
-    const QWindow* window = this->window();
+    QQuickWindow* window = this->window();
     ASSERT(window);
 
     WKPageRef pageRef = webViewPrivate->webPage.get();
@@ -87,8 +87,11 @@ QSGNode* QQuickWebPage::updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*)
         emit d->viewportItem->experimental()->test()->devicePixelRatioChanged();
     }
 
-    if (!node)
+    if (!node) {
         node = new QtWebPageSGNode(*webViewPrivate->webPageProxy);
+        window->setPersistentOpenGLContext(true);
+        window->setPersistentSceneGraph(true);
+    }
 
     node->setCoordinatedGraphicsScene(scene);
 
