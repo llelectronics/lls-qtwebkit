@@ -3,12 +3,12 @@
 
 Name:       qt5-qtwebkit
 Summary:    Web content engine library for Qt
-Version:    5.2.2
-Release:    1%{?dist}
+Version:    5.212.0
+Release:    +git4-1%{?dist}
 Group:      Qt/Qt
 License:    BSD and LGPLv2+
-URL:        https://qt.gitorious.org/qt/qtwebkit/commit/5e64d7e
-Source0:    %{name}-%{version}.tar.bz2
+URL:        https://code.qt.io/qt/qtwebkit.git
+Source0:    %{name}-%{version}-alpha2.tar.xz
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Gui)
 BuildRequires:  pkgconfig(Qt5Network)
@@ -22,6 +22,7 @@ BuildRequires:  pkgconfig(Qt53D)
 #BuildRequires:  qt5-qtsensors-devel
 BuildRequires:  pkgconfig(Qt5XmlPatterns)
 BuildRequires:  qt5-qmake
+BuildRequires:  cmake
 BuildRequires:  pkgconfig(Qt5Sql)
 BuildRequires:  pkgconfig(icu-uc)
 BuildRequires:  pkgconfig(sqlite3)
@@ -33,6 +34,12 @@ BuildRequires:  pkgconfig(xrender)
 #        to be added separately!
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  libjpeg-turbo-devel
+BuildRequires: 	pkgconfig(gstreamer-1.0)
+BuildRequires: 	pkgconfig(gstreamer-base-1.0)
+BuildRequires: 	pkgconfig(gstreamer-plugins-base-1.0)
+BuildRequires: 	pkgconfig(gstreamer-plugins-bad-1.0)
+BuildRequires: 	pkgconfig(gstreamer-audio-1.0)
+BuildRequires: 	pkgconfig(gstreamer-video-1.0)
 BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libudev)
@@ -140,10 +147,16 @@ This package contains the WebKit QML Experimental plugin for QtQml.
 
 
 %prep
-%setup -q -n %{name}-%{version}/qtwebkit
+%setup -q -n qtwebkit-%{version}-alpha2
 
 # remove .../qt/tests directory which introduces nothing but trouble
-rm -rf Source/WebKit/qt/tests/
+#rm -rf Source/WebKit/qt/tests/
+
+# Avoid "Project ERROR: Missing CMake tests. Either create tests in tests/auto/cmake, or disable cmake config file creation with CONFIG-=create_cmake"
+#mkdir -p tests/auto/cmake
+
+# JavaScriptCore bytecode Files generate // In consequence new JavaScriptCore needs GCC 4.9
+#cd Source/JavaScriptCore/; python generate-bytecode-files --bytecodes_h llint/Bytecodes.h --init_bytecodes_asm llint/InitBytecodes.asm bytecode/BytecodeList.json
 
 %build
 ## From Carsten Munk: create way smaller debuginfo
@@ -168,34 +181,64 @@ touch .git
 # Configure to release build, drop tests, mimic Tools/qmake/mkspecs/features/production_build.prf for the whole
 # build not just WebCore. We could also drop WebKit1 support aka libqtwebkit5-widgets with WEBKIT_CONFIG-=build_webkit1.
 # See also Tools/qmake/mkspecs/features/features.prf.
-qmake -qt=5 CONFIG+=release CONFIG-=debug \
-       %{?qtdefines} \
-       WEBKIT_CONFIG-=build_tests \
-       CONFIG+=no_debug_info \
-       CONFIG-=separate_debug_info \
-       QMAKE_CFLAGS+=$QMAKE_CFLAGS_RELEASE \
-       QMAKE_CXXFLAGS+=$QMAKE_CXXFLAGS_RELEASE \
-       CONFIG*=use_all_in_one_files \
-       WEBKIT_CONFIG-=ftpdir \
-       WEBKIT_CONFIG-=video \
-       WEBKIT_CONFIG-=web_audio \
-       WEBKIT_CONFIG-=legacy_web_audio \
-       WEBKIT_CONFIG-=use_gstreamer \
-       WEBKIT_CONFIG-=use_gstreamer010 \
-       WEBKIT_CONFIG-=use_qt_multimedia \
-       WEBKIT_CONFIG-=gamepad \
-       WEBKIT_CONFIG-=svg \
-       WEBKIT_CONFIG-=inspector \
-       WEBKIT_CONFIG-=fullscreen_api \
-       WEBKIT_CONFIG-=netscape_plugin_api \
-       WEBKIT_CONFIG-=build_qttestsupport
+# qmake -qt=5 CONFIG+=release CONFIG-=debug \
+#        %{?qtdefines} \
+#        WEBKIT_CONFIG-=build_tests \
+#        CONFIG+=no_debug_info \
+#        CONFIG-=separate_debug_info \
+#        CONFIG-=create_cmake \
+#        QMAKE_CFLAGS+=$QMAKE_CFLAGS_RELEASE \
+#        QMAKE_CXXFLAGS+=$QMAKE_CXXFLAGS_RELEASE \
+#        CONFIG*=use_all_in_one_files \
+#        WEBKIT_CONFIG-=ftpdir \
+#        WEBKIT_CONFIG-=video \
+#        WEBKIT_CONFIG-=web_audio \
+#        WEBKIT_CONFIG-=legacy_web_audio \
+#        WEBKIT_CONFIG-=use_gstreamer \
+#        WEBKIT_CONFIG-=use_gstreamer010 \
+#        WEBKIT_CONFIG-=use_qt_multimedia \
+#        WEBKIT_CONFIG-=gamepad \
+#        WEBKIT_CONFIG-=svg \
+#        WEBKIT_CONFIG-=inspector \
+#        WEBKIT_CONFIG-=fullscreen_api \
+#        WEBKIT_CONFIG-=netscape_plugin_api \
+#        WEBKIT_CONFIG-=build_qttestsupport
+
+mkdir build-rpm
+cd build-rpm
+cmake -DPORT=Qt \
+       -DCMAKE_BUILD_TYPE=Release \
+       -DENABLE_TOOLS=OFF \
+       -DCMAKE_C_FLAGS_RELEASE:STRING="-DNDEBUG" \
+       -DCMAKE_CXX_FLAGS_RELEASE:STRING="-DNDEBUG" \
+       -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+       -DENABLE_WEBKIT2_DEFAULT=ON \
+       -DUSE_QT_MULTIMEDIA_DEFAULT=OFF \
+       -DUSE_GSTREAMER_DEFAULT=ON \
+       -DENABLE_FTL_JIT=OFF \
+       -DENABLE_INDEXED_DATABASE=OFF \
+       -DENABLE_TEST_SUPPORT=OFF \
+       -DENABLE_API_TESTS=OFF \
+       -DENABLE_GEOLOCATION=OFF \
+       -DENABLE_DEVICE_ORIENTATION=OFF \
+       -DENABLE_X11_TARGET=OFF \
+       -DENABLE_WEB_AUDIO=ON \
+       -DENABLE_VIDEO=ON \
+       -DENABLE_MEDIA_SOURCE=ON \
+       -DUSE_LIBHYPHEN=OFF \
+       -DENABLE_INSPECTOR_UI=ON \
+       -DENABLE_QT_WEBCHANNEL=OFF \
+       -DENABLE_DATABASE_PROCESS=OFF \
+       -DENABLE_FTPDIR=OFF ..
 
 make %{?jobs:-j%jobs}
+cd ..
 
 %install
+cd build-rpm
 rm -rf %{buildroot}
-
-%qmake5_install
+make install DESTDIR=%{buildroot}
+cd ..
 # Remove .la files
 rm -f %{buildroot}/usr/lib/libQt5WebKit.la
 rm -f %{buildroot}/usr/lib/libQt5WebKitWidgets.la
@@ -209,6 +252,7 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %fdupes %{buildroot}/%{_libdir}
 %fdupes %{buildroot}/%{_includedir}
 
+
 %post -n libqtwebkit5 -p /sbin/ldconfig
 
 %postun -n libqtwebkit5 -p /sbin/ldconfig
@@ -220,6 +264,7 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %files uiprocess-launcher
 %defattr(-,root,root,-)
 %{_libdir}/qt5/libexec/QtWebProcess
+%{_libdir}/qt5/libexec/QtWebNetworkProcess
 
 %files -n libqtwebkit5
 %defattr(-,root,root,-)
@@ -229,11 +274,9 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %defattr(-,root,root,-)
 %{_includedir}/qt5/QtWebKit/
 %{_libdir}/cmake/Qt5WebKit/
-%{_libdir}/libQt5WebKit.prl
 %{_libdir}/libQt5WebKit.so
 %{_libdir}/pkgconfig/Qt5WebKit.pc
 %{_datadir}/qt5/mkspecs/modules/qt_lib_webkit.pri
-%{_datadir}/qt5/mkspecs/modules/qt_lib_webkit_private.pri
 
 %files -n libqtwebkit5-widgets
 %defattr(-,root,root,-)
@@ -243,16 +286,15 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %defattr(-,root,root,-)
 %{_includedir}/qt5/QtWebKitWidgets/
 %{_libdir}/cmake/Qt5WebKitWidgets/
-%{_libdir}/libQt5WebKitWidgets.prl
 %{_libdir}/libQt5WebKitWidgets.so
 %{_libdir}/pkgconfig/Qt5WebKitWidgets.pc
 %{_datadir}/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri
-%{_datadir}/qt5/mkspecs/modules/qt_lib_webkitwidgets_private.pri
 
 %files -n qt5-qtqml-import-webkitplugin
 %defattr(-,root,root,-)
 %{_libdir}/qt5/qml/QtWebKit/libqmlwebkitplugin.so
 %{_libdir}/qt5/qml/QtWebKit/qmldir
+%{_libdir}/qt5/qml/QtWebKit/plugins.qmltypes
 
 %files -n qt5-qtqml-import-webkitplugin-experimental
 %defattr(-,root,root,-)
@@ -261,3 +303,4 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 
 
 #### No changelog section, separate $pkg.changes contains the history
+ 
