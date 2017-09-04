@@ -126,4 +126,19 @@ void WebPageProxy::willSetInputMethodState()
     m_pageClient.handleWillSetInputMethodState();
 }
 
+void WebPageProxy::setOffline(bool state)
+{
+    process().send(Messages::WebPage::SetOffline(state), m_pageID);
+}
+
+void WebPageProxy::networkRequestIgnored()
+{
+    m_pageClient.handleNetworkRequestIgnored();
+}
+
+void WebPageProxy::offlineChanged(bool state)
+{
+    m_pageClient.handleOfflineChanged(state);
+}
+
 } // namespace WebKit

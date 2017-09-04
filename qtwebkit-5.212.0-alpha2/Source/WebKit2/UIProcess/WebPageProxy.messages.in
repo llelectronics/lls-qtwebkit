@@ -99,6 +99,8 @@ messages -> WebPageProxy {
     AuthenticationRequiredRequest(String hostname, String realm, String prefilledUsername) -> (String username, String password)
     CertificateVerificationRequest(String hostname) -> (bool ignoreErrors)
     ProxyAuthenticationRequiredRequest(String hostname, uint16_t port, String prefilledUsername) -> (String username, String password)
+    NetworkRequestIgnored()
+    OfflineChanged(bool state)
 #endif
 
     DidChangeContentSize(WebCore::IntSize newSize)

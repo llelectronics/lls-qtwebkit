@@ -68,7 +68,9 @@
 #include <QDateTime>
 #include <QMap>
 #include <QtCore/QFile>
+#include <qqmlinfo.h>
 #include <QtQml/QJSValue>
+#include <QtQml/private/qqmlglobal_p.h>
 #include <QtQuick/QQuickView>
 #include <WKData.h>
 #include <WKNumber.h>
@@ -313,11 +315,18 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , filePicker(0)
     , databaseQuotaDialog(0)
     , colorChooser(0)
+    , m_firstFrameRendered(false)
+    , headerComponent(0)
     , m_betweenLoadCommitAndFirstFrame(false)
+    , m_customLayoutWidth(0)
+    , m_relayoutRequested(false)
+    , m_overviewRequested(false)
     , m_useDefaultContentItemSize(true)
     , m_navigatorQtObjectEnabled(false)
     , m_renderToOffscreenBuffer(false)
     , m_allowAnyHTTPSCertificateForLocalHost(false)
+    , m_enableInputFieldAnimation(true)
+    , m_enableResizeContent(true)
     , m_loadProgress(0)
 {
     viewport->setClip(true);
@@ -355,9 +364,11 @@ void QQuickWebViewPrivate::initialize(WKPageConfigurationRef configurationRef)
     pageToView()->insert(webPage.get(), this);
 
     pageEventHandler.reset(new QtWebPageEventHandler(webPage.get(), pageView.data(), q_ptr));
+    QObject::connect(pageEventHandler.data(), SIGNAL(pinching(bool)), q_ptr, SLOT(_q_onPinchingChanged(bool)));
     pageClient.initialize(q_ptr, pageEventHandler.data(), &undoController);
     webPageProxy->initializeWebPage();
 
+    
     webPageProxy->setUseFixedLayout(s_flickableViewportEnabled);
 
     {
@@ -601,8 +612,14 @@ void QQuickWebViewPrivate::didRenderFrame()
 {
     Q_Q(QQuickWebView);
     if (m_betweenLoadCommitAndFirstFrame) {
-        emit q->experimental()->loadVisuallyCommitted();
-        m_betweenLoadCommitAndFirstFrame = false;
+        if (m_customLayoutWidth > 0 && m_relayoutRequested) {
+            webPageProxy->setFixedLayoutSize(WebCore::IntSize(m_customLayoutWidth, q->height()));
+            m_relayoutRequested = false;
+        } else {
+            emit q->experimental()->loadVisuallyCommitted();
+            m_betweenLoadCommitAndFirstFrame = false;
+            m_firstFrameRendered = true;
+        }
     }
 }
 
@@ -693,6 +710,14 @@ void QQuickWebViewPrivate::_q_onIconChangedForPageURL(const QString& pageUrl)
         return;
 
     updateIcon();
+}
+
+void QQuickWebViewPrivate::_q_onPinchingChanged(bool pinching)
+{
+    if (pinching == m_pinching)
+        return;
+    m_pinching = pinching;
+    emit experimental->pinchingChanged();
 }
 
 /* Called either when the url changes, or when the icon for the current page changes */
@@ -807,6 +832,18 @@ bool QQuickWebViewPrivate::handleCertificateVerificationRequest(const QString& h
     dialogRunner.run();
 
     return dialogRunner.wasAccepted();
+}
+
+void QQuickWebViewPrivate::handleNetworkRequestIgnored()
+{
+    Q_Q(QQuickWebView);
+    emit q->experimental()->networkRequestIgnored();
+}
+
+void QQuickWebViewPrivate::handleOfflineChanged(bool state)
+{
+    Q_Q(QQuickWebView);
+    q->experimental()->handleOfflineChanged(state);
 }
 
 void QQuickWebViewPrivate::chooseFiles(WKOpenPanelResultListenerRef listenerRef, const QStringList& selectedFileNames, QtWebPageUIClient::FileChooserType type)
@@ -977,6 +1014,46 @@ void QQuickWebViewPrivate::setContentPos(const QPointF& pos)
     q->setContentY(pos.y());
 }
 
+void QQuickWebViewPrivate::updateHeader()
+{
+    Q_Q(QQuickWebView);
+    if (!q->isComponentComplete()) {
+        return;
+    }
+    bool headerItemChanged = false;
+    if (headerItem) {
+        headerItem->setParentItem(0);
+        headerItem.reset();
+        headerItemChanged = true;
+    }
+    QQuickItem *item = 0;
+    if (headerComponent) {
+        QQmlContext *creationContext = headerComponent->creationContext();
+        QQmlContext *context = new QQmlContext(creationContext ? creationContext : qmlContext(q));
+        QObject *nobj = headerComponent->beginCreate(context);
+        if (nobj) {
+            QQml_setParent_noEvent(context, nobj);
+            item = qobject_cast<QQuickItem *>(nobj);
+            if (item) {
+                headerItem.reset(item);
+                QQml_setParent_noEvent(item, q->contentItem());
+                headerItem->setParentItem(q->contentItem());
+                headerItemChanged = true;
+            } else {
+                qmlInfo(q) << "Header component must be an Item";
+                delete nobj;
+            }
+        } else {
+            qmlInfo(q) << "Creation of the header failed. Error: " << headerComponent->errors();
+            delete context;
+        }
+        headerComponent->completeCreate();
+    }
+    if (headerItemChanged) {
+        emit q->experimental()->headerItemChanged();
+    }
+}
+
 WebCore::IntSize QQuickWebViewPrivate::viewSize() const
 {
     return WebCore::IntSize(pageView->width(), pageView->height());
@@ -1090,6 +1167,11 @@ void QQuickWebViewFlickablePrivate::onComponentComplete()
     Q_Q(QQuickWebView);
     m_pageViewportControllerClient.reset(new PageViewportControllerClientQt(q, pageView.data()));
     m_pageViewportController.reset(new PageViewportController(webPageProxy.get(), *m_pageViewportControllerClient.data()));
+    
+    if (m_overviewRequested) {
+        m_pageViewportController->setOverview(true);
+    }
+    
     m_pageViewportControllerClient->setController(m_pageViewportController.data());
     pageEventHandler->setViewportController(m_pageViewportControllerClient.data());
 
@@ -1117,6 +1199,13 @@ void QQuickWebViewFlickablePrivate::pageDidRequestScroll(const QPoint& pos)
         m_pageViewportController->pageDidRequestScroll(pos);
 }
 
+void QQuickWebViewFlickablePrivate::setOverview(bool enabled)
+{
+    m_overviewRequested = enabled;
+    if (m_pageViewportController)
+        m_pageViewportController->setOverview(enabled);
+}
+
 void QQuickWebViewFlickablePrivate::handleMouseEvent(QMouseEvent* event)
 {
     pageEventHandler->handleInputEvent(event);
@@ -1128,6 +1217,7 @@ QQuickWebViewExperimental::QQuickWebViewExperimental(QQuickWebView *webView, QQu
     , d_ptr(webViewPrivate)
     , schemeParent(new QObject(this))
     , m_test(new QWebKitTest(webViewPrivate, this))
+    , m_offline(0)
 #if ENABLE(QT_WEBCHANNEL)
     , m_webChannel(new QQmlWebChannel(this))
     , m_webChannelTransport(new QWebChannelWebKitTransport(this))
@@ -1177,6 +1267,8 @@ void QQuickWebViewExperimental::setUseDefaultContentItemSize(bool enable)
     d->m_useDefaultContentItemSize = enable;
 }
 
+
+
 /*!
     \internal
 
@@ -1214,6 +1306,26 @@ void QQuickWebViewExperimental::setPreferredMinimumContentsWidth(int width)
     emit preferredMinimumContentsWidthChanged();
 }
 
+bool QQuickWebViewExperimental::offline() const
+{
+    return m_offline;
+}
+
+void QQuickWebViewExperimental::setOffline(bool state)
+{
+    Q_D(const QQuickWebView);
+    d->webPageProxy->setOffline(state);
+}
+
+void QQuickWebViewExperimental::handleOfflineChanged(bool state)
+{
+    if (state == m_offline)
+        return;
+
+    m_offline = state;
+    emit offlineChanged();
+}
+
 void QQuickWebViewExperimental::setFlickableViewportEnabled(bool enable)
 {
     s_flickableViewportEnabled = enable;
@@ -1222,6 +1334,12 @@ void QQuickWebViewExperimental::setFlickableViewportEnabled(bool enable)
 bool QQuickWebViewExperimental::flickableViewportEnabled()
 {
     return s_flickableViewportEnabled;
+}
+
+bool QQuickWebViewExperimental::firstFrameRendered() const
+{
+     Q_D(const QQuickWebView);
+    return d->m_firstFrameRendered;
 }
 
 #if ENABLE(QT_WEBCHANNEL)
@@ -1409,6 +1527,56 @@ void QQuickWebViewExperimental::setFilePicker(QQmlComponent* filePicker)
     emit filePickerChanged();
 }
 
+bool QQuickWebViewExperimental::enableInputFieldAnimation() const
+{
+    Q_D(const QQuickWebView);
+    return d->m_enableInputFieldAnimation;
+}
+
+void QQuickWebViewExperimental::setEnableInputFieldAnimation(bool enableInputFieldAnimation)
+{
+    Q_D(QQuickWebView);
+    if (d->m_enableInputFieldAnimation == enableInputFieldAnimation)
+        return;
+    d->m_enableInputFieldAnimation = enableInputFieldAnimation;
+    emit enableInputFieldAnimationChanged();
+}
+
+void QQuickWebViewExperimental::animateInputFieldVisible()
+{
+    Q_D(QQuickWebView);
+    const EditorState& editor = d->webPageProxy->editorState();
+    if (editor.isContentEditable) {
+        PageViewportControllerClientQt* viewportControllerClient = d->viewportControllerClient();
+        if (viewportControllerClient) {
+            viewportControllerClient->focusEditableArea(QRectF(editor.cursorRect), QRectF(editor.editorRect), true);
+        }
+    }
+}
+
+bool QQuickWebViewExperimental::pinching() const
+{
+    Q_D(const QQuickWebView);
+    return d->m_pinching;
+}
+
+bool QQuickWebViewExperimental::enableResizeContent() const
+{
+    Q_D(const QQuickWebView);
+    return d->m_enableResizeContent;
+}
+void QQuickWebViewExperimental::setEnableResizeContent(bool enableResizeContent)
+{
+    Q_D(QQuickWebView);
+    if (d->m_enableResizeContent == enableResizeContent)
+        return;
+    d->m_enableResizeContent = enableResizeContent;
+    emit enableResizeContentChanged();
+    if (d->m_enableResizeContent) {
+        d->updateViewportSize();
+    }
+}
+
 QQmlComponent* QQuickWebViewExperimental::databaseQuotaDialog() const
 {
     Q_D(const QQuickWebView);
@@ -1438,6 +1606,27 @@ void QQuickWebViewExperimental::setColorChooser(QQmlComponent* colorChooser)
 
     d->colorChooser = colorChooser;
     emit colorChooserChanged();
+}
+
+QQmlComponent *QQuickWebViewExperimental::header() const
+{
+    Q_D(const QQuickWebView);
+    return d->headerComponent;
+}
+void QQuickWebViewExperimental::setHeader(QQmlComponent *headerComponent)
+{
+    Q_Q(QQuickWebView);
+    Q_D(QQuickWebView);
+    if (d->headerComponent != headerComponent) {
+        d->headerComponent = headerComponent;
+        d->updateHeader();
+        emit headerChanged();
+    }
+}
+QQuickItem *QQuickWebViewExperimental::headerItem() const
+{
+    Q_D(const QQuickWebView);
+    return d->headerItem.data();
 }
 
 QString QQuickWebViewExperimental::userAgent() const
@@ -1505,6 +1694,43 @@ void QQuickWebViewExperimental::setDeviceHeight(int value)
     Q_D(QQuickWebView);
     d->webPageProxy->pageGroup().preferences().setDeviceHeight(qMax(0, value));
     emit deviceHeightChanged();
+}
+
+int QQuickWebViewExperimental::customLayoutWidth() const
+{
+    Q_D(const QQuickWebView);
+    return d->webPageProxy->fixedLayoutSize().width();
+}
+
+void QQuickWebViewExperimental::setCustomLayoutWidth(int value)
+{
+    Q_D(QQuickWebView);
+
+    WebCore::IntSize oldSize = d->webPageProxy->fixedLayoutSize();
+    if (oldSize.width() == value)
+        return;
+
+    d->m_customLayoutWidth = value;
+    d->m_relayoutRequested = true;
+    emit customLayoutWidthChanged();
+}
+
+bool QQuickWebViewExperimental::overview() const
+{
+    Q_D(const QQuickWebView);
+    d->m_overviewRequested;
+}
+
+void QQuickWebViewExperimental::setOverview(bool enabled)
+{
+    Q_D(QQuickWebView);
+    // Due to virtual method we first set value and
+    // then compare to the old value to the new value.
+    bool oldValue = d->m_overviewRequested;
+    d->setOverview(enabled);
+    if (oldValue != d->m_overviewRequested) {
+        emit overviewChanged();
+    }
 }
 
 /*!
@@ -2115,6 +2341,7 @@ void QQuickWebView::componentComplete()
 
     d->onComponentComplete();
     d->updateViewportSize();
+    d->updateHeader();
 }
 
 void QQuickWebView::keyPressEvent(QKeyEvent* event)

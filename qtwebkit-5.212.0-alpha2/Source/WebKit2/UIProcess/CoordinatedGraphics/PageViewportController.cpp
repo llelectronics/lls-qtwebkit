@@ -39,6 +39,7 @@ PageViewportController::PageViewportController(WebKit::WebPageProxy* proxy, Page
     , m_allowsUserScaling(false)
     , m_minimumScaleToFit(1)
     , m_initiallyFitToViewport(true)
+    , m_overview(false)
     , m_hadUserInteraction(false)
     , m_pageScaleFactor(1)
     , m_pendingPositionChange(false)
@@ -295,7 +296,7 @@ void PageViewportController::didChangeViewportAttributes(const WebCore::Viewport
 
     m_rawAttributes = newAttributes;
     m_allowsUserScaling = !!m_rawAttributes.userScalable;
-    m_initiallyFitToViewport = (m_rawAttributes.initialScale < 0);
+    m_initiallyFitToViewport = m_overview || (m_rawAttributes.initialScale < 0);
 
     if (!m_initiallyFitToViewport)
         WebCore::restrictScaleFactorToInitialScaleIfNotUserScalable(m_rawAttributes);

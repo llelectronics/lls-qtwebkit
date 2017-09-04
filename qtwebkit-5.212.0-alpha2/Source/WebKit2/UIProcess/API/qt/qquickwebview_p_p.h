@@ -88,8 +88,11 @@ public:
     void didRenderFrame();
 
     virtual WebKit::PageViewportController* viewportController() const { return 0; }
+    virtual WebKit::PageViewportControllerClientQt* viewportControllerClient() const { return 0; }
     virtual void updateViewportSize() { }
     void updateTouchViewportSize();
+    
+    virtual void setOverview(bool) {}
 
     virtual qreal zoomFactor() const { return 1; }
     virtual void setZoomFactor(qreal) { }
@@ -98,6 +101,7 @@ public:
     void _q_onUrlChanged();
     void _q_onReceivedResponseFromDownload(QWebDownloadItem*);
     void _q_onIconChangedForPageURL(const QString&);
+    void _q_onPinchingChanged(bool);
 
     void chooseFiles(WKOpenPanelResultListenerRef, const QStringList& selectedFileNames, WebKit::QtWebPageUIClient::FileChooserType);
     quint64 exceededDatabaseQuota(const QString& databaseName, const QString& displayName, WKSecurityOriginRef securityOrigin, quint64 currentQuota, quint64 currentOriginUsage, quint64 currentDatabaseUsage, quint64 expectedUsage);
@@ -108,6 +112,8 @@ public:
     void handleAuthenticationRequiredRequest(const QString& hostname, const QString& realm, const QString& prefilledUsername, QString& username, QString& password);
     bool handleCertificateVerificationRequest(const QString& hostname);
     void handleProxyAuthenticationRequiredRequest(const QString& hostname, uint16_t port, const QString& prefilledUsername, QString& username, QString& password);
+    void handleNetworkRequestIgnored();
+    void handleOfflineChanged(bool state);
 
     void setRenderToOffscreenBuffer(bool enable) { m_renderToOffscreenBuffer = enable; }
     void setTransparentBackground(bool);
@@ -123,12 +129,15 @@ public:
 
     QPointF contentPos() const;
     void setContentPos(const QPointF&);
+    
+    void updateHeader();
 
     void updateIcon();
 
     // PageClient.
     WebCore::IntSize viewSize() const;
     virtual void pageDidRequestScroll(const QPoint& pos) { }
+    
     void processDidCrash();
     void didRelaunchProcess();
     std::unique_ptr<WebKit::DrawingAreaProxy> createDrawingAreaProxy();
@@ -191,6 +200,7 @@ protected:
     QScopedPointer<WebKit::QtWebPageUIClient> pageUIClient;
 
     QScopedPointer<QQuickWebPage> pageView;
+    QScopedPointer<QQuickItem> headerItem;
     QScopedPointer<WebKit::QtWebPageEventHandler> pageEventHandler;
     QQuickWebView* q_ptr;
     QQuickWebViewExperimental* experimental;
@@ -208,11 +218,16 @@ protected:
     QQmlComponent* filePicker;
     QQmlComponent* databaseQuotaDialog;
     QQmlComponent* colorChooser;
+    QQmlComponent* headerComponent;
 
     QList<QUrl> userScripts;
     QList<QUrl> userStyleSheets;
 
+    bool m_firstFrameRendered;
     bool m_betweenLoadCommitAndFirstFrame;
+    int m_customLayoutWidth;
+    bool m_relayoutRequested;
+    bool m_overviewRequested;
     bool m_useDefaultContentItemSize;
     bool m_navigatorQtObjectEnabled;
     bool m_renderToOffscreenBuffer;
@@ -220,6 +235,9 @@ protected:
     QUrl m_iconUrl;
     int m_loadProgress;
     QString m_currentUrl;
+    bool m_enableInputFieldAnimation;
+    bool m_pinching;
+    bool m_enableResizeContent;
 };
 
 class QQuickWebViewLegacyPrivate : public QQuickWebViewPrivate {
@@ -244,10 +262,13 @@ public:
 
     void didChangeViewportProperties(const WebCore::ViewportAttributes&) Q_DECL_OVERRIDE;
     WebKit::PageViewportController* viewportController() const Q_DECL_OVERRIDE { return m_pageViewportController.data(); }
+    virtual WebKit::PageViewportControllerClientQt* viewportControllerClient() const { return m_pageViewportControllerClient.data(); }
     void updateViewportSize() Q_DECL_OVERRIDE;
 
     void pageDidRequestScroll(const QPoint& pos) Q_DECL_OVERRIDE;
     void handleMouseEvent(QMouseEvent*) Q_DECL_OVERRIDE;
+    
+    virtual void setOverview(bool enabled) Q_DECL_OVERRIDE;
 
 private:
     QScopedPointer<WebKit::PageViewportController> m_pageViewportController;

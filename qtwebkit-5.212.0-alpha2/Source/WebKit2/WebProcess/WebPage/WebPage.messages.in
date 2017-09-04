@@ -250,6 +250,7 @@ messages -> WebPage LegacyReceiver {
 #endif
 #if PLATFORM(QT)
     HidePopupMenu()
+    SetOffline(bool value)
     SelectedIndex(int32_t newIndex)
 #endif
 

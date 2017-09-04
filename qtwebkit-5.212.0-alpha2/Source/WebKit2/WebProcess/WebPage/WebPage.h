@@ -801,6 +801,7 @@ public:
 #endif
 
 #if PLATFORM(QT)
+    void setOffline(bool state);
     void setUserScripts(const Vector<String>&);
 #endif
     void wheelEvent(const WebWheelEvent&);

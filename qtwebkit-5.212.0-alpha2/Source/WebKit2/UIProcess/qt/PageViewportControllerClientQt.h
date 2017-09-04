@@ -77,7 +77,7 @@ public:
     void pinchGestureCancelled();
 
     void zoomToAreaGestureEnded(const QPointF& touchPoint, const QRectF& targetArea);
-    void focusEditableArea(const QRectF& caretArea, const QRectF& targetArea);
+    void focusEditableArea(const QRectF& caretArea, const QRectF& targetArea, bool userTriggered = false);
 
 private Q_SLOTS:
     // Respond to changes of position that are not driven by us.

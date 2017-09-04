@@ -62,6 +62,8 @@ public:
     void handleAuthenticationRequiredRequest(const String& hostname, const String& realm, const String& prefilledUsername, String& username, String& password) override;
     void handleCertificateVerificationRequest(const String& hostname, bool& ignoreErrors) override;
     void handleProxyAuthenticationRequiredRequest(const String& hostname, uint16_t port, const String& prefilledUsername, String& username, String& password) override;
+    virtual void handleNetworkRequestIgnored();
+    virtual void handleOfflineChanged(bool state);
 
     void displayView() override;
     bool canScrollView() override { return false; }

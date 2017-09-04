@@ -34,6 +34,7 @@
 #include "WebPageProxyMessages.h"
 #include "WebPopupMenu.h"
 #include "WebProcess.h"
+#include "../NetworkProcess/qt/QtNetworkAccessManager.h"
 #include <QClipboard>
 #include <QGuiApplication>
 #include <WebCore/EventHandler.h>
@@ -313,6 +314,11 @@ void WebPage::hidePopupMenu()
 
     m_activePopupMenu->client()->popupDidHide();
     m_activePopupMenu = nullptr;
+}
+
+void WebPage::setOffline(bool state)
+{
+    notImplemented();
 }
 
 } // namespace WebKit

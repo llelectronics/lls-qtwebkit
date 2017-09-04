@@ -62,6 +62,16 @@ void QRawWebViewPrivate::handleProxyAuthenticationRequiredRequest(const String& 
     notImplemented();
 }
 
+void QRawWebViewPrivate::handleNetworkRequestIgnored()
+{
+    notImplemented();
+}
+
+void QRawWebViewPrivate::handleOfflineChanged(bool state)
+{
+    notImplemented();
+}
+
 void QRawWebViewPrivate::registerEditCommand(PassRefPtr<WebKit::WebEditCommandProxy>, WebKit::WebPageProxy::UndoOrRedo)
 {
     notImplemented();

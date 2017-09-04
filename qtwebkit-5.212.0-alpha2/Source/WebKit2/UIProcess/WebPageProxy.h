@@ -547,9 +547,12 @@ public:
     void commitPageTransitionViewport();
 #endif
 #if PLATFORM(QT)
+    void setOffline(bool state);
     void authenticationRequiredRequest(const String& hostname, const String& realm, const String& prefilledUsername, String& username, String& password);
     void certificateVerificationRequest(const String& hostname, bool& ignoreErrors);
     void proxyAuthenticationRequiredRequest(const String& hostname, uint16_t port, const String& prefilledUsername, String& username, String& password);
+    void networkRequestIgnored();
+    void offlineChanged(bool value);
 #endif // PLATFORM(QT).
 #if PLATFORM(EFL)
     void setThemePath(const String&);

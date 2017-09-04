@@ -39,6 +39,7 @@ namespace WebKit {
 
 QtNetworkAccessManager::QtNetworkAccessManager()
     : QNetworkAccessManager()
+    , m_offline(0)
 {
     connect(this, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)), SLOT(onAuthenticationRequired(QNetworkReply*, QAuthenticator*)));
     connect(this, SIGNAL(proxyAuthenticationRequired(const QNetworkProxy&, QAuthenticator*)), SLOT(onProxyAuthenticationRequired(const QNetworkProxy&, QAuthenticator*)));
@@ -50,7 +51,7 @@ QtNetworkAccessManager::QtNetworkAccessManager()
 WebPage* QtNetworkAccessManager::obtainOriginatingWebPage(const QNetworkRequest& request)
 {
     // QTFIXME: Old process model
-    if (!m_webProcess)
+    if (!m_webProcess || m_offline)
         return nullptr;
 
     QObject* originatingObject = request.originatingObject();
@@ -129,6 +130,17 @@ void QtNetworkAccessManager::onSslErrors(QNetworkReply* reply, const QList<QSslE
             reply->ignoreSslErrors(qSslErrors);
     }
 #endif
+}
+
+void QtNetworkAccessManager::setOffline(bool state, qulonglong pageId)
+{
+    WebPage* webPage = m_webProcess->webPage(pageId);
+
+    if (!webPage)
+        return;
+
+    m_offline = state;
+    webPage->send(Messages::WebPageProxy::OfflineChanged(m_offline));
 }
 
 }

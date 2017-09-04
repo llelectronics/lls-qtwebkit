@@ -218,6 +218,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_onUrlChanged());
     Q_PRIVATE_SLOT(d_func(), void _q_onReceivedResponseFromDownload(QWebDownloadItem*));
     Q_PRIVATE_SLOT(d_func(), void _q_onIconChangedForPageURL(const QString&));
+    Q_PRIVATE_SLOT(d_func(), void _q_onPinchingChanged(bool));
 
     // Hides QObject::d_ptr allowing us to use the convenience macros.
     QScopedPointer<QQuickWebViewPrivate> d_ptr;
@@ -261,6 +262,10 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(int preferredMinimumContentsWidth WRITE setPreferredMinimumContentsWidth READ preferredMinimumContentsWidth NOTIFY preferredMinimumContentsWidthChanged)
     Q_PROPERTY(int deviceWidth WRITE setDeviceWidth READ deviceWidth NOTIFY deviceWidthChanged)
     Q_PROPERTY(int deviceHeight WRITE setDeviceHeight READ deviceHeight NOTIFY deviceHeightChanged)
+    Q_PROPERTY(int customLayoutWidth WRITE setCustomLayoutWidth READ customLayoutWidth NOTIFY customLayoutWidthChanged)
+    Q_PROPERTY(bool overview WRITE setOverview READ overview NOTIFY overviewChanged FINAL)
+    Q_PROPERTY(bool pinching READ pinching NOTIFY pinchingChanged FINAL)
+    Q_PROPERTY(bool offline WRITE setOffline READ offline NOTIFY offlineChanged FINAL)
 
     Q_PROPERTY(QWebNavigationHistory* navigationHistory READ navigationHistory CONSTANT FINAL)
 
@@ -274,6 +279,8 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(QQmlComponent* filePicker READ filePicker WRITE setFilePicker NOTIFY filePickerChanged)
     Q_PROPERTY(QQmlComponent* databaseQuotaDialog READ databaseQuotaDialog WRITE setDatabaseQuotaDialog NOTIFY databaseQuotaDialogChanged)
     Q_PROPERTY(QQmlComponent* colorChooser READ colorChooser WRITE setColorChooser NOTIFY colorChooserChanged)
+    Q_PROPERTY(QQmlComponent* header READ header WRITE setHeader NOTIFY headerChanged FINAL)
+    Q_PROPERTY(QQuickItem* headerItem READ headerItem NOTIFY headerItemChanged FINAL)
 
     Q_PROPERTY(QWebPreferences* preferences READ preferences CONSTANT FINAL)
     Q_PROPERTY(QWebKitTest* test READ test CONSTANT FINAL)
@@ -281,7 +288,10 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(QString userAgent READ userAgent WRITE setUserAgent NOTIFY userAgentChanged)
     Q_PROPERTY(QList<QUrl> userScripts READ userScripts WRITE setUserScripts NOTIFY userScriptsChanged)
     Q_PROPERTY(QList<QUrl> userStyleSheets READ userStyleSheets WRITE setUserStyleSheets NOTIFY userStyleSheetsChanged)
+    Q_PROPERTY(QList<QUrl> userStyleSheet READ userStyleSheets WRITE setUserStyleSheets NOTIFY userStyleSheetsChanged)
     Q_PROPERTY(QUrl remoteInspectorUrl READ remoteInspectorUrl NOTIFY remoteInspectorUrlChanged FINAL)
+    Q_PROPERTY(bool enableInputFieldAnimation READ enableInputFieldAnimation WRITE setEnableInputFieldAnimation NOTIFY enableInputFieldAnimationChanged)
+    Q_PROPERTY(bool enableResizeContent READ enableResizeContent WRITE setEnableResizeContent NOTIFY enableResizeContentChanged)
 #ifdef QT_WEBCHANNEL_LIB
     Q_PROPERTY(QQmlWebChannel* webChannel READ webChannel WRITE setWebChannel NOTIFY webChannelChanged)
 #endif
@@ -323,6 +333,9 @@ public:
     void setDatabaseQuotaDialog(QQmlComponent*);
     QQmlComponent* colorChooser() const;
     void setColorChooser(QQmlComponent*);
+    QQmlComponent* header() const;
+    void setHeader(QQmlComponent*);
+    QQuickItem* headerItem() const;
     QString userAgent() const;
     void setUserAgent(const QString& userAgent);
     int deviceWidth() const;
@@ -333,7 +346,13 @@ public:
     void setUserScripts(const QList<QUrl>& userScripts);
     QList<QUrl> userStyleSheets() const;
     void setUserStyleSheets(const QList<QUrl>& userScripts);
+    bool enableInputFieldAnimation() const;
+    void setEnableInputFieldAnimation(bool enableInputFieldAnimation);
+    bool enableResizeContent() const;
+    void setEnableResizeContent(bool enableResizeContent);
     QUrl remoteInspectorUrl() const;
+    
+    Q_INVOKABLE void animateInputFieldVisible();
 
     QWebKitTest* test();
 
@@ -357,12 +376,24 @@ public:
 
     int preferredMinimumContentsWidth() const;
     void setPreferredMinimumContentsWidth(int);
+    
+    int customLayoutWidth() const;
+    void setCustomLayoutWidth(int);
+    bool overview() const;
+    void setOverview(bool enabled);
+    bool offline() const;
+    void setOffline(bool state);
+    
+    bool pinching() const;
 
     // C++ only
+    void handleOfflineChanged(bool state);
     bool renderToOffscreenBuffer() const;
     void setRenderToOffscreenBuffer(bool enable);
     static void setFlickableViewportEnabled(bool enable);
     static bool flickableViewportEnabled();
+    
+    bool firstFrameRendered() const;
 
 #ifdef QT_WEBCHANNEL_LIB
     QQmlWebChannel* webChannel() const;
@@ -388,6 +419,8 @@ Q_SIGNALS:
     void filePickerChanged();
     void databaseQuotaDialogChanged();
     void colorChooserChanged();
+    void headerChanged();
+    void headerItemChanged();
     void downloadRequested(QWebDownloadItem* downloadItem);
     void permissionRequested(QWebPermissionRequest* permission);
     void messageReceived(const QVariantMap& message);
@@ -401,12 +434,19 @@ Q_SIGNALS:
     void userStyleSheetsChanged();
     void preferredMinimumContentsWidthChanged();
     void remoteInspectorUrlChanged();
+    void customLayoutWidthChanged();
+    void overviewChanged();
+    void pinchingChanged();
+    void enableInputFieldAnimationChanged();
+    void enableResizeContentChanged();
     void textFound(int matchCount);
+    void offlineChanged();
 
     void processDidCrash();
     void didRelaunchProcess();
     void processDidBecomeUnresponsive();
     void processDidBecomeResponsive();
+    void networkRequestIgnored();
 
     void webChannelChanged(QQmlWebChannel* channel);
 
@@ -416,6 +456,7 @@ private:
     QQuickWebViewPrivate* d_ptr;
     QObject* schemeParent;
     QWebKitTest* m_test;
+    bool m_offline;
 
 #ifdef QT_WEBCHANNEL_LIB
     QQmlWebChannel* m_webChannel;

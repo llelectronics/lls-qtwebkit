@@ -41,6 +41,7 @@ class QtNetworkAccessManager : public QNetworkAccessManager {
     Q_OBJECT
 public:
     QtNetworkAccessManager();
+    void setOffline(bool state, qulonglong pageId);
 
 private Q_SLOTS:
     void onAuthenticationRequired(QNetworkReply *, QAuthenticator *);
@@ -51,6 +52,7 @@ private:
     WebPage* obtainOriginatingWebPage(const QNetworkRequest&);
 
     WebProcess* m_webProcess { nullptr };
+    bool m_offline;
 };
 
 } // namespace WebKit

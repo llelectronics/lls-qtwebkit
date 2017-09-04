@@ -48,6 +48,8 @@ public:
     virtual void handleAuthenticationRequiredRequest(const String& hostname, const String& realm, const String& prefilledUsername, String& username, String& password);
     virtual void handleCertificateVerificationRequest(const String& hostname, bool& ignoreErrors);
     virtual void handleProxyAuthenticationRequiredRequest(const String& hostname, uint16_t port, const String& prefilledUsername, String& username, String& password);
+    virtual void handleNetworkRequestIgnored();
+    virtual void handleOfflineChanged(bool state);
 
     virtual void registerEditCommand(PassRefPtr<WebKit::WebEditCommandProxy>, WebKit::WebPageProxy::UndoOrRedo);
     virtual bool canUndoRedo(WebKit::WebPageProxy::UndoOrRedo undoOrRedo);
