@@ -42,6 +42,7 @@ public:
         WebAudioEnabled,
         CaretBrowsingEnabled,
         NotificationsEnabled,
+        CookiesEnabled,
         UniversalAccessFromFileURLsAllowed,
         FileAccessFromFileURLsAllowed,
         SpatialNavigationEnabled,

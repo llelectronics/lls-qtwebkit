@@ -81,6 +81,8 @@ bool QWebPreferencesPrivate::testAttribute(QWebPreferencesPrivate::WebAttribute 
         return WKPreferencesGetCaretBrowsingEnabled(preferencesRef);
     case NotificationsEnabled:
         return WKPreferencesGetNotificationsEnabled(preferencesRef);
+    case CookiesEnabled:
+        return WKPreferencesGetCookieEnabled(preferencesRef);
     case SpatialNavigationEnabled:
         return WKPreferencesGetSpatialNavigationEnabled(preferencesRef);
     case LinksIncludedInFocusChain:
@@ -166,6 +168,9 @@ void QWebPreferencesPrivate::setAttribute(QWebPreferencesPrivate::WebAttribute a
         break;
     case FileAccessFromFileURLsAllowed:
         WKPreferencesSetFileAccessFromFileURLsAllowed(preferencesRef, enable);
+        break;
+    case CookiesEnabled:
+        WKPreferencesSetCookieEnabled(preferencesRef, enable);
         break;
     default:
         ASSERT_NOT_REACHED();
@@ -588,6 +593,17 @@ void QWebPreferences::setNotificationsEnabled(bool enable)
 {
     d->setAttribute(QWebPreferencesPrivate::NotificationsEnabled, enable);
     emit notificationsEnabledChanged();
+}
+
+bool QWebPreferences::cookiesEnabled() const
+{
+    return d->testAttribute(QWebPreferencesPrivate::CookiesEnabled);
+}
+
+void QWebPreferences::setCookiesEnabled(bool enable)
+{
+    d->setAttribute(QWebPreferencesPrivate::CookiesEnabled, enable);
+    emit cookiesEnabledChanged();
 }
 
 bool QWebPreferences::universalAccessFromFileURLsAllowed() const

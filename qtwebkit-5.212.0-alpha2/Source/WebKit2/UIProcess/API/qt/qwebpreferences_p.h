@@ -47,6 +47,7 @@ public:
     Q_PROPERTY(bool webAudioEnabled READ webAudioEnabled WRITE setWebAudioEnabled NOTIFY webAudioEnabledChanged FINAL)
     Q_PROPERTY(bool caretBrowsingEnabled READ caretBrowsingEnabled WRITE setCaretBrowsingEnabled NOTIFY caretBrowsingEnabledChanged FINAL)
     Q_PROPERTY(bool notificationsEnabled READ notificationsEnabled WRITE setNotificationsEnabled NOTIFY notificationsEnabledChanged FINAL)
+    Q_PROPERTY(bool cookiesEnabled WRITE setCookiesEnabled READ cookiesEnabled NOTIFY cookiesEnabledChanged FINAL)
     Q_PROPERTY(bool universalAccessFromFileURLsAllowed READ universalAccessFromFileURLsAllowed WRITE setUniversalAccessFromFileURLsAllowed NOTIFY universalAccessFromFileURLsAllowedChanged FINAL)
     Q_PROPERTY(bool fileAccessFromFileURLsAllowed READ fileAccessFromFileURLsAllowed WRITE setFileAccessFromFileURLsAllowed NOTIFY fileAccessFromFileURLsAllowedChanged FINAL)
     Q_PROPERTY(bool spatialNavigationEnabled READ spatialNavigationEnabled WRITE setSpatialNavigationEnabled NOTIFY spatialNavigationEnabledChanged FINAL)
@@ -111,6 +112,9 @@ public:
     bool notificationsEnabled() const;
     void setNotificationsEnabled(bool enable);
 
+    bool cookiesEnabled() const;
+    void setCookiesEnabled(bool enable);
+
     bool universalAccessFromFileURLsAllowed() const;
     void setUniversalAccessFromFileURLsAllowed(bool enable);
 
@@ -167,6 +171,7 @@ Q_SIGNALS:
     void webAudioEnabledChanged();
     void caretBrowsingEnabledChanged();
     void notificationsEnabledChanged();
+    void cookiesEnabledChanged();
     void spatialNavigationEnabledChanged();
     void linksIncludedInFocusChainChanged();
     void universalAccessFromFileURLsAllowedChanged();
