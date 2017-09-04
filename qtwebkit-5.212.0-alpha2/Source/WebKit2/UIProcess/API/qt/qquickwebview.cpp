@@ -97,7 +97,7 @@ using namespace WebCore;
 using namespace WebKit;
 
 // QTFIXME: flickable viewport has painting artifacts so we cannot enable it by default
-static bool s_flickableViewportEnabled = false; //true;
+static bool s_flickableViewportEnabled = true; //true;
 static const int kAxisLockSampleCount = 5;
 static const qreal kAxisLockVelocityThreshold = 300;
 static const qreal kAxisLockVelocityDirectionThreshold = 50;
