@@ -43,6 +43,7 @@ public:
         CaretBrowsingEnabled,
         NotificationsEnabled,
         CookiesEnabled,
+	MediaSourceEnabled,
         UniversalAccessFromFileURLsAllowed,
         FileAccessFromFileURLsAllowed,
         SpatialNavigationEnabled,
