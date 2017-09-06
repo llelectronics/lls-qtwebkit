@@ -298,12 +298,25 @@ bool QtPageClient::isFullScreen()
 
 void QtPageClient::enterFullScreen()
 {
-    notImplemented();
+    if (!m_webView)
+        return;
+    
+    WebFullScreenManagerProxy* manager = m_eventHandler->webPageProxy()->fullScreenManager();
+    manager->willEnterFullScreen();
+#if HAVE(QTQUICK)
+    emit m_webView->experimental()->enterFullScreenRequested();
+#endif
+    manager->didEnterFullScreen();
 }
 
 void QtPageClient::exitFullScreen()
 {
-    notImplemented();
+    WebFullScreenManagerProxy* manager = m_eventHandler->webPageProxy()->fullScreenManager();  
+    manager->willExitFullScreen();
+#if HAVE(QTQUICK)
+    emit m_webView->experimental()->exitFullScreenRequested();
+#endif
+    manager->didExitFullScreen();
 }
 
 void QtPageClient::beganEnterFullScreen(const IntRect& initialFrame, const IntRect& finalFrame)
