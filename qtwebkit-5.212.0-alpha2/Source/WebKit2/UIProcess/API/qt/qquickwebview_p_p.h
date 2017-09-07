@@ -46,6 +46,7 @@ class QtWebContext;
 class QtWebError;
 class QtWebPageEventHandler;
 class QtWebPagePolicyClient;
+class WebCookieManagerProxy;
 class WebPageProxy;
 }
 
@@ -189,6 +190,7 @@ protected:
 
     QQuickWebViewPrivate(QQuickWebView* viewport);
     RefPtr<WebKit::WebPageProxy> webPageProxy;
+    RefPtr<WebKit::WebCookieManagerProxy> cookieManagerProxy;
     WKRetainPtr<WKPageRef> webPage;
 
     WebKit::QtPageClient pageClient;

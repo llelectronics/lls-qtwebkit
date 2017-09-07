@@ -46,6 +46,7 @@
 #if ENABLE(FULLSCREEN_API)
 #include "WebFullScreenManagerProxy.h"
 #endif
+#include "WebCookieManagerProxy.h"
 #include "WebPageGroup.h"
 #include "WebPreferences.h"
 #include "WebProcessPool.h"
@@ -89,6 +90,7 @@
 #include <wtf/MainThread.h>
 #include <wtf/Vector.h>
 #include <wtf/text/WTFString.h>
+#include <WKCookieManager.h>
 
 #if ENABLE(QT_WEBCHANNEL)
 #include "qwebchannelwebkittransport_p.h"
@@ -358,6 +360,8 @@ void QQuickWebViewPrivate::initialize(WKPageConfigurationRef configurationRef)
         WKPageConfigurationSetPageGroup(pageConfiguration.get(), pageGroup.get());
         context = QtWebContext::defaultContext();
     }
+    
+    cookieManagerProxy = toImpl(context->context())->supplement<WebCookieManagerProxy>();
 
     webPageProxy = toImpl(context->context())->createWebPage(pageClient, toImpl(pageConfiguration.get())->copy());
     webPage = toAPI(webPageProxy.get());
@@ -1267,7 +1271,17 @@ void QQuickWebViewExperimental::setUseDefaultContentItemSize(bool enable)
     d->m_useDefaultContentItemSize = enable;
 }
 
+void QQuickWebViewExperimental::deleteCookiesForHostname(const QString& hostname)
+{
+    if (d_ptr->cookieManagerProxy)
+        d_ptr->cookieManagerProxy.get()->deleteCookiesForHostname(hostname);
+}
 
+void QQuickWebViewExperimental::deleteAllCookies()
+{
+    if (d_ptr->cookieManagerProxy)
+        d_ptr->cookieManagerProxy.get()->deleteAllCookies();
+}
 
 /*!
     \internal

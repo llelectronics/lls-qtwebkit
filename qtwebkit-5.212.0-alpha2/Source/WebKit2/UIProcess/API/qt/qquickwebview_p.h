@@ -407,6 +407,8 @@ public Q_SLOTS:
     void postMessage(const QString&);
     void evaluateJavaScript(const QString& script, const QJSValue& value = QJSValue());
     void findText(const QString& string, FindFlags options = 0);
+    void deleteCookiesForHostname(const QString&);
+    void deleteAllCookies();
 
 Q_SIGNALS:
     void loadVisuallyCommitted();
