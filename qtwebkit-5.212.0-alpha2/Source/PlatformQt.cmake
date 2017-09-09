@@ -2,7 +2,7 @@
 
 set(TARGETS_WITH_AUTOMOC
     WebKit
-    WebKitWidgets
+    #WebKitWidgets
 )
 if (ENABLE_WEBKIT2)
     list(APPEND TARGETS_WITH_AUTOMOC
@@ -42,9 +42,9 @@ if (USE_MINIMAL_DEBUG_INFO_MSVC AND MSVC AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (TARGET WebKit2)
         target_compile_options(WebKit2        PRIVATE /Zi)
     endif ()
-    if (TARGET WebKitWidgets)
-        target_compile_options(WebKitWidgets  PRIVATE /Zi)
-    endif ()
+#     if (TARGET WebKitWidgets)
+#         target_compile_options(WebKitWidgets  PRIVATE /Zi)
+#     endif ()
 endif ()
 
 # GTest
@@ -65,11 +65,11 @@ target_include_directories(WebKit INTERFACE
     $<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}/QtWebKit>
 )
 
-target_compile_definitions(WebKitWidgets INTERFACE QT_WEBKITWIDGETS_LIB)
-target_include_directories(WebKitWidgets INTERFACE
-    $<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>
-    $<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets>
-)
+# target_compile_definitions(WebKitWidgets INTERFACE QT_WEBKITWIDGETS_LIB)
+# target_include_directories(WebKitWidgets INTERFACE
+#     $<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>
+#     $<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets>
+# )
 
 set(_package_footer_template "
 ####### Expanded from QTWEBKIT_PACKAGE_FOOTER variable #######
@@ -103,12 +103,12 @@ ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/Qt5WebKitConfig.c
     INSTALL_DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKit"
 )
 
-set(MODULE_NAME WebKitWidgets)
-string(CONFIGURE ${_package_footer_template} QTWEBKIT_PACKAGE_FOOTER @ONLY)
-ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/Qt5WebKitWidgetsConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfig.cmake"
-    INSTALL_DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKitWidgets"
-)
+# set(MODULE_NAME WebKitWidgets)
+# string(CONFIGURE ${_package_footer_template} QTWEBKIT_PACKAGE_FOOTER @ONLY)
+# ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/Qt5WebKitWidgetsConfig.cmake.in"
+#     "${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfig.cmake"
+#     INSTALL_DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKitWidgets"
+# )
 
 unset(MODULE_NAME)
 unset(QTWEBKIT_PACKAGE_FOOTER)
@@ -116,9 +116,9 @@ unset(QTWEBKIT_PACKAGE_FOOTER)
 write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitConfigVersion.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion)
-write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfigVersion.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion)
+# write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfigVersion.cmake"
+#     VERSION ${PROJECT_VERSION}
+#     COMPATIBILITY AnyNewerVersion)
 
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitConfig.cmake"
@@ -126,12 +126,12 @@ install(FILES
     DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKit"
     COMPONENT Data
 )
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfigVersion.cmake"
-    DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKitWidgets"
-    COMPONENT Data
-)
+# install(FILES
+#     "${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfig.cmake"
+#     "${CMAKE_CURRENT_BINARY_DIR}/Qt5WebKitWidgetsConfigVersion.cmake"
+#     DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKitWidgets"
+#     COMPONENT Data
+# )
 
 install(EXPORT WebKitTargets
     FILE WebKitTargets.cmake
@@ -139,12 +139,12 @@ install(EXPORT WebKitTargets
     DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKit"
     COMPONENT Data
 )
-install(EXPORT Qt5WebKitWidgetsTargets
-    FILE Qt5WebKitWidgetsTargets.cmake
-    NAMESPACE Qt5::
-    DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKitWidgets"
-    COMPONENT Data
-)
+# install(EXPORT Qt5WebKitWidgetsTargets
+#     FILE Qt5WebKitWidgetsTargets.cmake
+#     NAMESPACE Qt5::
+#     DESTINATION "${KDE_INSTALL_CMAKEPACKAGEDIR}/Qt5WebKitWidgets"
+#     COMPONENT Data
+# )
 
 # Documentation
 
