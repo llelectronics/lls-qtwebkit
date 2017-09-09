@@ -277,9 +277,6 @@ if (ENABLE_GEOLOCATION)
 endif ()
 
 if (USE_QT_MULTIMEDIA)
-    qt_wrap_cpp(WebKit WebKit_SOURCES
-        qt/Api/qwebfullscreenvideohandler.h
-    )
     list(APPEND WebKit_SOURCES
         qt/WebCoreSupport/FullScreenVideoQt.cpp
     )
@@ -433,24 +430,24 @@ if (ENABLE_DEVICE_ORIENTATION)
     set(WEBKIT_PRI_RUNTIME_DEPS "sensors ${WEBKIT_PRI_RUNTIME_DEPS}")
 endif ()
 
-set(WEBKITWIDGETS_PKGCONGIG_DEPS "${WEBKIT_PKGCONGIG_DEPS} Qt5Widgets Qt5WebKit")
-set(WEBKITWIDGETS_PRI_DEPS "${WEBKIT_PRI_DEPS} widgets webkit")
-set(WEBKITWIDGETS_PRI_RUNTIME_DEPS "${WEBKIT_PRI_RUNTIME_DEPS} widgets_private")
+# set(WEBKITWIDGETS_PKGCONGIG_DEPS "${WEBKIT_PKGCONGIG_DEPS} Qt5Widgets Qt5WebKit")
+# set(WEBKITWIDGETS_PRI_DEPS "${WEBKIT_PRI_DEPS} widgets webkit")
+# set(WEBKITWIDGETS_PRI_RUNTIME_DEPS "${WEBKIT_PRI_RUNTIME_DEPS} widgets_private")
 
-if (Qt5OpenGL_FOUND)
-    set(WEBKITWIDGETS_PRI_RUNTIME_DEPS "${WEBKITWIDGETS_PRI_RUNTIME_DEPS} opengl")
-endif ()
+# if (Qt5OpenGL_FOUND)
+#     set(WEBKITWIDGETS_PRI_RUNTIME_DEPS "${WEBKITWIDGETS_PRI_RUNTIME_DEPS} opengl")
+# endif ()
 
-if (ENABLE_PRINT_SUPPORT)
-    set(WEBKITWIDGETS_PRI_RUNTIME_DEPS "${WEBKITWIDGETS_PRI_RUNTIME_DEPS} printsupport")
-endif ()
+# if (ENABLE_PRINT_SUPPORT)
+#     set(WEBKITWIDGETS_PRI_RUNTIME_DEPS "${WEBKITWIDGETS_PRI_RUNTIME_DEPS} printsupport")
+# endif ()
 
 if (QT_STATIC_BUILD)
     if (MSVC)
         set(LIB_PREFIX "lib")
     endif ()
-    set(WEBKITWIDGETS_PKGCONGIG_DEPS "${WEBKITWIDGETS_PKGCONGIG_DEPS} Qt5PrintSupport")
-    set(WEBKITWIDGETS_PRI_DEPS "${WEBKITWIDGETS_PRI_DEPS} printsupport")
+#     set(WEBKITWIDGETS_PKGCONGIG_DEPS "${WEBKITWIDGETS_PKGCONGIG_DEPS} Qt5PrintSupport")
+#     set(WEBKITWIDGETS_PRI_DEPS "${WEBKITWIDGETS_PRI_DEPS} printsupport")
     set(EXTRA_LIBS_NAMES WebCore JavaScriptCore WTF xml2)
     if (NOT USE_SYSTEM_MALLOC)
         list(APPEND EXTRA_LIBS_NAMES bmalloc)
@@ -549,238 +546,238 @@ endif ()
 
 ############     WebKitWidgets     ############
 
-set(WebKitWidgets_INCLUDE_DIRECTORIES
-    "${WEBKIT_DIR}/qt/WidgetApi"
-    "${WEBKIT_DIR}/qt/WidgetSupport"
-)
-
-set(WebKitWidgets_SOURCES
-    qt/WidgetApi/qgraphicswebview.cpp
-    qt/WidgetApi/qwebframe.cpp
-    qt/WidgetApi/qwebinspector.cpp
-    qt/WidgetApi/qwebpage.cpp
-    qt/WidgetApi/qwebpage_p.cpp
-    qt/WidgetApi/qwebview.cpp
-    qt/WidgetApi/qwebviewaccessible.cpp
-
-    qt/WidgetSupport/InitWebKitQt.cpp
-    qt/WidgetSupport/InspectorClientWebPage.cpp
-    qt/WidgetSupport/PageClientQt.cpp
-    qt/WidgetSupport/QGraphicsWidgetPluginImpl.cpp
-    qt/WidgetSupport/QStyleFacadeImp.cpp
-    qt/WidgetSupport/QWebUndoCommand.cpp
-    qt/WidgetSupport/QWidgetPluginImpl.cpp
-    qt/WidgetSupport/QtFallbackWebPopup.cpp
-    qt/WidgetSupport/QtWebComboBox.cpp
-)
-
-set(WebKitWidgets_SYSTEM_INCLUDE_DIRECTORIES
-    ${Qt5Gui_INCLUDE_DIRS}
-    ${Qt5Network_INCLUDE_DIRS}
-    ${Qt5Widgets_INCLUDE_DIRS}
-)
-
-set(WebKitWidgets_LIBRARIES
-    PRIVATE
-        ${Qt5MultimediaWidgets_LIBRARIES}
-        ${Qt5PrintSupport_LIBRARIES}
-    PUBLIC
-        ${Qt5Widgets_LIBRARIES}
-        WebKit
-)
-
-if (USE_QT_MULTIMEDIA)
-    list(APPEND WebKitWidgets_SOURCES
-        qt/WidgetSupport/DefaultFullScreenVideoHandler.cpp
-        qt/WidgetSupport/FullScreenVideoWidget.cpp
-    )
-    list(APPEND WebKitWidgets_SYSTEM_INCLUDE_DIRECTORIES
-        ${Qt5MultimediaWidgets_INCLUDE_DIRS}
-    )
-endif ()
-
-WEBKIT_CREATE_FORWARDING_HEADERS(QtWebKitWidgets DIRECTORIES qt/WidgetApi)
-
-ecm_generate_headers(
-    QtWebKitWidgets_FORWARDING_HEADERS
-    HEADER_NAMES
-        QGraphicsWebView
-        QWebFrame,QWebHitTestResult
-        QWebInspector
-        QWebPage
-        QWebView
-    COMMON_HEADER
-        QtWebKitWidgets
-    COMMON_HEADER_EXTRAS
-        <QtWebKitWidgets/QtWebKitWidgetsDepends>
-        \"qtwebkitwidgetsversion.h\"
-    COMMON_HEADER_GUARD_NAME
-        QT_QTWEBKITWIDGETS_MODULE_H
-    RELATIVE
-        qt/WidgetApi
-    OUTPUT_DIR
-        "${FORWARDING_HEADERS_DIR}/QtWebKitWidgets"
-    REQUIRED_HEADERS
-        QtWebKitWidgets_HEADERS
-)
-
-set(WebKitWidgets_PUBLIC_HEADERS
-    ${QtWebKitWidgets_HEADERS}
-    ${QtWebKitWidgets_FORWARDING_HEADERS}
-)
-
-generate_version_header("${FORWARDING_HEADERS_DIR}/QtWebKitWidgets/qtwebkitwidgetsversion.h"
-    WebKitWidgets_PUBLIC_HEADERS
-    QTWEBKITWIDGETS
-)
-
-generate_header("${FORWARDING_HEADERS_DIR}/QtWebKitWidgets/QtWebKitWidgetsVersion"
-    WebKitWidgets_PUBLIC_HEADERS
-    "#include \"qtwebkitwidgetsversion.h\"")
-
-generate_header("${FORWARDING_HEADERS_DIR}/QtWebKitWidgets/QtWebKitWidgetsDepends"
-    WebKitWidgets_PUBLIC_HEADERS
-    "#ifdef __cplusplus /* create empty PCH in C mode */
-#include <QtCore/QtCore>
-#include <QtGui/QtGui>
-#include <QtWidgets/QtWidgets>
-#include <QtNetwork/QtNetwork>
-#include <QtWebKit/QtWebKit>
-#endif
-")
-
-install(
-    FILES
-        ${WebKitWidgets_PUBLIC_HEADERS}
-    DESTINATION
-        ${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets
-    COMPONENT Data
-)
-
-file(GLOB WebKitWidgets_PRIVATE_HEADERS qt/WidgetApi/*_p.h)
-install(
-    FILES
-        ${WebKitWidgets_PRIVATE_HEADERS}
-    DESTINATION
-        ${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets/${PROJECT_VERSION}/QtWebKitWidgets/private
-    COMPONENT Data
-)
-
-if (NOT MACOS_BUILD_FRAMEWORKS)
-    ecm_generate_pkgconfig_file(
-        BASE_NAME Qt5WebKitWidgets
-        DEPS "${WEBKITWIDGETS_PKGCONFIG_DEPS}"
-        FILENAME_VAR WebKitWidgets_PKGCONFIG_FILENAME
-    )
-    install(FILES ${WebKitWidgets_PKGCONFIG_FILENAME} DESTINATION ${ECM_PKGCONFIG_INSTALL_DIR} COMPONENT Data)
-endif ()
-
-if (KDE_INSTALL_USE_QT_SYS_PATHS)
-    set(WebKitWidgets_PRI_ARGUMENTS
-        BIN_INSTALL_DIR "$$QT_MODULE_BIN_BASE"
-        LIB_INSTALL_DIR "$$QT_MODULE_LIB_BASE"
-    )
-    if (MACOS_BUILD_FRAMEWORKS)
-        list(APPEND WebKitWidgets_PRI_ARGUMENTS
-            INCLUDE_INSTALL_DIR "$$QT_MODULE_LIB_BASE/QtWebKitWidgets.framework/Headers"
-            MODULE_CONFIG "lib_bundle"
-        )
-    else ()
-        list(APPEND WebKitWidgets_PRI_ARGUMENTS
-            INCLUDE_INSTALL_DIR "$$QT_MODULE_INCLUDE_BASE"
-            INCLUDE_INSTALL_DIR2 "$$QT_MODULE_INCLUDE_BASE/QtWebKitWidgets"
-        )
-    endif ()
-else ()
-    set(WebKitWidgets_PRI_ARGUMENTS
-        SET_RPATH ON
-    )
-    if (MACOS_BUILD_FRAMEWORKS)
-        list(APPEND WebKitWidgets_PRI_ARGUMENTS
-            INCLUDE_INSTALL_DIR "${LIB_INSTALL_DIR}/QtWebKitWidgets.framework/Headers"
-            MODULE_CONFIG "lib_bundle"
-        )
-    else ()
-        list(APPEND WebKitWidgets_PRI_ARGUMENTS
-            INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR}
-            INCLUDE_INSTALL_DIR2 "${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets"
-        )
-    endif ()
-endif ()
-
-if (MACOS_BUILD_FRAMEWORKS)
-    set(WebKitWidgets_OUTPUT_NAME QtWebKitWidgets)
-else ()
-    set(WebKitWidgets_OUTPUT_NAME Qt5WebKitWidgets)
-endif ()
-
-ecm_generate_pri_file(
-    BASE_NAME webkitwidgets
-    NAME QtWebKitWidgets
-    LIB_NAME ${WebKitWidgets_OUTPUT_NAME}
-    INCLUDE_INSTALL_DIR "${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets"
-    DEPS "${WEBKITWIDGETS_PRI_DEPS}"
-    RUNTIME_DEPS "${WEBKITWIDGETS_PRI_RUNTIME_DEPS}"
-    DEFINES QT_WEBKITWIDGETS_LIB
-    QT_MODULES webkitwidgets
-    FILENAME_VAR WebKitWidgets_PRI_FILENAME
-    ${WebKitWidgets_PRI_ARGUMENTS}
-)
-install(FILES ${WebKitWidgets_PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR} COMPONENT Data)
-
-if (MSVC)
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        enable_language(ASM_MASM)
-        list(APPEND WebKit_SOURCES
-            win/Plugins/PaintHooks.asm
-        )
-    endif ()
-
-    list(APPEND WebKit_INCLUDE_DIRECTORIES
-        ${DERIVED_SOURCES_WEBKIT_DIR}
-    )
-
-    ADD_PRECOMPILED_HEADER("WebKitWidgetsPrefix.h" "qt/WebKitWidgetsPrefix.cpp" WebKitWidgets_SOURCES)
-endif ()
-
-if (QT_STATIC_BUILD)
-    set(WebKitWidgets_LIBRARY_TYPE STATIC)
-else ()
-    set(WebKitWidgets_LIBRARY_TYPE SHARED)
-endif ()
-
-set(WebKitWidgets_PRIVATE_HEADERS_LOCATION Headers/${PROJECT_VERSION}/QtWebKitWidgets/private)
-
-WEBKIT_FRAMEWORK(WebKitWidgets)
-add_dependencies(WebKitWidgets WebKit)
-set_target_properties(WebKitWidgets PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
-install(TARGETS WebKitWidgets EXPORT Qt5WebKitWidgetsTargets
-        DESTINATION "${LIB_INSTALL_DIR}"
-        RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
-)
-if (MSVC)
-    install(FILES $<TARGET_PDB_FILE:WebKitWidgets> DESTINATION "${BIN_INSTALL_DIR}" OPTIONAL)
-endif ()
-
-if (NOT MSVC AND WIN32)
-    ADD_PREFIX_HEADER(WebKitWidgets "qt/WebKitWidgetsPrefix.h")
-endif ()
-
-if (MACOS_BUILD_FRAMEWORKS)
-    set_target_properties(WebKitWidgets PROPERTIES
-        FRAMEWORK_VERSION 5
-        MACOSX_FRAMEWORK_IDENTIFIER org.qt-project.QtWebKitWidgets
-    )
-endif ()
-
-if (USE_LINKER_VERSION_SCRIPT)
-    set(VERSION_SCRIPT "${CMAKE_BINARY_DIR}/QtWebKitWidgets.version")
-    add_custom_command(TARGET WebKitWidgets PRE_LINK
-        COMMAND ${PERL_EXECUTABLE} ${TOOLS_DIR}/qt/generate-version-script.pl ${Qt5_VERSION} > ${VERSION_SCRIPT}
-        VERBATIM
-    )
-    set_target_properties(WebKitWidgets PROPERTIES LINK_FLAGS -Wl,--version-script,${VERSION_SCRIPT})
-endif ()
+# set(WebKitWidgets_INCLUDE_DIRECTORIES
+#     "${WEBKIT_DIR}/qt/WidgetApi"
+#     "${WEBKIT_DIR}/qt/WidgetSupport"
+# )
+# 
+# set(WebKitWidgets_SOURCES
+#     qt/WidgetApi/qgraphicswebview.cpp
+#     qt/WidgetApi/qwebframe.cpp
+#     qt/WidgetApi/qwebinspector.cpp
+#     qt/WidgetApi/qwebpage.cpp
+#     qt/WidgetApi/qwebpage_p.cpp
+#     qt/WidgetApi/qwebview.cpp
+#     qt/WidgetApi/qwebviewaccessible.cpp
+# 
+#     qt/WidgetSupport/InitWebKitQt.cpp
+#     qt/WidgetSupport/InspectorClientWebPage.cpp
+#     qt/WidgetSupport/PageClientQt.cpp
+#     qt/WidgetSupport/QGraphicsWidgetPluginImpl.cpp
+#     qt/WidgetSupport/QStyleFacadeImp.cpp
+#     qt/WidgetSupport/QWebUndoCommand.cpp
+#     qt/WidgetSupport/QWidgetPluginImpl.cpp
+#     qt/WidgetSupport/QtFallbackWebPopup.cpp
+#     qt/WidgetSupport/QtWebComboBox.cpp
+# )
+# 
+# set(WebKitWidgets_SYSTEM_INCLUDE_DIRECTORIES
+#     ${Qt5Gui_INCLUDE_DIRS}
+#     ${Qt5Network_INCLUDE_DIRS}
+#     ${Qt5Widgets_INCLUDE_DIRS}
+# )
+# 
+# set(WebKitWidgets_LIBRARIES
+#     PRIVATE
+#         ${Qt5MultimediaWidgets_LIBRARIES}
+#         ${Qt5PrintSupport_LIBRARIES}
+#     PUBLIC
+#         ${Qt5Widgets_LIBRARIES}
+#         WebKit
+# )
+# 
+# if (USE_QT_MULTIMEDIA)
+#     list(APPEND WebKitWidgets_SOURCES
+#         qt/WidgetSupport/DefaultFullScreenVideoHandler.cpp
+#         qt/WidgetSupport/FullScreenVideoWidget.cpp
+#     )
+#     list(APPEND WebKitWidgets_SYSTEM_INCLUDE_DIRECTORIES
+#         ${Qt5MultimediaWidgets_INCLUDE_DIRS}
+#     )
+# endif ()
+# 
+# WEBKIT_CREATE_FORWARDING_HEADERS(QtWebKitWidgets DIRECTORIES qt/WidgetApi)
+# 
+# ecm_generate_headers(
+#     QtWebKitWidgets_FORWARDING_HEADERS
+#     HEADER_NAMES
+#         QGraphicsWebView
+#         QWebFrame,QWebHitTestResult
+#         QWebInspector
+#         QWebPage
+#         QWebView
+#     COMMON_HEADER
+#         QtWebKitWidgets
+#     COMMON_HEADER_EXTRAS
+#         <QtWebKitWidgets/QtWebKitWidgetsDepends>
+#         \"qtwebkitwidgetsversion.h\"
+#     COMMON_HEADER_GUARD_NAME
+#         QT_QTWEBKITWIDGETS_MODULE_H
+#     RELATIVE
+#         qt/WidgetApi
+#     OUTPUT_DIR
+#         "${FORWARDING_HEADERS_DIR}/QtWebKitWidgets"
+#     REQUIRED_HEADERS
+#         QtWebKitWidgets_HEADERS
+# )
+# 
+# set(WebKitWidgets_PUBLIC_HEADERS
+#     ${QtWebKitWidgets_HEADERS}
+#     ${QtWebKitWidgets_FORWARDING_HEADERS}
+# )
+# 
+# generate_version_header("${FORWARDING_HEADERS_DIR}/QtWebKitWidgets/qtwebkitwidgetsversion.h"
+#     WebKitWidgets_PUBLIC_HEADERS
+#     QTWEBKITWIDGETS
+# )
+# 
+# generate_header("${FORWARDING_HEADERS_DIR}/QtWebKitWidgets/QtWebKitWidgetsVersion"
+#     WebKitWidgets_PUBLIC_HEADERS
+#     "#include \"qtwebkitwidgetsversion.h\"")
+# 
+# generate_header("${FORWARDING_HEADERS_DIR}/QtWebKitWidgets/QtWebKitWidgetsDepends"
+#     WebKitWidgets_PUBLIC_HEADERS
+#     "#ifdef __cplusplus /* create empty PCH in C mode */
+# #include <QtCore/QtCore>
+# #include <QtGui/QtGui>
+# #include <QtWidgets/QtWidgets>
+# #include <QtNetwork/QtNetwork>
+# #include <QtWebKit/QtWebKit>
+# #endif
+# ")
+# 
+# install(
+#     FILES
+#         ${WebKitWidgets_PUBLIC_HEADERS}
+#     DESTINATION
+#         ${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets
+#     COMPONENT Data
+# )
+# 
+# file(GLOB WebKitWidgets_PRIVATE_HEADERS qt/WidgetApi/*_p.h)
+# install(
+#     FILES
+#         ${WebKitWidgets_PRIVATE_HEADERS}
+#     DESTINATION
+#         ${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets/${PROJECT_VERSION}/QtWebKitWidgets/private
+#     COMPONENT Data
+# )
+# 
+# if (NOT MACOS_BUILD_FRAMEWORKS)
+#     ecm_generate_pkgconfig_file(
+#         BASE_NAME Qt5WebKitWidgets
+#         DEPS "${WEBKITWIDGETS_PKGCONFIG_DEPS}"
+#         FILENAME_VAR WebKitWidgets_PKGCONFIG_FILENAME
+#     )
+#     install(FILES ${WebKitWidgets_PKGCONFIG_FILENAME} DESTINATION ${ECM_PKGCONFIG_INSTALL_DIR} COMPONENT Data)
+# endif ()
+# 
+# if (KDE_INSTALL_USE_QT_SYS_PATHS)
+#     set(WebKitWidgets_PRI_ARGUMENTS
+#         BIN_INSTALL_DIR "$$QT_MODULE_BIN_BASE"
+#         LIB_INSTALL_DIR "$$QT_MODULE_LIB_BASE"
+#     )
+#     if (MACOS_BUILD_FRAMEWORKS)
+#         list(APPEND WebKitWidgets_PRI_ARGUMENTS
+#             INCLUDE_INSTALL_DIR "$$QT_MODULE_LIB_BASE/QtWebKitWidgets.framework/Headers"
+#             MODULE_CONFIG "lib_bundle"
+#         )
+#     else ()
+#         list(APPEND WebKitWidgets_PRI_ARGUMENTS
+#             INCLUDE_INSTALL_DIR "$$QT_MODULE_INCLUDE_BASE"
+#             INCLUDE_INSTALL_DIR2 "$$QT_MODULE_INCLUDE_BASE/QtWebKitWidgets"
+#         )
+#     endif ()
+# else ()
+#     set(WebKitWidgets_PRI_ARGUMENTS
+#         SET_RPATH ON
+#     )
+#     if (MACOS_BUILD_FRAMEWORKS)
+#         list(APPEND WebKitWidgets_PRI_ARGUMENTS
+#             INCLUDE_INSTALL_DIR "${LIB_INSTALL_DIR}/QtWebKitWidgets.framework/Headers"
+#             MODULE_CONFIG "lib_bundle"
+#         )
+#     else ()
+#         list(APPEND WebKitWidgets_PRI_ARGUMENTS
+#             INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR}
+#             INCLUDE_INSTALL_DIR2 "${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets"
+#         )
+#     endif ()
+# endif ()
+# 
+# if (MACOS_BUILD_FRAMEWORKS)
+#     set(WebKitWidgets_OUTPUT_NAME QtWebKitWidgets)
+# else ()
+#     set(WebKitWidgets_OUTPUT_NAME Qt5WebKitWidgets)
+# endif ()
+# 
+# ecm_generate_pri_file(
+#     BASE_NAME webkitwidgets
+#     NAME QtWebKitWidgets
+#     LIB_NAME ${WebKitWidgets_OUTPUT_NAME}
+#     INCLUDE_INSTALL_DIR "${KDE_INSTALL_INCLUDEDIR}/QtWebKitWidgets"
+#     DEPS "${WEBKITWIDGETS_PRI_DEPS}"
+#     RUNTIME_DEPS "${WEBKITWIDGETS_PRI_RUNTIME_DEPS}"
+#     DEFINES QT_WEBKITWIDGETS_LIB
+#     QT_MODULES webkitwidgets
+#     FILENAME_VAR WebKitWidgets_PRI_FILENAME
+#     ${WebKitWidgets_PRI_ARGUMENTS}
+# )
+# install(FILES ${WebKitWidgets_PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR} COMPONENT Data)
+# 
+# if (MSVC)
+#     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+#         enable_language(ASM_MASM)
+#         list(APPEND WebKit_SOURCES
+#             win/Plugins/PaintHooks.asm
+#         )
+#     endif ()
+# 
+#     list(APPEND WebKit_INCLUDE_DIRECTORIES
+#         ${DERIVED_SOURCES_WEBKIT_DIR}
+#     )
+# 
+#     ADD_PRECOMPILED_HEADER("WebKitWidgetsPrefix.h" "qt/WebKitWidgetsPrefix.cpp" WebKitWidgets_SOURCES)
+# endif ()
+# 
+# if (QT_STATIC_BUILD)
+#     set(WebKitWidgets_LIBRARY_TYPE STATIC)
+# else ()
+#     set(WebKitWidgets_LIBRARY_TYPE SHARED)
+# endif ()
+# 
+# set(WebKitWidgets_PRIVATE_HEADERS_LOCATION Headers/${PROJECT_VERSION}/QtWebKitWidgets/private)
+# 
+# WEBKIT_FRAMEWORK(WebKitWidgets)
+# add_dependencies(WebKitWidgets WebKit)
+# set_target_properties(WebKitWidgets PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
+# install(TARGETS WebKitWidgets EXPORT Qt5WebKitWidgetsTargets
+#         DESTINATION "${LIB_INSTALL_DIR}"
+#        RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
+# )
+# if (MSVC)
+#     install(FILES $<TARGET_PDB_FILE:WebKitWidgets> DESTINATION "${BIN_INSTALL_DIR}" OPTIONAL)
+# endif ()
+# 
+# if (NOT MSVC AND WIN32)
+#     ADD_PREFIX_HEADER(WebKitWidgets "qt/WebKitWidgetsPrefix.h")
+# endif ()
+# 
+# if (MACOS_BUILD_FRAMEWORKS)
+#     set_target_properties(WebKitWidgets PROPERTIES
+#         FRAMEWORK_VERSION 5
+#         MACOSX_FRAMEWORK_IDENTIFIER org.qt-project.QtWebKitWidgets
+#     )
+# endif ()
+# 
+# if (USE_LINKER_VERSION_SCRIPT)
+#     set(VERSION_SCRIPT "${CMAKE_BINARY_DIR}/QtWebKitWidgets.version")
+#     add_custom_command(TARGET WebKitWidgets PRE_LINK
+#         COMMAND ${PERL_EXECUTABLE} ${TOOLS_DIR}/qt/generate-version-script.pl ${Qt5_VERSION} > ${VERSION_SCRIPT}
+#         VERBATIM
+#     )
+#     set_target_properties(WebKitWidgets PROPERTIES LINK_FLAGS -Wl,--version-script,${VERSION_SCRIPT})
+# endif ()
 
 if (COMPILER_IS_GCC_OR_CLANG)
     set_source_files_properties(

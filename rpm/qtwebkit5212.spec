@@ -4,7 +4,7 @@
 Name:       qt5-qtwebkit
 Summary:    Web content engine library for Qt
 Version:    5.212.0
-Release:    +git4-1%{?dist}
+Release:    +git4%{?dist}
 Group:      Qt/Qt
 License:    BSD and LGPLv2+
 URL:        https://code.qt.io/qt/qtwebkit.git
@@ -21,6 +21,7 @@ BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt53D)
 #BuildRequires:  qt5-qtsensors-devel
 BuildRequires:  pkgconfig(Qt5XmlPatterns)
+BuildRequires:  pkgconfig(Qt5Multimedia)
 BuildRequires:  qt5-qmake
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(Qt5Sql)
@@ -44,6 +45,16 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(libxslt)
+BuildRequires:  qt5-qtmultimedia-devel
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstcamerabin
+BuildRequires:  nemo-qtmultimedia-plugins-gstvideotexturebackend
+BuildRequires:  qt5-qtmultimedia-plugin-audio-pulseaudio
+BuildRequires:  qt5-qtmultimedia-plugin-audio-alsa
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstmediacapture
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstmediaplayer
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstaudiodecoder
+BuildRequires:  qt5-qtmultimedia-plugin-resourcepolicy-resourceqt
+BuildRequires:  qt5-qtmultimedia-plugin-playlistformats-m3u
 BuildRequires:  gperf
 BuildRequires:  python
 BuildRequires:  bison
@@ -98,31 +109,31 @@ This package contains the core development files needed to build Qt 5 applicatio
 using QtWebKit library.
 
 
-%package -n libqtwebkit5-widgets
-Summary:    Web content engine library for Qt - GUI runtime files
-Group:      Qt/Qt
-Requires(post): /sbin/ldconfig
-Requires(postun): /sbin/ldconfig
+# %package -n libqtwebkit5-widgets
+# Summary:    Web content engine library for Qt - GUI runtime files
+# Group:      Qt/Qt
+# Requires(post): /sbin/ldconfig
+# Requires(postun): /sbin/ldconfig
 
-%description -n libqtwebkit5-widgets
-QtWebKit provides a Web browser engine that makes it easy to embed content from
-the World Wide Web into your Qt application.
+# %description -n libqtwebkit5-widgets
+# QtWebKit provides a Web browser engine that makes it easy to embed content from
+# the World Wide Web into your Qt application.
+# 
+# This package contains the GUI runtime files needed to launch Qt 5 applications
+# using QtWebKitWidgets library.
 
-This package contains the GUI runtime files needed to launch Qt 5 applications
-using QtWebKitWidgets library.
 
-
-%package -n libqtwebkit5-widgets-devel
-Summary:    Web content engine library for Qt - GUI development files
-Group:      Qt/Qt
-Requires:   libqtwebkit5-widgets = %{version}
-
-%description -n libqtwebkit5-widgets-devel
-QtWebKit provides a Web browser engine that makes it easy to embed content from
-the World Wide Web into your Qt application.
-
-This package contains the GUI development files needed to build Qt 5 applications
-using QtWebKitWidgets library.
+# %package -n libqtwebkit5-widgets-devel
+# Summary:    Web content engine library for Qt - GUI development files
+# Group:      Qt/Qt
+# Requires:   libqtwebkit5-widgets = %{version}
+# 
+# %description -n libqtwebkit5-widgets-devel
+# QtWebKit provides a Web browser engine that makes it easy to embed content from
+# the World Wide Web into your Qt application.
+# 
+# This package contains the GUI development files needed to build Qt 5 applications
+# using QtWebKitWidgets library.
 
 
 %package -n qt5-qtqml-import-webkitplugin
@@ -204,7 +215,7 @@ touch .git
 #        WEBKIT_CONFIG-=netscape_plugin_api \
 #        WEBKIT_CONFIG-=build_qttestsupport
 
-mkdir build-rpm
+mkdir -p build-rpm
 cd build-rpm
 cmake -DPORT=Qt \
        -DCMAKE_BUILD_TYPE=Release \
@@ -213,8 +224,9 @@ cmake -DPORT=Qt \
        -DCMAKE_CXX_FLAGS_RELEASE:STRING="-DNDEBUG" \
        -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
        -DENABLE_WEBKIT2_DEFAULT=ON \
-       -DUSE_QT_MULTIMEDIA_DEFAULT=OFF \
-       -DUSE_GSTREAMER_DEFAULT=ON \
+       -DUSE_QT_MULTIMEDIA=ON \
+       -DUSE_GSTREAMER=OFF \
+       -DUSE_GSTREAMER_GL=OFF \
        -DENABLE_FTL_JIT=OFF \
        -DENABLE_INDEXED_DATABASE=OFF \
        -DENABLE_TEST_SUPPORT=OFF \
@@ -222,16 +234,16 @@ cmake -DPORT=Qt \
        -DENABLE_GEOLOCATION=OFF \
        -DENABLE_DEVICE_ORIENTATION=OFF \
        -DENABLE_X11_TARGET=OFF \
-       -DENABLE_WEB_AUDIO=ON \
+       -DENABLE_WEB_AUDIO=OFF \
        -DENABLE_VIDEO=ON \
-       -DENABLE_MEDIA_SOURCE=ON \
+       -DENABLE_MEDIA_SOURCE=OFF \
        -DUSE_LIBHYPHEN=OFF \
        -DENABLE_INSPECTOR_UI=ON \
        -DENABLE_QT_WEBCHANNEL=OFF \
        -DENABLE_DATABASE_PROCESS=OFF \
        -DENABLE_FTPDIR=OFF ..
 
-make %{?jobs:-j%jobs}
+make -j6
 cd ..
 
 %install
@@ -257,9 +269,9 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 
 %postun -n libqtwebkit5 -p /sbin/ldconfig
 
-%post -n libqtwebkit5-widgets -p /sbin/ldconfig
-
-%postun -n libqtwebkit5-widgets -p /sbin/ldconfig
+# %post -n libqtwebkit5-widgets -p /sbin/ldconfig
+# 
+# %postun -n libqtwebkit5-widgets -p /sbin/ldconfig
 
 %files uiprocess-launcher
 %defattr(-,root,root,-)
@@ -278,17 +290,17 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 %{_libdir}/pkgconfig/Qt5WebKit.pc
 %{_datadir}/qt5/mkspecs/modules/qt_lib_webkit.pri
 
-%files -n libqtwebkit5-widgets
-%defattr(-,root,root,-)
-%{_libdir}/libQt5WebKitWidgets.so.*
-
-%files -n libqtwebkit5-widgets-devel
-%defattr(-,root,root,-)
-%{_includedir}/qt5/QtWebKitWidgets/
-%{_libdir}/cmake/Qt5WebKitWidgets/
-%{_libdir}/libQt5WebKitWidgets.so
-%{_libdir}/pkgconfig/Qt5WebKitWidgets.pc
-%{_datadir}/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri
+# %files -n libqtwebkit5-widgets
+# %defattr(-,root,root,-)
+# %{_libdir}/libQt5WebKitWidgets.so.*
+# 
+# %files -n libqtwebkit5-widgets-devel
+# %defattr(-,root,root,-)
+# %{_includedir}/qt5/QtWebKitWidgets/
+# %{_libdir}/cmake/Qt5WebKitWidgets/
+# %{_libdir}/libQt5WebKitWidgets.so
+# %{_libdir}/pkgconfig/Qt5WebKitWidgets.pc
+# %{_datadir}/qt5/mkspecs/modules/qt_lib_webkitwidgets.pri
 
 %files -n qt5-qtqml-import-webkitplugin
 %defattr(-,root,root,-)

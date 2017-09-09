@@ -84,9 +84,9 @@ private Q_SLOTS:
 private:
     ChromeClientQt* m_chromeClient;
     HTMLVideoElement* m_videoElement;
-#if USE(QT_MULTIMEDIA)
-    QWebFullScreenVideoHandler* m_FullScreenVideoHandler;
-#endif
+// #if USE(QT_MULTIMEDIA)
+//     QWebFullScreenVideoHandler* m_FullScreenVideoHandler;
+// #endif
 #if USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)
     GStreamerFullScreenVideoHandler* m_FullScreenVideoHandlerGStreamer;
 #endif
