@@ -284,7 +284,7 @@ list(APPEND WebProcess_SOURCES
 set(WebProcess_LIBRARIES
     WebKit
     Qt5::Widgets
-    WebKitWidgets
+    # WebKitWidgets
 )
 
 set(NetworkProcess_LIBRARIES
