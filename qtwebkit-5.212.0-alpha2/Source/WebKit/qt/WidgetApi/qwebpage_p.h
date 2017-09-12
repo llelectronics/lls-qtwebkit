@@ -94,9 +94,9 @@ public:
     void databaseQuotaExceeded(QWebFrameAdapter*, const QString& databaseName) override;
     void applicationCacheQuotaExceeded(QWebSecurityOrigin*, quint64 defaultOriginQuota, quint64 totalSpaceNeeded) override;
     void setToolTip(const QString&) override;
-#if USE(QT_MULTIMEDIA)
-    QWebFullScreenVideoHandler* createFullScreenVideoHandler() override;
-#endif
+// #if USE(QT_MULTIMEDIA)
+//     QWebFullScreenVideoHandler* createFullScreenVideoHandler() override;
+// #endif
     QWebFrameAdapter& mainFrameAdapter() override;
     QStringList chooseFiles(QWebFrameAdapter*, bool allowMultiple, const QStringList& suggestedFileNames) override;
     QColor colorSelectionRequested(const QColor& selectedColor) override;

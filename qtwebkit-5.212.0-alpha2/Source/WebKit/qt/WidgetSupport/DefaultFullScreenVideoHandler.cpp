@@ -21,52 +21,52 @@
 #include "config.h"
 #include "DefaultFullScreenVideoHandler.h"
 
-#if USE(QT_MULTIMEDIA)
-
-#include "FullScreenVideoWidget.h"
-
-using namespace WebKit;
-
-bool DefaultFullScreenVideoHandler::s_shouldForceFullScreenVideoPlayback = false;
-
-DefaultFullScreenVideoHandler::DefaultFullScreenVideoHandler()
-    : QWebFullScreenVideoHandler()
-    , m_fullScreenWidget(new FullScreenVideoWidget)
-{
-    connect(m_fullScreenWidget, SIGNAL(didExitFullScreen()), this, SIGNAL(fullScreenClosed()));
-    m_fullScreenWidget->hide();
-
-    m_fullScreenWidget->close();
-}
-
-DefaultFullScreenVideoHandler::~DefaultFullScreenVideoHandler()
-{
-    delete m_fullScreenWidget;
-}
-
-bool DefaultFullScreenVideoHandler::requiresFullScreenForVideoPlayback() const
-{
-    static bool initialized = false;
-    if (!initialized) {
-        QByteArray forceFullScreen = qgetenv("QT_WEBKIT_FORCE_FULLSCREEN_VIDEO");
-        if (!forceFullScreen.isEmpty())
-            s_shouldForceFullScreenVideoPlayback = true;
-
-        initialized = true;
-    }
-
-    return s_shouldForceFullScreenVideoPlayback;
-}
-
-void DefaultFullScreenVideoHandler::enterFullScreen(QMediaPlayer* player)
-{
-    m_fullScreenWidget->show(player);
-}
-
-void DefaultFullScreenVideoHandler::exitFullScreen()
-{
-    m_fullScreenWidget->close();
-}
-#endif
+// #if USE(QT_MULTIMEDIA)
+// 
+// #include "FullScreenVideoWidget.h"
+// 
+// using namespace WebKit;
+// 
+// bool DefaultFullScreenVideoHandler::s_shouldForceFullScreenVideoPlayback = false;
+// 
+// DefaultFullScreenVideoHandler::DefaultFullScreenVideoHandler()
+//     : QWebFullScreenVideoHandler()
+//     , m_fullScreenWidget(new FullScreenVideoWidget)
+// {
+//     connect(m_fullScreenWidget, SIGNAL(didExitFullScreen()), this, SIGNAL(fullScreenClosed()));
+//     m_fullScreenWidget->hide();
+// 
+//     m_fullScreenWidget->close();
+// }
+// 
+// DefaultFullScreenVideoHandler::~DefaultFullScreenVideoHandler()
+// {
+//     delete m_fullScreenWidget;
+// }
+// 
+// bool DefaultFullScreenVideoHandler::requiresFullScreenForVideoPlayback() const
+// {
+//     static bool initialized = false;
+//     if (!initialized) {
+//         QByteArray forceFullScreen = qgetenv("QT_WEBKIT_FORCE_FULLSCREEN_VIDEO");
+//         if (!forceFullScreen.isEmpty())
+//             s_shouldForceFullScreenVideoPlayback = true;
+// 
+//         initialized = true;
+//     }
+// 
+//     return s_shouldForceFullScreenVideoPlayback;
+// }
+// 
+// void DefaultFullScreenVideoHandler::enterFullScreen(QMediaPlayer* player)
+// {
+//     m_fullScreenWidget->show(player);
+// }
+// 
+// void DefaultFullScreenVideoHandler::exitFullScreen()
+// {
+//     m_fullScreenWidget->close();
+// }
+// #endif
 
 

@@ -205,9 +205,9 @@ public:
     virtual std::unique_ptr<QWebSelectMethod> createSelectPopup() = 0;
     virtual QRect viewRectRelativeToWindow() = 0;
 
-#if USE(QT_MULTIMEDIA)
-    virtual QWebFullScreenVideoHandler* createFullScreenVideoHandler() = 0;
-#endif
+// #if USE(QT_MULTIMEDIA)
+//     virtual QWebFullScreenVideoHandler* createFullScreenVideoHandler() = 0;
+// #endif
     virtual void fullScreenRequested(QWebFullScreenRequest) = 0;
     virtual void geolocationPermissionRequested(QWebFrameAdapter*) = 0;
     virtual void geolocationPermissionRequestCancelled(QWebFrameAdapter*) = 0;

@@ -130,12 +130,12 @@ std::unique_ptr<QWebTouchModifier> QtPlatformPlugin::createTouchModifier()
     return createExtension<QWebTouchModifier>(QWebKitPlatformPlugin::TouchInteraction);
 }
 
-#if ENABLE(VIDEO) && USE(QT_MULTIMEDIA)
-std::unique_ptr<QWebFullScreenVideoHandler> QtPlatformPlugin::createFullScreenVideoHandler()
-{
-    return createExtension<QWebFullScreenVideoHandler>(QWebKitPlatformPlugin::FullScreenVideoPlayer);
-}
-#endif
+// #if ENABLE(VIDEO) && USE(QT_MULTIMEDIA)
+// std::unique_ptr<QWebFullScreenVideoHandler> QtPlatformPlugin::createFullScreenVideoHandler()
+// {
+//     return createExtension<QWebFullScreenVideoHandler>(QWebKitPlatformPlugin::FullScreenVideoPlayer);
+// }
+// #endif
 
 std::unique_ptr<QWebSpellChecker> QtPlatformPlugin::createSpellChecker()
 {

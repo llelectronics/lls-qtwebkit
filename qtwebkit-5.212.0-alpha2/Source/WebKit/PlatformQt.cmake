@@ -582,22 +582,22 @@ set(WebKitWidgets_SYSTEM_INCLUDE_DIRECTORIES
 
 set(WebKitWidgets_LIBRARIES
     PRIVATE
-        ${Qt5MultimediaWidgets_LIBRARIES}
+#         ${Qt5MultimediaWidgets_LIBRARIES}
         ${Qt5PrintSupport_LIBRARIES}
     PUBLIC
         ${Qt5Widgets_LIBRARIES}
         WebKit
 )
 
-if (USE_QT_MULTIMEDIA)
-    list(APPEND WebKitWidgets_SOURCES
-        qt/WidgetSupport/DefaultFullScreenVideoHandler.cpp
-        qt/WidgetSupport/FullScreenVideoWidget.cpp
-    )
-    list(APPEND WebKitWidgets_SYSTEM_INCLUDE_DIRECTORIES
-        ${Qt5MultimediaWidgets_INCLUDE_DIRS}
-    )
-endif ()
+# if (USE_QT_MULTIMEDIA)
+#     list(APPEND WebKitWidgets_SOURCES
+#         qt/WidgetSupport/DefaultFullScreenVideoHandler.cpp
+#         qt/WidgetSupport/FullScreenVideoWidget.cpp
+#     )
+#     list(APPEND WebKitWidgets_SYSTEM_INCLUDE_DIRECTORIES
+#         ${Qt5MultimediaWidgets_INCLUDE_DIRS}
+#     )
+# endif ()
 
 WEBKIT_CREATE_FORWARDING_HEADERS(QtWebKitWidgets DIRECTORIES qt/WidgetApi)
 

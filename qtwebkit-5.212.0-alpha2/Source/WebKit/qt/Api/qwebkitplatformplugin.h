@@ -121,9 +121,9 @@ public:
     virtual unsigned hitTestPaddingForTouch(const PaddingDirection) const = 0;
 };
 
-#if defined(USE_QT_MULTIMEDIA) && USE_QT_MULTIMEDIA
-#include "qwebfullscreenvideohandler.h"
-#endif
+// #if defined(USE_QT_MULTIMEDIA) && USE_QT_MULTIMEDIA
+// #include "qwebfullscreenvideohandler.h"
+// #endif
 
 class QWEBKIT_EXPORT QWebSpellChecker : public QObject {
     Q_OBJECT

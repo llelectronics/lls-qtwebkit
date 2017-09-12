@@ -24,9 +24,9 @@
 #include "WebNotificationPresenter.h"
 
 #include <QDialog>
-#if defined(USE_QT_MULTIMEDIA) && USE_QT_MULTIMEDIA
-#include <QVideoWidget>
-#endif
+// #if defined(USE_QT_MULTIMEDIA) && USE_QT_MULTIMEDIA
+// #include <QVideoWidget>
+// #endif
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
@@ -101,39 +101,39 @@ public:
     }
 };
 
-#if defined(USE_QT_MULTIMEDIA) && USE_QT_MULTIMEDIA
-class FullScreenVideoWidget : public QVideoWidget {
-    Q_OBJECT
-public:
-    FullScreenVideoWidget(QMediaPlayer*);
-    virtual ~FullScreenVideoWidget() {}
-
-Q_SIGNALS:
-    void fullScreenClosed();
-
-protected:
-    bool event(QEvent*);
-    void keyPressEvent(QKeyEvent*);
-
-private:
-    QMediaPlayer* m_mediaPlayer; // not owned
-};
-
-class FullScreenVideoHandler : public QWebFullScreenVideoHandler {
-    Q_OBJECT
-public:
-    FullScreenVideoHandler();
-    virtual ~FullScreenVideoHandler();
-    bool requiresFullScreenForVideoPlayback() const;
-
-public Q_SLOTS:
-    void enterFullScreen(QMediaPlayer*);
-    void exitFullScreen();
-
-private:
-    FullScreenVideoWidget* m_mediaWidget; // owned
-};
-#endif
+// #if defined(USE_QT_MULTIMEDIA) && USE_QT_MULTIMEDIA
+// class FullScreenVideoWidget : public QVideoWidget {
+//     Q_OBJECT
+// public:
+//     FullScreenVideoWidget(QMediaPlayer*);
+//     virtual ~FullScreenVideoWidget() {}
+// 
+// Q_SIGNALS:
+//     void fullScreenClosed();
+// 
+// protected:
+//     bool event(QEvent*);
+//     void keyPressEvent(QKeyEvent*);
+// 
+// private:
+//     QMediaPlayer* m_mediaPlayer; // not owned
+// };
+// 
+// class FullScreenVideoHandler : public QWebFullScreenVideoHandler {
+//     Q_OBJECT
+// public:
+//     FullScreenVideoHandler();
+//     virtual ~FullScreenVideoHandler();
+//     bool requiresFullScreenForVideoPlayback() const;
+// 
+// public Q_SLOTS:
+//     void enterFullScreen(QMediaPlayer*);
+//     void exitFullScreen();
+// 
+// private:
+//     FullScreenVideoWidget* m_mediaWidget; // owned
+// };
+// #endif
 
 class WebPlugin : public QObject, public QWebKitPlatformPlugin
 {

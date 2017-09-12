@@ -55,9 +55,9 @@ class RefreshAnimation;
 struct FrameLoadRequest;
 class QtAbstractWebPopup;
 struct ViewportArguments;
-#if ENABLE(VIDEO)
-class FullScreenVideoQt;
-#endif
+// #if ENABLE(VIDEO)
+// class FullScreenVideoQt;
+// #endif
 class TextureMapperLayerClientQt;
 
 class ChromeClientQt final : public ChromeClient {
@@ -155,13 +155,13 @@ public:
 
     void isPlayingMediaDidChange(MediaProducer::MediaStateFlags, uint64_t) final;
 
-#if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
-    bool supportsVideoFullscreen(MediaPlayerEnums::VideoFullscreenMode) final;
-    void enterVideoFullscreenForVideoElement(HTMLVideoElement&, MediaPlayerEnums::VideoFullscreenMode) final;
-    void exitVideoFullscreenForVideoElement(WebCore::HTMLVideoElement&) final;
-    bool requiresFullscreenForVideoPlayback() final;
-    FullScreenVideoQt* fullScreenVideo();
-#endif
+// #if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
+//     bool supportsVideoFullscreen(MediaPlayerEnums::VideoFullscreenMode) final;
+//     void enterVideoFullscreenForVideoElement(HTMLVideoElement&, MediaPlayerEnums::VideoFullscreenMode) final;
+//     void exitVideoFullscreenForVideoElement(WebCore::HTMLVideoElement&) final;
+//     bool requiresFullscreenForVideoPlayback() final;
+//     FullScreenVideoQt* fullScreenVideo();
+// #endif
 
 #if ENABLE(FULLSCREEN_API)
     bool supportsFullScreenForElement(const Element*, bool) override;
@@ -216,9 +216,9 @@ public:
 #endif
     MediaProducer::MediaStateFlags m_mediaState { WebCore::MediaProducer::IsNotPlaying };
 
-#if ENABLE(VIDEO) && (USE(GSTREAMER) || USE(QT_MULTIMEDIA))
-    FullScreenVideoQt* m_fullScreenVideo;
-#endif
+// #if ENABLE(VIDEO) && (USE(GSTREAMER) || USE(QT_MULTIMEDIA))
+//     FullScreenVideoQt* m_fullScreenVideo;
+// #endif
 
     static bool dumpVisitedLinksCallbacks;
 
