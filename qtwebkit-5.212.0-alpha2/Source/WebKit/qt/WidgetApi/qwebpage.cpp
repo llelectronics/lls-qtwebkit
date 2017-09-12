@@ -215,7 +215,7 @@ QWebPagePrivate::QWebPagePrivate(QWebPage *qq)
     , inspectorIsInternalOnly(false)
     , m_lastDropAction(Qt::IgnoreAction)
 {
-    /*WebKit::initializeWebKitWidgets();*/
+    WebKit::initializeWebKitWidgets();
     initializeWebCorePage();
     memset(actions, 0, sizeof(actions));
 

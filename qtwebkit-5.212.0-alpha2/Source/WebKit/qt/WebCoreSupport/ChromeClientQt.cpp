@@ -747,15 +747,15 @@ void ChromeClientQt::dispatchViewportPropertiesDidChange(const ViewportArguments
     m_webPage->emitViewportChangeRequested();
 }
 
-// #if USE(QT_MULTIMEDIA)
-// QWebFullScreenVideoHandler* ChromeClientQt::createFullScreenVideoHandler()
-// {
-//     QWebFullScreenVideoHandler* handler = m_platformPlugin.createFullScreenVideoHandler().release();
-//     if (!handler)
-//         handler = m_webPage->createFullScreenVideoHandler();
-//     return handler;
-// }
-// #endif
+#if USE(QT_MULTIMEDIA)
+QWebFullScreenVideoHandler* ChromeClientQt::createFullScreenVideoHandler()
+{
+    QWebFullScreenVideoHandler* handler = m_platformPlugin.createFullScreenVideoHandler().release();
+    if (!handler)
+        handler = m_webPage->createFullScreenVideoHandler();
+    return handler;
+}
+#endif
 
 bool ChromeClientQt::selectItemWritingDirectionIsNatural()
 {

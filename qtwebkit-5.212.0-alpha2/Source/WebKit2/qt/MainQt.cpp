@@ -92,10 +92,10 @@ int main(int argc, char** argv)
     // the standard pixmaps can be fetched from the style.
     ApplicationType* appInstance = new ApplicationType(argc, argv);
 
-// #if !defined(QT_NO_WIDGETS)
-//     if (qgetenv("QT_WEBKIT_THEME_NAME") == "qstyle")
-//         WebKit::initializeWebKitWidgets();
-// #endif
+#if !defined(QT_NO_WIDGETS)
+    if (qgetenv("QT_WEBKIT_THEME_NAME") == "qstyle")
+        WebKit::initializeWebKitWidgets();
+#endif
 
     return WebKit::WebProcessMainQt(appInstance);
 }
