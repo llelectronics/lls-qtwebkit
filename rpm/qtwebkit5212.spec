@@ -44,6 +44,16 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libudev)
 BuildRequires:  pkgconfig(libxslt)
+BuildRequires:  qt5-qtmultimedia-devel
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstcamerabin
+BuildRequires:  nemo-qtmultimedia-plugins-gstvideotexturebackend
+BuildRequires:  qt5-qtmultimedia-plugin-audio-pulseaudio
+BuildRequires:  qt5-qtmultimedia-plugin-audio-alsa
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstmediacapture
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstmediaplayer
+BuildRequires:  qt5-qtmultimedia-plugin-mediaservice-gstaudiodecoder
+BuildRequires:  qt5-qtmultimedia-plugin-resourcepolicy-resourceqt
+BuildRequires:  qt5-qtmultimedia-plugin-playlistformats-m3u
 BuildRequires:  gperf
 BuildRequires:  python
 BuildRequires:  bison
@@ -204,7 +214,7 @@ touch .git
 #        WEBKIT_CONFIG-=netscape_plugin_api \
 #        WEBKIT_CONFIG-=build_qttestsupport
 
-mkdir build-rpm
+mkdir -p build-rpm
 cd build-rpm
 cmake -DPORT=Qt \
        -DCMAKE_BUILD_TYPE=Release \
@@ -213,8 +223,9 @@ cmake -DPORT=Qt \
        -DCMAKE_CXX_FLAGS_RELEASE:STRING="-DNDEBUG" \
        -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
        -DENABLE_WEBKIT2_DEFAULT=ON \
-       -DUSE_QT_MULTIMEDIA_DEFAULT=OFF \
-       -DUSE_GSTREAMER_DEFAULT=ON \
+       -DUSE_QT_MULTIMEDIA=ON \
+       -DUSE_GSTREAMER=OFF \
+       -DUSE_GSTREAMER_GL=OFF \
        -DENABLE_FTL_JIT=OFF \
        -DENABLE_INDEXED_DATABASE=OFF \
        -DENABLE_TEST_SUPPORT=OFF \
@@ -222,16 +233,16 @@ cmake -DPORT=Qt \
        -DENABLE_GEOLOCATION=OFF \
        -DENABLE_DEVICE_ORIENTATION=OFF \
        -DENABLE_X11_TARGET=OFF \
-       -DENABLE_WEB_AUDIO=ON \
+       -DENABLE_WEB_AUDIO=OFF \
        -DENABLE_VIDEO=ON \
-       -DENABLE_MEDIA_SOURCE=ON \
+       -DENABLE_MEDIA_SOURCE=OFF \
        -DUSE_LIBHYPHEN=OFF \
        -DENABLE_INSPECTOR_UI=ON \
        -DENABLE_QT_WEBCHANNEL=OFF \
        -DENABLE_DATABASE_PROCESS=OFF \
        -DENABLE_FTPDIR=OFF ..
 
-make %{?jobs:-j%jobs}
+make -j6
 cd ..
 
 %install
@@ -257,9 +268,9 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 
 %postun -n libqtwebkit5 -p /sbin/ldconfig
 
-%post -n libqtwebkit5-widgets -p /sbin/ldconfig
-
-%postun -n libqtwebkit5-widgets -p /sbin/ldconfig
+# %post -n libqtwebkit5-widgets -p /sbin/ldconfig
+# 
+# %postun -n libqtwebkit5-widgets -p /sbin/ldconfig
 
 %files uiprocess-launcher
 %defattr(-,root,root,-)
