@@ -268,9 +268,9 @@ find %{buildroot}%{_libdir} -type f -name '*.prl' \
 
 %postun -n libqtwebkit5 -p /sbin/ldconfig
 
-# %post -n libqtwebkit5-widgets -p /sbin/ldconfig
-# 
-# %postun -n libqtwebkit5-widgets -p /sbin/ldconfig
+%post -n libqtwebkit5-widgets -p /sbin/ldconfig
+
+%postun -n libqtwebkit5-widgets -p /sbin/ldconfig
 
 %files uiprocess-launcher
 %defattr(-,root,root,-)
