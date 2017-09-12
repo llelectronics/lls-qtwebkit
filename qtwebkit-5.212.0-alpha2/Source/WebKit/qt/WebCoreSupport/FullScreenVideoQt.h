@@ -25,7 +25,7 @@
 #include <wtf/Platform.h>
 
 QT_BEGIN_NAMESPACE
-class QGraphicsVideoItem;
+//class QGraphicsVideoItem;
 class QMediaPlayer;
 QT_END_NAMESPACE
 
@@ -35,9 +35,9 @@ class ChromeClientQt;
 class FullScreenVideoWidget;
 class HTMLVideoElement;
 class Node;
-#if USE(QT_MULTIMEDIA)
-class MediaPlayerPrivateQt;
-#endif
+// #if USE(QT_MULTIMEDIA)
+// class MediaPlayerPrivateQt;
+// #endif
 
 // We do not use ENABLE or USE because moc does not expand these macros.
 #if defined(USE_GSTREAMER) && USE_GSTREAMER && defined(USE_NATIVE_FULLSCREEN_VIDEO) && USE_NATIVE_FULLSCREEN_VIDEO
@@ -74,9 +74,9 @@ public:
     bool isValid() const;
 
 private:
-#if USE(QT_MULTIMEDIA)
-    MediaPlayerPrivateQt* mediaPlayer();
-#endif
+// #if USE(QT_MULTIMEDIA)
+//     MediaPlayerPrivateQt* mediaPlayer();
+// #endif
 
 private Q_SLOTS:
     void aboutToClose();
@@ -84,9 +84,9 @@ private Q_SLOTS:
 private:
     ChromeClientQt* m_chromeClient;
     HTMLVideoElement* m_videoElement;
-#if USE(QT_MULTIMEDIA)
-    QWebFullScreenVideoHandler* m_FullScreenVideoHandler;
-#endif
+// #if USE(QT_MULTIMEDIA)
+//     QWebFullScreenVideoHandler* m_FullScreenVideoHandler;
+// #endif
 #if USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)
     GStreamerFullScreenVideoHandler* m_FullScreenVideoHandlerGStreamer;
 #endif

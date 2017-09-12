@@ -77,13 +77,13 @@
 
 
 #if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
-#include "FullScreenVideoQt.h"
+// #include "FullScreenVideoQt.h"
 #include "HTMLMediaElement.h"
 #include "HTMLNames.h"
 #include "HTMLVideoElement.h"
-#if USE(QT_MULTIMEDIA)
-#include "MediaPlayerPrivateQt.h"
-#endif
+// #if USE(QT_MULTIMEDIA)
+// #include "MediaPlayerPrivateQt.h"
+// #endif
 #endif
 
 namespace WebCore {
@@ -127,9 +127,9 @@ bool ChromeClientQt::dumpVisitedLinksCallbacks = false;
 ChromeClientQt::ChromeClientQt(QWebPageAdapter* webPageAdapter)
     : m_webPage(webPageAdapter)
     , m_eventLoop(0)
-#if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
-    , m_fullScreenVideo(0)
-#endif
+// #if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
+//     , m_fullScreenVideo(0)
+// #endif
 {
     toolBarsVisible = statusBarVisible = menuBarVisible = true;
 }
@@ -139,9 +139,9 @@ ChromeClientQt::~ChromeClientQt()
     if (m_eventLoop)
         m_eventLoop->exit();
 
-#if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
-    delete m_fullScreenVideo;
-#endif
+// #if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
+//     delete m_fullScreenVideo;
+// #endif
 }
 
 void ChromeClientQt::setWindowRect(const FloatRect& rect)
@@ -683,34 +683,34 @@ void ChromeClientQt::isPlayingMediaDidChange(MediaProducer::MediaStateFlags stat
     m_webPage->recentlyAudibleChanged(m_mediaState & MediaProducer::IsPlayingAudio);
 }
 
-#if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
-FullScreenVideoQt* ChromeClientQt::fullScreenVideo()
-{
-    if (!m_fullScreenVideo)
-        m_fullScreenVideo = new FullScreenVideoQt(this);
-    return m_fullScreenVideo;
-}
+// #if ENABLE(VIDEO) && ((USE(GSTREAMER) && USE(NATIVE_FULLSCREEN_VIDEO)) || USE(QT_MULTIMEDIA))
+// FullScreenVideoQt* ChromeClientQt::fullScreenVideo()
+// {
+//     if (!m_fullScreenVideo)
+//         m_fullScreenVideo = new FullScreenVideoQt(this);
+//     return m_fullScreenVideo;
+// }
 
-bool ChromeClientQt::supportsVideoFullscreen(HTMLMediaElementEnums::VideoFullscreenMode)
-{
-    return fullScreenVideo()->isValid();
-}
-
-bool ChromeClientQt::requiresFullscreenForVideoPlayback()
-{
-    return fullScreenVideo()->requiresFullScreenForVideoPlayback();
-}
-
-void ChromeClientQt::enterVideoFullscreenForVideoElement(HTMLVideoElement& videoElement, MediaPlayerEnums::VideoFullscreenMode)
-{
-    fullScreenVideo()->enterFullScreenForNode(&videoElement);
-}
-
-void ChromeClientQt::exitVideoFullscreenForVideoElement(HTMLVideoElement& videoElement)
-{
-    fullScreenVideo()->exitVideoFullscreen(&videoElement);
-}
-#endif
+// bool ChromeClientQt::supportsVideoFullscreen(HTMLMediaElementEnums::VideoFullscreenMode)
+// {
+//     return fullScreenVideo()->isValid();
+// }
+// 
+// bool ChromeClientQt::requiresFullscreenForVideoPlayback()
+// {
+//     return fullScreenVideo()->requiresFullScreenForVideoPlayback();
+// }
+// 
+// void ChromeClientQt::enterVideoFullscreenForVideoElement(HTMLVideoElement& videoElement, MediaPlayerEnums::VideoFullscreenMode)
+// {
+//     fullScreenVideo()->enterFullScreenForNode(&videoElement);
+// }
+// 
+// void ChromeClientQt::exitVideoFullscreenForVideoElement(HTMLVideoElement& videoElement)
+// {
+//     fullScreenVideo()->exitVideoFullscreen(&videoElement);
+// }
+// #endif
 
 #if ENABLE(FULLSCREEN_API)
 bool ChromeClientQt::supportsFullScreenForElement(const Element*, bool withKeyboard)
@@ -747,15 +747,15 @@ void ChromeClientQt::dispatchViewportPropertiesDidChange(const ViewportArguments
     m_webPage->emitViewportChangeRequested();
 }
 
-#if USE(QT_MULTIMEDIA)
-QWebFullScreenVideoHandler* ChromeClientQt::createFullScreenVideoHandler()
-{
-    QWebFullScreenVideoHandler* handler = m_platformPlugin.createFullScreenVideoHandler().release();
-    if (!handler)
-        handler = m_webPage->createFullScreenVideoHandler();
-    return handler;
-}
-#endif
+// #if USE(QT_MULTIMEDIA)
+// QWebFullScreenVideoHandler* ChromeClientQt::createFullScreenVideoHandler()
+// {
+//     QWebFullScreenVideoHandler* handler = m_platformPlugin.createFullScreenVideoHandler().release();
+//     if (!handler)
+//         handler = m_webPage->createFullScreenVideoHandler();
+//     return handler;
+// }
+// #endif
 
 bool ChromeClientQt::selectItemWritingDirectionIsNatural()
 {
