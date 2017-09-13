@@ -96,6 +96,9 @@ public:
     WebPageProxy* webPageProxy() { return m_webPageProxy; }
 
     void startDrag(const WebCore::DragData&, PassRefPtr<ShareableBitmap> dragImage);
+    
+Q_SIGNALS:
+    void pinching(bool enabled);
 
 protected:
     WebPageProxy* m_webPageProxy;
