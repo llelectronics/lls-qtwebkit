@@ -266,6 +266,7 @@ class QWEBKIT_EXPORT QQuickWebViewExperimental : public QObject {
     Q_PROPERTY(bool overview WRITE setOverview READ overview NOTIFY overviewChanged FINAL)
     Q_PROPERTY(bool pinching READ pinching NOTIFY pinchingChanged FINAL)
     Q_PROPERTY(bool offline WRITE setOffline READ offline NOTIFY offlineChanged FINAL)
+    Q_PROPERTY(bool temporaryCookies WRITE setTemporaryCookies READ temporaryCookies NOTIFY temporaryCookiesChanged FINAL)
 
     Q_PROPERTY(QWebNavigationHistory* navigationHistory READ navigationHistory CONSTANT FINAL)
 
@@ -385,6 +386,9 @@ public:
     void setOffline(bool state);
     
     bool pinching() const;
+    
+    bool temporaryCookies() const;
+    void setTemporaryCookies(bool enable);
 
     // C++ only
     void handleOfflineChanged(bool state);
@@ -443,6 +447,7 @@ Q_SIGNALS:
     void enableResizeContentChanged();
     void textFound(int matchCount);
     void offlineChanged();
+    void temporaryCookiesChanged();
 
     void processDidCrash();
     void didRelaunchProcess();

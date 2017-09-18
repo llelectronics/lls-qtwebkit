@@ -234,6 +234,7 @@ protected:
     bool m_navigatorQtObjectEnabled;
     bool m_renderToOffscreenBuffer;
     bool m_allowAnyHTTPSCertificateForLocalHost;
+    bool m_temporaryCookies;
     QUrl m_iconUrl;
     int m_loadProgress;
     QString m_currentUrl;

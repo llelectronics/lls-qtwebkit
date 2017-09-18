@@ -329,6 +329,7 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , m_allowAnyHTTPSCertificateForLocalHost(false)
     , m_enableInputFieldAnimation(true)
     , m_enableResizeContent(true)
+    , m_temporaryCookies(false)
     , m_loadProgress(0)
 {
     viewport->setClip(true);
@@ -1234,6 +1235,9 @@ QQuickWebViewExperimental::QQuickWebViewExperimental(QQuickWebView *webView, QQu
 
 QQuickWebViewExperimental::~QQuickWebViewExperimental()
 {
+    Q_D(QQuickWebView);
+    if (d->m_temporaryCookies)
+        deleteAllCookies();
 }
 
 void QQuickWebViewExperimental::setRenderToOffscreenBuffer(bool enable)
@@ -1281,6 +1285,23 @@ void QQuickWebViewExperimental::deleteAllCookies()
 {
     if (d_ptr->cookieManagerProxy)
         d_ptr->cookieManagerProxy.get()->deleteAllCookies();
+}
+
+bool QQuickWebViewExperimental::temporaryCookies() const
+{
+    Q_D(const QQuickWebView);
+    return d->m_temporaryCookies;
+}
+
+void QQuickWebViewExperimental::setTemporaryCookies(bool enable)
+{
+	
+    Q_D(QQuickWebView);
+    if (enable == d->m_temporaryCookies)
+        return;
+
+    d->m_temporaryCookies = enable;
+    emit temporaryCookiesChanged();
 }
 
 /*!
