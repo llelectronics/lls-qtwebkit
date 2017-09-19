@@ -483,6 +483,10 @@ void QtWebPageEventHandler::handleInputEvent(const QInputEvent* event)
         switch (event->type()) {
         case QEvent::MouseButtonPress:
         case QEvent::TouchBegin:
+	    if (m_panGestureRecognizer.isRecognized()) {
+	        m_panGestureRecognizer.cancel();
+	    }
+	    
             m_viewportController->touchBegin();
 
             // The page viewport controller might still be animating kinetic scrolling or a scale animation
