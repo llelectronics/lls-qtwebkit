@@ -127,6 +127,9 @@ public:
     void updateUserScripts();
     void updateUserStyleSheets();
     void updateSchemeDelegates();
+    
+    void setAutoCorrect(bool autoCorrect) { m_autoCorrect = autoCorrect; }
+    bool autoCorrect() const { return m_autoCorrect; }
 
     QPointF contentPos() const;
     void setContentPos(const QPointF&);
@@ -235,6 +238,7 @@ protected:
     bool m_renderToOffscreenBuffer;
     bool m_allowAnyHTTPSCertificateForLocalHost;
     bool m_temporaryCookies;
+    bool m_autoCorrect;
     QUrl m_iconUrl;
     int m_loadProgress;
     QString m_currentUrl;

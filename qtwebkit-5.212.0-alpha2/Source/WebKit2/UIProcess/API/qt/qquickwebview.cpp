@@ -330,6 +330,7 @@ QQuickWebViewPrivate::QQuickWebViewPrivate(QQuickWebView* viewport)
     , m_enableInputFieldAnimation(true)
     , m_enableResizeContent(true)
     , m_temporaryCookies(false)
+    , m_autoCorrect(false)
     , m_loadProgress(0)
 {
     viewport->setClip(true);
@@ -1341,6 +1342,23 @@ void QQuickWebViewExperimental::setPreferredMinimumContentsWidth(int width)
     emit preferredMinimumContentsWidthChanged();
 }
 
+bool QQuickWebViewExperimental::autoCorrect() const
+{
+    Q_D(const QQuickWebView);
+    return d->autoCorrect();
+}
+
+void QQuickWebViewExperimental::setAutoCorrect(bool autoCorrect)
+{
+    Q_D(QQuickWebView);
+
+    if (autoCorrect == d->autoCorrect())
+        return;
+
+    d->setAutoCorrect(autoCorrect);
+    emit autoCorrectChanged();
+}
+
 bool QQuickWebViewExperimental::offline() const
 {
     return m_offline;
@@ -2306,7 +2324,11 @@ QVariant QQuickWebView::inputMethodQuery(Qt::InputMethodQuery property) const
     case Qt::ImMaximumTextLength:
         return QVariant(); // No limit.
     case Qt::ImHints:
-        return QVariant(static_cast<int>(state.inputMethodHints));
+        if (state.inputMethodHints == Qt::ImhNone && !d->autoCorrect()) {
+	    return QVariant(static_cast<int>(Qt::ImhNoAutoUppercase | Qt::ImhNoPredictiveText));
+        } else {
+	    return QVariant(static_cast<int>(state.inputMethodHints));
+        }
     default:
         // Rely on the base implementation for ImEnabled, ImHints and ImPreferredLanguage.
         return QQuickFlickable::inputMethodQuery(property);
