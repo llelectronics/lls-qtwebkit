@@ -441,14 +441,15 @@ void QQuickWebViewPrivate::didStartProvisionalLoadForFrame(WKPageRef, WKFrameRef
 
     WKRetainPtr<WKURLRef> url  = adoptWK(WKFrameCopyProvisionalURL(frame));
 
+    QQuickWebViewPrivate* d = toQQuickWebViewPrivate(clientInfo);
     QQuickWebView* const q = toQQuickWebViewPrivate(clientInfo)->q_func();
 
     q->emitUrlChangeIfNeeded();
     
-    m_firstFrameRendered = false;
-    m_relayoutRequested = m_customLayoutWidth > 0 ? true : false;
-    if (m_relayoutRequested) {
-        webPageProxy->setFixedLayoutSize(WebCore::IntSize(0, 0));
+    d->m_firstFrameRendered = false;
+    d->m_relayoutRequested = d->m_customLayoutWidth > 0 ? true : false;
+    if (d->m_relayoutRequested) {
+        d->webPageProxy->setFixedLayoutSize(WebCore::IntSize(0, 0));
     }
     
     QWebLoadRequest loadRequest(WKURLCopyQUrl(url.get()), QQuickWebView::LoadStartedStatus);
