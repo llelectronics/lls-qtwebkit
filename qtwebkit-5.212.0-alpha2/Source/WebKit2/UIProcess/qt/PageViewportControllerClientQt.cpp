@@ -33,6 +33,9 @@
 #include <WKAPICast.h>
 #include <WebCore/FloatRect.h>
 #include <WebCore/FloatSize.h>
+#include <QInputMethod>
+#include <QGuiApplication>
+#include <QQuickWindow>
 
 using namespace WebCore;
 
@@ -233,9 +236,23 @@ void PageViewportControllerClientQt::focusEditableArea(const QRectF& caretArea,
         qreal caretOffset = caretArea.x() - targetArea.x();
         x = qMin(viewportRect.width() - (caretOffset + borderOffset) * targetScale, borderOffset * targetScale);
     }
+    
+    qreal overlappingHeight = 0;
+    QInputMethod *im = qApp->inputMethod();
+    if (im && im->isVisible()) {
+        // Take virtual keyboard area into account when calculating viewport hotspot
+        const QRectF keyboardRect = im->keyboardRectangle();
+	const QRectF viewportRectInScene = m_viewportItem->mapRectToScene(viewportRect);
+	const Qt::ScreenOrientation orientation = m_viewportItem->window()->contentOrientation();
+	if (orientation & (Qt::LandscapeOrientation | Qt::InvertedLandscapeOrientation)) {
+	    overlappingHeight = viewportRectInScene.intersected(keyboardRect).width();
+	} else {
+	    overlappingHeight = viewportRectInScene.intersected(keyboardRect).height();
+	}
+    }
 
     const QPointF hotspot = QPointF(targetArea.x(), targetArea.center().y());
-    const QPointF viewportHotspot = QPointF(x, /* FIXME: visibleCenter */ viewportRect.center().y());
+    const QPointF viewportHotspot = QPointF(x, viewportRect.center().y() - overlappingHeight / 2);
 
     QPointF endPosition = hotspot - viewportHotspot / targetScale;
     endPosition = m_controller->boundContentsPositionAtScale(endPosition, targetScale);
