@@ -1343,6 +1343,8 @@ void GraphicsContext::endPlatformTransparencyLayer()
     while ( ! m_data->layers.top()->alphaMask.isNull() ){
         --m_data->layers.top()->saveCounter;
         popTransparencyLayerInternal();
+        if (m_data->layers.isEmpty())
+            return;
     }
     TransparencyLayer* layer = m_data->layers.pop();
     --m_data->layerCount; // see the comment for layerCount
