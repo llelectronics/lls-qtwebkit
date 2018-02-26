@@ -145,9 +145,9 @@ static const bool defaultImageSubsamplingEnabled = true;
 static const bool defaultScrollingTreeIncludesFrames = true;
 static const bool defaultMediaControlsScaleWithPageZoom = true;
 #else
-static const bool defaultFixedPositionCreatesStackingContext = false;
-static const bool defaultFixedBackgroundsPaintRelativeToDocument = false;
-static const bool defaultAcceleratedCompositingForFixedPositionEnabled = false;
+static const bool defaultFixedPositionCreatesStackingContext = true;
+static const bool defaultFixedBackgroundsPaintRelativeToDocument = true;
+static const bool defaultAcceleratedCompositingForFixedPositionEnabled = true;
 static const bool defaultAllowsInlineMediaPlayback = true;
 static const bool defaultInlineMediaPlaybackRequiresPlaysInlineAttribute = false;
 static const bool defaultRequiresUserGestureForMediaPlayback = false;
