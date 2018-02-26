@@ -122,6 +122,12 @@ void GraphicsContext3D::releaseShaderCompiler()
 #endif
 }
 
+static bool checkNoBgra()
+{
+    const char *value = getenv("QT_OPENGL_NO_BGRA");
+    return value && *value != '\0' && *value != '0';
+}
+
 void GraphicsContext3D::readPixelsAndConvertToBGRAIfNecessary(int x, int y, int width, int height, unsigned char* pixels)
 {
     // NVIDIA drivers have a bug where calling readPixels in BGRA can return the wrong values for the alpha channel when the alpha is off for the context.
@@ -151,7 +157,8 @@ void GraphicsContext3D::readPixelsAndConvertToBGRAIfNecessary(int x, int y, int 
     } else {
 #if PLATFORM(QT)
         ASSERT(m_private);
-        bool readBGRA = !isGLES2Compliant() || platformGraphicsContext3D()->hasExtension("GL_EXT_read_format_bgra");
+        static const bool noBgra = checkNoBgra();
+        bool readBGRA = !noBgra && (!isGLES2Compliant() || platformGraphicsContext3D()->hasExtension("GL_EXT_read_format_bgra"));
 
         if (readBGRA)
             glReadPixels(x, y, width, height, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
