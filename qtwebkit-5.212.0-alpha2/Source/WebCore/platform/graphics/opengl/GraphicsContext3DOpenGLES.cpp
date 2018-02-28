@@ -63,11 +63,18 @@ void GraphicsContext3D::readPixels(GC3Dint x, GC3Dint y, GC3Dsizei width, GC3Dsi
         ::glBindFramebuffer(GL_FRAMEBUFFER, m_multisampleFBO);
 }
 
+static bool checkNoBgra()
+{
+    const char *value = getenv("QT_OPENGL_NO_BGRA");
+    return value && *value != '\0' && *value != '0';
+}
+
 void GraphicsContext3D::readPixelsAndConvertToBGRAIfNecessary(int x, int y, int width, int height, unsigned char* pixels)
 {
     ::glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     int totalBytes = width * height * 4;
-    if (isGLES2Compliant()) {
+    static const bool noBgra = checkNoBgra();
+    if (!noBgra && isGLES2Compliant()) {
         for (int i = 0; i < totalBytes; i += 4)
             std::swap(pixels[i], pixels[i + 2]); // Convert to BGRA.
     }

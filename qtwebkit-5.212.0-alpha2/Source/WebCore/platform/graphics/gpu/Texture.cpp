@@ -66,10 +66,10 @@ static void convertFormat(GraphicsContext3D* context, Texture::Format format, un
         *glType = GraphicsContext3D::UNSIGNED_BYTE;
         break;
     case Texture::BGRA8:
-        if (context->getExtensions()->supports("GL_EXT_texture_format_BGRA8888")) {
+        /*if (context->getExtensions()->supports("GL_EXT_texture_format_BGRA8888")) {
             *glFormat = Extensions3D::BGRA_EXT;
             *glType = GraphicsContext3D::UNSIGNED_BYTE;
-        } else {
+        } else*/ {
             *glFormat = GraphicsContext3D::RGBA;
             *glType = GraphicsContext3D::UNSIGNED_BYTE;
             *swizzle = true;

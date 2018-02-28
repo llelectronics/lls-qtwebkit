@@ -83,9 +83,9 @@ BitmapTextureGL::BitmapTextureGL(PassRefPtr<GraphicsContext3D> context3D, const 
         m_internalFormat = GraphicsContext3D::RGBA;
         m_format = GraphicsContext3D::BGRA;
         if (m_context3D->isGLES2Compliant()) {
-            if (m_context3D->getExtensions()->supports("GL_EXT_texture_format_BGRA8888"))
-                m_internalFormat = GraphicsContext3D::BGRA;
-            else
+//             if (m_context3D->getExtensions()->supports("GL_EXT_texture_format_BGRA8888"))
+//                 m_internalFormat = GraphicsContext3D::BGRA;
+//             else
                 m_format = GraphicsContext3D::RGBA;
         }
     }
