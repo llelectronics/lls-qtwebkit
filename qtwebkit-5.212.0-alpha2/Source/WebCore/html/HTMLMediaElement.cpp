@@ -5376,6 +5376,7 @@ void HTMLMediaElement::exitFullscreen()
         if (document().page()->chrome().client().supportsVideoFullscreen(oldVideoFullscreenMode)) {
             document().page()->chrome().client().exitVideoFullscreenForVideoElement(downcast<HTMLVideoElement>(*this));
             scheduleEvent(eventNames().webkitendfullscreenEvent);
+            scheduleEvent(eventNames().webkitpresentationmodechangedEvent);
         }
     }
 }
