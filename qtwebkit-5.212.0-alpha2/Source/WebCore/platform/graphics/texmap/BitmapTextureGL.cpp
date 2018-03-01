@@ -62,6 +62,12 @@ BitmapTextureGL* toBitmapTextureGL(BitmapTexture* texture)
     return static_cast<BitmapTextureGL*>(texture);
 }
 
+static bool checkNoBgra()
+{
+    const char *value = getenv("QT_OPENGL_NO_BGRA");
+    return value && *value != '\0' && *value != '0';
+}
+
 BitmapTextureGL::BitmapTextureGL(PassRefPtr<GraphicsContext3D> context3D, const Flags flags)
     : m_id(0)
     , m_fbo(0)
@@ -75,6 +81,7 @@ BitmapTextureGL::BitmapTextureGL(PassRefPtr<GraphicsContext3D> context3D, const 
     , m_type(GraphicsContext3D::UNSIGNED_BYTE)
 #endif
 {
+    static const bool noBgra = checkNoBgra();
     if (flags & FBOAttachment)
         m_internalFormat = m_format = GraphicsContext3D::RGBA;
     else {
@@ -83,9 +90,9 @@ BitmapTextureGL::BitmapTextureGL(PassRefPtr<GraphicsContext3D> context3D, const 
         m_internalFormat = GraphicsContext3D::RGBA;
         m_format = GraphicsContext3D::BGRA;
         if (m_context3D->isGLES2Compliant()) {
-//             if (m_context3D->getExtensions()->supports("GL_EXT_texture_format_BGRA8888"))
-//                 m_internalFormat = GraphicsContext3D::BGRA;
-//             else
+            if (!noBgra && m_context3D->getExtensions()->supports("GL_EXT_texture_format_BGRA8888"))
+                m_internalFormat = GraphicsContext3D::BGRA;
+            else
                 m_format = GraphicsContext3D::RGBA;
         }
     }
