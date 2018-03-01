@@ -507,6 +507,7 @@ public:
         DontConstrainForMask                    = 1 << 4,
         IncludeCompositedDescendants            = 1 << 5,
         UseFragmentBoxesExcludingCompositing    = 1 << 6,
+        PretendLayerHasOwnBacking               = 1 << 7,
         UseFragmentBoxesIncludingCompositing    = 1 << 7,
         DefaultCalculateLayerBoundsFlags        = IncludeSelfTransform | UseLocalClipRectIfPossible | IncludeLayerFilterOutsets | UseFragmentBoxesExcludingCompositing
     };
