@@ -31,7 +31,7 @@
 namespace WebKit {
 
 // FIXME: These constants should possibly depend on DPI.
-static const int panDistanceThreshold = 10;
+static const int panDistanceThreshold = 40;
 static const int maxDoubleTapDistance = 120;
 
 // FIXME: These constants should possibly be consistent across the platform.
