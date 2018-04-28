@@ -44,6 +44,7 @@ public:
         NotificationsEnabled,
         CookiesEnabled,
 	MediaSourceEnabled,
+        MediaPlaybackRequiresUserGestureEnabled,
         UniversalAccessFromFileURLsAllowed,
         FileAccessFromFileURLsAllowed,
         SpatialNavigationEnabled,

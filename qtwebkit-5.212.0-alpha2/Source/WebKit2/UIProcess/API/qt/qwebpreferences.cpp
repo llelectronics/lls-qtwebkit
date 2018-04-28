@@ -85,6 +85,8 @@ bool QWebPreferencesPrivate::testAttribute(QWebPreferencesPrivate::WebAttribute 
         return WKPreferencesGetCookieEnabled(preferencesRef);
     case MediaSourceEnabled:
         return WKPreferencesGetMediaSourceEnabled(preferencesRef);
+    case MediaPlaybackRequiresUserGestureEnabled:
+        return WKPreferencesGetMediaPlaybackRequiresUserGesture(preferencesRef);
     case SpatialNavigationEnabled:
         return WKPreferencesGetSpatialNavigationEnabled(preferencesRef);
     case LinksIncludedInFocusChain:
@@ -177,6 +179,9 @@ void QWebPreferencesPrivate::setAttribute(QWebPreferencesPrivate::WebAttribute a
     case MediaSourceEnabled:
         WKPreferencesSetMediaSourceEnabled(preferencesRef, enable);
 	break;
+    case MediaPlaybackRequiresUserGestureEnabled:
+        WKPreferencesSetMediaPlaybackRequiresUserGesture(preferencesRef, enable);
+        break;
     default:
         ASSERT_NOT_REACHED();
     }
@@ -620,6 +625,17 @@ void QWebPreferences::setMediaSourceEnabled(bool enable)
 {
     d->setAttribute(QWebPreferencesPrivate::MediaSourceEnabled, enable);
     emit mediaSourceEnabledChanged();
+}
+
+bool QWebPreferences::mediaPlaybackRequiresUserGestureEnabled() const
+{
+    return d->testAttribute(QWebPreferencesPrivate::MediaPlaybackRequiresUserGestureEnabled);
+}
+
+void QWebPreferences::setMediaPlaybackRequiresUserGestureEnabled(bool enable)
+{
+    d->setAttribute(QWebPreferencesPrivate::MediaPlaybackRequiresUserGestureEnabled, enable);
+    emit mediaPlaybackRequiresUserGestureEnabledChanged();
 }
 
 bool QWebPreferences::universalAccessFromFileURLsAllowed() const
