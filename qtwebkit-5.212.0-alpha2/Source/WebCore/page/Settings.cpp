@@ -148,14 +148,14 @@ static const bool defaultMediaControlsScaleWithPageZoom = true;
 static const bool defaultFixedPositionCreatesStackingContext = true;
 static const bool defaultFixedBackgroundsPaintRelativeToDocument = true;
 static const bool defaultAcceleratedCompositingForFixedPositionEnabled = true;
-static const bool defaultAllowsInlineMediaPlayback = true;
-static const bool defaultInlineMediaPlaybackRequiresPlaysInlineAttribute = false;
-static const bool defaultRequiresUserGestureForMediaPlayback = false;
-static const bool defaultAudioPlaybackRequiresUserGesture = false;
+static const bool defaultAllowsInlineMediaPlayback = false;
+static const bool defaultInlineMediaPlaybackRequiresPlaysInlineAttribute = true;
+static const bool defaultRequiresUserGestureForMediaPlayback = true;
+static const bool defaultAudioPlaybackRequiresUserGesture = true;
 static const bool defaultMediaDataLoadsAutomatically = false;
-static const bool defaultShouldRespectImageOrientation = false;
-static const bool defaultImageSubsamplingEnabled = false;
-static const bool defaultScrollingTreeIncludesFrames = false;
+static const bool defaultShouldRespectImageOrientation = true;
+static const bool defaultImageSubsamplingEnabled = true;
+static const bool defaultScrollingTreeIncludesFrames = true;
 static const bool defaultMediaControlsScaleWithPageZoom = true;
 #endif
 
