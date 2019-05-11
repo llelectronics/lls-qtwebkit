@@ -183,8 +183,6 @@ touch .git
 
 %ifarch aarch64
 %global qtdefines  DEFINES+=ENABLE_JIT=0 DEFINES+=ENABLE_YARR_JIT=0 DEFINES+=ENABLE_ASSEMBLER=0
-%else
-%global qtdefines  
 %endif
 
 #
