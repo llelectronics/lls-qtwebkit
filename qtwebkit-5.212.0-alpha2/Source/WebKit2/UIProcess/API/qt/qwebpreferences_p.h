@@ -143,6 +143,9 @@ public:
     bool webSecurityEnabled() const;
     void setWebSecurityEnabled(bool);
 
+    bool allowRunningInsecureContent() const;
+    void setAllowRunningInsecureContent(bool);
+
     QString standardFontFamily() const;
     void setStandardFontFamily(const QString& family);
 
@@ -196,6 +199,7 @@ Q_SIGNALS:
     void fileAccessFromFileURLsAllowedChanged();
     void logsPageMessagesToSystemConsoleEnabledChanged();
     void webSecurityEnabledChanged();
+    void allowRunningInsecureContentChanged();
 
     void standardFontFamilyChanged();
     void fixedFontFamilyChanged();
