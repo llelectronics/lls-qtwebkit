@@ -228,7 +228,7 @@ bool GraphicsContext3D::reshapeFBOs(const IntSize& size)
     if (m_attrs.antialias && !isGLES2Compliant()) {
         GLint maxSampleCount;
         ::glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSampleCount);
-        GLint sampleCount = std::min(4, maxSampleCount);
+        GLint sampleCount = std::min(2, maxSampleCount);
         if (sampleCount > maxSampleCount)
             sampleCount = maxSampleCount;
         ::glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_multisampleFBO);
@@ -430,12 +430,12 @@ void GraphicsContext3D::getIntegerv(GC3Denum pname, GC3Dint* value)
     case MAX_TEXTURE_SIZE:
         ::glGetIntegerv(MAX_TEXTURE_SIZE, value);
         if (getExtensions()->requiresRestrictedMaximumTextureSize())
-            *value = std::min(8192, *value);
+            *value = std::min(16348, *value);
         break;
     case MAX_CUBE_MAP_TEXTURE_SIZE:
         ::glGetIntegerv(MAX_CUBE_MAP_TEXTURE_SIZE, value);
         if (getExtensions()->requiresRestrictedMaximumTextureSize())
-            *value = std::min(2048, *value);
+            *value = std::min(4096, *value);
         break;
     default:
         ::glGetIntegerv(pname, value);
