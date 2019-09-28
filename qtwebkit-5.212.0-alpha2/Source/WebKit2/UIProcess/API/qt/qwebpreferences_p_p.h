@@ -48,9 +48,7 @@ public:
         UniversalAccessFromFileURLsAllowed,
         FileAccessFromFileURLsAllowed,
         SpatialNavigationEnabled,
-        LinksIncludedInFocusChain,
-        LogsPageMessagesToSystemConsoleEnabled,
-        WebSecurityEnabled
+        LinksIncludedInFocusChain
     };
 
     enum FontFamily {
