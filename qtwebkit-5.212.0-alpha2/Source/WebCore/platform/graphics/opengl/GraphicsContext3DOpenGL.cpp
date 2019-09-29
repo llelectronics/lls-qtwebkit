@@ -228,7 +228,7 @@ bool GraphicsContext3D::reshapeFBOs(const IntSize& size)
     if (m_attrs.antialias && !isGLES2Compliant()) {
         GLint maxSampleCount;
         ::glGetIntegerv(GL_MAX_SAMPLES_EXT, &maxSampleCount);
-        GLint sampleCount = std::min(32, maxSampleCount);
+        GLint sampleCount = std::min(3, maxSampleCount);
         if (sampleCount > maxSampleCount)
             sampleCount = maxSampleCount;
         ::glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_multisampleFBO);
