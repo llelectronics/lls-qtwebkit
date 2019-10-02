@@ -40,8 +40,9 @@ namespace WebKit {
 void BackingStore::paint(QPainter* painter, const IntRect& rect)
 {
     ASSERT(!m_pixmap.isNull());
-    rect.setHeight(rect.height() * 2);
-    painter->drawPixmap(rect, m_pixmap, rect);
+    IntRect& llrect = rect;
+    llrect.setHeight(rect.height() * 2);
+    painter->drawPixmap(llrect, m_pixmap, llrect);
 }
 
 void BackingStore::incorporateUpdate(ShareableBitmap* bitmap, const UpdateInfo& updateInfo)
