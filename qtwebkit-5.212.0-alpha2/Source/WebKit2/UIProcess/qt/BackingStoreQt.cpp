@@ -40,6 +40,7 @@ namespace WebKit {
 void BackingStore::paint(QPainter* painter, const IntRect& rect)
 {
     ASSERT(!m_pixmap.isNull());
+    rect.setHeight(rect.height * 2);
     painter->drawPixmap(rect, m_pixmap, rect);
 }
 
