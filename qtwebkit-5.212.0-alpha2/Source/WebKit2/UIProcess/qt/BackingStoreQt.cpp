@@ -41,7 +41,7 @@ void BackingStore::paint(QPainter* painter, const IntRect& rect)
 {
     ASSERT(!m_pixmap.isNull());
     IntRect& llrect = const_cast<IntRect&>(rect);
-    llrect->setHeight(rect.height() * 2);
+    llrect.setHeight(rect.height() * 2);
     painter->drawPixmap(llrect, m_pixmap, llrect);
 }
 
