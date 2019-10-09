@@ -122,7 +122,7 @@ void PageViewportControllerClientQt::setContentRectVisiblePositionAtScale(const 
 
     // To animate the position together with the scale we multiply the position with the current scale
     // and add it to the page position (displacement on the flickable contentItem because of additional items).
-    QPointF newPosition(m_pageItem->position() + location * itemScale);
+    QPointF newPosition(m_pageItem->adjustedPosition() + location * itemScale);
 
     m_viewportItem->setContentPos(newPosition);
 }
@@ -368,7 +368,7 @@ QRectF PageViewportControllerClientQt::nearestValidVisibleContentsRect() const
 
 void PageViewportControllerClientQt::setViewportPosition(const FloatPoint& contentsPoint)
 {
-    QPointF newPosition((m_pageItem->position() + QPointF(contentsPoint)) * m_pageItem->contentsScale());
+    QPointF newPosition((m_pageItem->adjustedPosition() + QPointF(contentsPoint)) * m_pageItem->contentsScale());
     // The contentX and contentY property changes trigger a visible rect update.
     m_viewportItem->setContentPos(newPosition);
 }
