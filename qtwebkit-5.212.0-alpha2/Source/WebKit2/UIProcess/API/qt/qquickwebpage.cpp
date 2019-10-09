@@ -151,9 +151,8 @@ QTransform QQuickWebPage::transformFromItem() const
 
 QTransform QQuickWebPage::transformToItem() const
 {
-    QPointF pos = adjustedPosition();
-    qreal xPos = pos.x();
-    qreal yPos = pos.y();
+    qreal xPos = x();
+    qreal yPos = y();
 
     if (d->viewportItem->experimental()->flickableViewportEnabled()) {
         // Flickable moves its contentItem so we need to take that position into
