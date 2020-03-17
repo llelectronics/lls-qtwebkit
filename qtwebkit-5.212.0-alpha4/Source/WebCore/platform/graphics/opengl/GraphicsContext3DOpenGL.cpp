@@ -266,17 +266,17 @@ bool GraphicsContext3D::reshapeFBOs(const IntSize& size)
     ::glTexImage2D(GL_TEXTURE_2D, 0, m_internalColorFormat, width, height, 0, colorFormat, pixelDataType, 0);
     ::glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_texture, 0);
 
+#if USE(COORDINATED_GRAPHICS_THREADED)
     if (m_compositorTexture) {
         ::glBindTexture(GL_TEXTURE_2D, m_compositorTexture);
         ::glTexImage2D(GL_TEXTURE_2D, 0, m_internalColorFormat, width, height, 0, colorFormat, pixelDataType, 0);
         ::glBindTexture(GL_TEXTURE_2D, 0);
-#if USE(COORDINATED_GRAPHICS_THREADED)
         ::glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_compositorFBO);
         ::glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, m_compositorTexture, 0);
         attachDepthAndStencilBufferIfNeeded(internalDepthStencilFormat, width, height);
         ::glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, m_fbo);
-#endif
     }
+#endif
 #endif
 
     attachDepthAndStencilBufferIfNeeded(internalDepthStencilFormat, width, height);
@@ -350,8 +350,10 @@ void GraphicsContext3D::resolveMultisamplingIfNecessary(const IntRect& rect)
     TemporaryOpenGLSetting scopedDepth(GL_DEPTH_TEST, GL_FALSE);
     TemporaryOpenGLSetting scopedStencil(GL_STENCIL_TEST, GL_FALSE);
 
+#if PLATFORM(IOS)
     GLint boundFrameBuffer;
     ::glGetIntegerv(GL_FRAMEBUFFER_BINDING, &boundFrameBuffer);
+#endif
 
     ::glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, m_multisampleFBO);
     ::glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, m_fbo);
