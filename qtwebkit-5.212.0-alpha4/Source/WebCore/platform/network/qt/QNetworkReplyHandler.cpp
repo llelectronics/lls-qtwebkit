@@ -488,11 +488,14 @@ QNetworkReply* QNetworkReplyHandler::release()
 
 static bool shouldIgnoreHttpError(QNetworkReply* reply, bool receivedData)
 {
+    int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    // Don't ignore error if we haven't received HTTP status code
+    if (httpStatusCode == 0)
+        return false;
+
     // An HEAD XmlHTTPRequest shouldn't be marked as failure for HTTP errors.
     if (reply->operation() == QNetworkAccessManager::HeadOperation)
         return true;
-
-    int httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     if (httpStatusCode == 401 || httpStatusCode == 407)
         return true;
@@ -585,19 +588,10 @@ void QNetworkReplyHandler::sendResponseIfNeeded()
                               m_replyWrapper->reply()->header(QNetworkRequest::ContentLengthHeader).toLongLong(),
                               m_replyWrapper->encoding());
 
-    if (url.isLocalFile()) {
-        if (client->usesAsyncCallbacks()) {
-            setLoadingDeferred(true);
-            client->didReceiveResponseAsync(m_resourceHandle, response);
-        } else
-            client->didReceiveResponse(m_resourceHandle, response);
-        return;
-    }
-
-    // The status code is equal to 0 for protocols not in the HTTP family.
-    int statusCode = m_replyWrapper->reply()->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     if (url.protocolIsInHTTPFamily()) {
+        // The status code is equal to 0 for protocols not in the HTTP family.
+        int statusCode = m_replyWrapper->reply()->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         response.setHTTPStatusCode(statusCode);
         response.setHTTPStatusText(m_replyWrapper->reply()->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toByteArray().constData());
 
@@ -606,6 +600,7 @@ void QNetworkReplyHandler::sendResponseIfNeeded()
             response.setHTTPHeaderField(String(pair.first.constData(), pair.first.size()), String(pair.second.constData(), pair.second.size()));
     }
 
+    // Note: Qt sets RedirectionTargetAttribute only for 3xx responses, so Location header in 201 responce won't affect this code
     QUrl redirection = m_replyWrapper->reply()->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
     if (redirection.isValid()) {
         redirect(response, redirection);
@@ -648,8 +643,10 @@ void QNetworkReplyHandler::redirect(ResourceResponse& response, const QUrl& redi
     ASSERT(!m_queue.deferSignals());
 
     QUrl currentUrl = m_replyWrapper->reply()->url();
+
+    // RFC7231 section 7.1.2
     QUrl newUrl = currentUrl.resolved(redirection);
-    if (currentUrl.hasFragment())
+    if (!newUrl.hasFragment() && currentUrl.hasFragment())
         newUrl.setFragment(currentUrl.fragment());
 
     ResourceHandleClient* client = m_resourceHandle->client();

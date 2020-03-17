@@ -25,6 +25,7 @@
 
 #include <QtCore/QSharedPointer>
 #include <QtQuick/QQuickItem>
+#include <QPointF>
 
 class QQuickWebPagePrivate;
 class QQuickWebView;
@@ -39,6 +40,7 @@ public:
     const QSizeF& contentsSize() const;
     void setContentsScale(qreal);
     qreal contentsScale() const;
+    QPointF adjustedPosition() const;
 
     QTransform transformFromItem() const;
     QTransform transformToItem() const;

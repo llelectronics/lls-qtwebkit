@@ -133,6 +133,17 @@ qreal QQuickWebPage::contentsScale() const
     return d->contentsScale;
 }
 
+QPointF QQuickWebPage::adjustedPosition() const
+{
+    qreal xPos = x();
+    qreal yPos = y();
+
+    if (d->viewportItem->experimental()->headerItem()) {
+        yPos -= d->viewportItem->experimental()->headerItem()->height();
+    }
+    return QPointF(xPos, yPos);
+}
+
 QTransform QQuickWebPage::transformFromItem() const
 {
     return transformToItem().inverted();

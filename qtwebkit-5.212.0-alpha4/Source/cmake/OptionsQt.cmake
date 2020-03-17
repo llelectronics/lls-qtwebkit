@@ -225,6 +225,7 @@ WEBKIT_OPTION_DEFAULT_PORT_VALUE(USE_SYSTEM_MALLOC PUBLIC OFF)
 # we need a value different from the default defined in WebKitFeatures.cmake.
 # Changing these options is completely unsupported.
 WEBKIT_OPTION_DEFAULT_PORT_VALUE(ENABLE_3D_TRANSFORMS PRIVATE ON)
+WEBKIT_OPTION_DEFAULT_PORT_VALUE(ENABLE_CSS_COMPOSITING PRIVATE ON)
 WEBKIT_OPTION_DEFAULT_PORT_VALUE(ENABLE_CSS_IMAGE_SET PRIVATE ON)
 WEBKIT_OPTION_DEFAULT_PORT_VALUE(ENABLE_CSS_REGIONS PRIVATE ON)
 WEBKIT_OPTION_DEFAULT_PORT_VALUE(ENABLE_CSS_SHAPES PRIVATE ON)
@@ -675,6 +676,15 @@ if (USE_LIBHYPHEN)
     find_package(Hyphen REQUIRED)
     if (NOT HYPHEN_FOUND)
        message(FATAL_ERROR "libhyphen is needed for USE_LIBHYPHEN.")
+    endif ()
+endif ()
+
+if (USE_WOFF2)
+    find_package(WOFF2Dec 1.0.1)
+    if (WOFF2DEC_FOUND)
+        message(STATUS "Using system WOFF2Dec library.")
+    else ()
+        message(STATUS "WOFF2Dec not found, using the bundled library.")
     endif ()
 endif ()
 
